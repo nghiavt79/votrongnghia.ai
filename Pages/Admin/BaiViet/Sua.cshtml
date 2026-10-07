@@ -69,7 +69,7 @@
                     </div>
                     <div>
                         <label class="form-label" asp-for="Input.Body">Thân bài (Markdown)</label>
-                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="24"></textarea>
+                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="24" id="thanBai"></textarea>
                         <div class="form-text">Đề mục <code>##</code> tự vào khung Mục lục bên phải bài (khi có từ 2 đề mục).</div>
                     </div>
                 </div>
@@ -108,6 +108,25 @@
                 </div>
             </div>
 
+            @if (!Model.IsNew)
+            {
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-image me-1"></i>Ảnh bìa</h5></div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(Model.Post!.Cover))
+                        {
+                            <img src="/@Model.Post.Cover" alt="" class="img-fluid rounded mb-2" />
+                        }
+                        else
+                        {
+                            <p class="small text-body-secondary">Chưa có ảnh bìa — thẻ bài và link chia sẻ Facebook / Zalo sẽ không có hình. Tải ở khung "Thay ảnh bìa" bên dưới.</p>
+                        }
+                        <label class="form-label small" asp-for="Input.CoverAlt">Mô tả ảnh bìa</label>
+                        <input class="form-control form-control-sm" asp-for="Input.CoverAlt" placeholder="Màn hình Claude Code đang chạy trong terminal…" />
+                    </div>
+                </div>
+            }
+
             <div class="card shadow-sm mb-3">
                 <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-tags me-1"></i>Chủ đề</h5></div>
                 <div class="card-body">
@@ -121,16 +140,68 @@
     </div>
 </form>
 
-@if (!Model.IsNew)
+@if (Model.IsNew)
+{
+    <div class="card shadow-sm"><div class="card-body text-body-secondary">
+        <i class="bi bi-images me-1"></i>Tải ảnh bìa và ảnh trong bài được sau khi lưu bản nháp đầu tiên.
+    </div></div>
+}
+else
 {
     var post = Model.Post!;
     <div class="row g-3">
-        <div class="col-12 col-xl-8"></div>
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-images me-1"></i>Ảnh trong bài</h5></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Anh" asp-route-slug="@post.Slug" asp-route-loai="trong-bai"
+                          enctype="multipart/form-data" class="d-flex gap-2 mb-2">
+                        <input class="form-control" type="file" name="files" accept="image/jpeg,image/png,image/webp" multiple aria-label="Chọn ảnh" />
+                        <button type="submit" class="btn btn-primary text-nowrap"><i class="bi bi-upload me-1"></i>Tải lên</button>
+                    </form>
+                    <div class="form-text mb-2">Tối đa @ImageService.MaxFilesPerUpload ảnh một lần, mỗi ảnh 12MB. Máy tự thu nhỏ và xoá vị trí GPS. Nhớ bấm Lưu bài trước khi tải ảnh nếu đang sửa dở.</div>
+                    @if (post.BodyImages.Count == 0)
+                    {
+                        <p class="small text-body-secondary mb-0">Chưa có ảnh. Tải ảnh lên rồi bấm “Chèn” để đưa vào chỗ con trỏ trong thân bài.</p>
+                    }
+                    @foreach (var url in post.BodyImages)
+                    {
+                        var snippet = $"![Mô tả ảnh](/{url})";
+                        <div class="d-flex align-items-center gap-2 border-top py-2">
+                            <img class="vn-thumb" src="/@url" alt="" loading="lazy" />
+                            <input class="form-control form-control-sm font-monospace" value="@snippet" readonly aria-label="Mã chèn ảnh" />
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-chen="@snippet" data-chen-vao="thanBai">Chèn</button>
+                            <form method="post" asp-page-handler="XoaAnh" asp-route-slug="@post.Slug">
+                                <input type="hidden" name="url" value="@url" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Xoá ảnh này?" title="Xoá ảnh"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
         <div class="col-12 col-xl-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h6 class="card-title mb-0">Thay ảnh bìa</h6></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Anh" asp-route-slug="@post.Slug" asp-route-loai="bia" enctype="multipart/form-data" class="d-grid gap-2">
+                        <input class="form-control form-control-sm" type="file" name="files" accept="image/jpeg,image/png,image/webp" aria-label="Chọn ảnh bìa" />
+                        <button type="submit" class="btn btn-sm btn-primary">Tải ảnh bìa</button>
+                    </form>
+                    <div class="form-text">Máy tự cắt về khổ 1200×630 (lấy phần giữa) — đúng khổ ảnh xem trước khi chia sẻ link lên Facebook / Zalo.</div>
+                    @if (!string.IsNullOrEmpty(post.Cover))
+                    {
+                        <form method="post" asp-page-handler="XoaAnh" asp-route-slug="@post.Slug" class="mt-2">
+                            <input type="hidden" name="url" value="@post.Cover" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Gỡ ảnh bìa?">Gỡ ảnh bìa</button>
+                        </form>
+                    }
+                </div>
+            </div>
             <div class="card shadow-sm border-danger-subtle">
                 <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá bài</h6></div>
                 <div class="card-body">
-                    <p class="small">Muốn tạm gỡ thì tắt “Đăng lên site” là đủ. Xoá là mất hẳn (còn trong bản sao lưu Data/backups/).</p>
+                    <p class="small">Muốn tạm gỡ thì tắt “Đăng lên site” là đủ. Xoá là mất cả bài lẫn ảnh (bài còn trong bản sao lưu Data/backups/, ảnh thì không).</p>
                     <form method="post" asp-page-handler="XoaBai" asp-route-slug="@post.Slug" class="d-flex gap-2" autocomplete="off">
                         <input class="form-control form-control-sm" name="confirm" placeholder="Gõ @post.Slug" aria-label="Xác nhận" />
                         <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn bài này?">Xoá</button>

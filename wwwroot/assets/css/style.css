@@ -363,6 +363,11 @@ a.tag:hover { text-decoration: underline; }
 .filter-tags a.chip { background: var(--card); }
 .filter-tags a.chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
+/* Ảnh tải lên qua /cms */
+.post-cover { display: block; width: calc(100% + 48px); max-width: none; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; margin: -24px -24px 16px; border-radius: var(--radius) var(--radius) 0 0; }
+.article-cover { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: var(--radius); margin: 0 0 28px; }
+.brand img, .about-avatar, .author img { object-fit: cover; }
+
 /* Reveal animation */
 /* Chỉ ẩn để hiện dần khi có JS (lớp "js" do đoạn script trong <head> gắn) — tắt JS thì nội dung vẫn hiện. */
 .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }

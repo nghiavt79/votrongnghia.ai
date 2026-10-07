@@ -6,15 +6,18 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace VoTrongNghia.Pages.Admin.KhoaHoc;
 
-/// <summary>Soạn một bài học trong khóa: tên, thời lượng, video, nội dung Markdown.</summary>
+/// <summary>Soạn một bài học trong khóa: tên, thời lượng, video, nội dung Markdown, ảnh.</summary>
+[RequestSizeLimit(64 * 1024 * 1024)]
 public partial class BaiModel : PageModel
 {
     private readonly SiteContent _content;
+    private readonly ImageService _images;
     private readonly ILogger<BaiModel> _logger;
 
-    public BaiModel(SiteContent content, ILogger<BaiModel> logger)
+    public BaiModel(SiteContent content, ImageService images, ILogger<BaiModel> logger)
     {
         _content = content;
+        _images = images;
         _logger = logger;
     }
 
@@ -63,7 +66,7 @@ public partial class BaiModel : PageModel
 
         if (Lesson is not null)
         {
-            Input = new LessonInput { Title = Lesson.Title, Slug = Lesson.Slug, Minutes = Lesson.Minutes, Video = Lesson.Video, Body = Lesson.Body };
+            FillInput(Lesson);
         }
 
         return Page();
@@ -190,7 +193,7 @@ public partial class BaiModel : PageModel
         if (Course.Published && Course.Lessons.Count == 1)
         {
             ModelState.AddModelError(string.Empty, "Đây là bài duy nhất của một khóa đang hiện trên site. Gỡ khóa về nháp trước.");
-            Input = new LessonInput { Title = Lesson.Title, Slug = Lesson.Slug, Minutes = Lesson.Minutes, Video = Lesson.Video, Body = Lesson.Body };
+            FillInput(Lesson);
             return Page();
         }
 
@@ -199,12 +202,104 @@ public partial class BaiModel : PageModel
             var course = list.FirstOrDefault(item => item.Slug == khoa);
             return course is not null && course.Lessons.RemoveAll(item => item.Slug == bai) > 0;
         }, cancellationToken);
+        _images.Delete(Lesson.Images);
 
         _logger.LogWarning("Đã xoá bài {Khoa}/{Bai}", khoa, bai);
         TempData["Message"] = $"Đã xoá bài \"{Lesson.Title}\".";
 
         return RedirectToPage("/Admin/KhoaHoc/Sua", new { slug = khoa });
     }
+
+    /// <summary>Tải ảnh để chèn vào bài. Bài phải lưu rồi mới có chỗ gắn ảnh.</summary>
+    public async Task<IActionResult> OnPostAnhAsync(string khoa, string bai, List<IFormFile> files, CancellationToken cancellationToken)
+    {
+        if (!await LoadAsync(khoa, bai, cancellationToken) || Lesson is null)
+        {
+            return NotFound();
+        }
+
+        ModelState.Clear();
+        var added = new List<string>();
+
+        foreach (var file in files.Where(file => file.Length > 0).Take(ImageService.MaxFilesPerUpload))
+        {
+            try
+            {
+                added.Add(await _images.AddAsync(ImageService.Kind.Lesson, file, cancellationToken));
+            }
+            catch (ImageUploadException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+        }
+
+        if (added.Count == 0 && ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Chưa chọn ảnh nào.");
+        }
+
+        if (added.Count > 0)
+        {
+            await UpdateLessonAsync(khoa, bai, lesson => lesson.Images.AddRange(added), cancellationToken);
+            Message = $"Đã tải {added.Count} ảnh. Bấm \"Chèn\" để đưa ảnh vào chỗ con trỏ trong bài.";
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await LoadAsync(khoa, bai, cancellationToken);
+            FillInput(Lesson!);
+            return Page();
+        }
+
+        return RedirectToPage(new { khoa, bai });
+    }
+
+    public async Task<IActionResult> OnPostXoaAnhAsync(string khoa, string bai, string url, CancellationToken cancellationToken)
+    {
+        if (!await LoadAsync(khoa, bai, cancellationToken) || Lesson is null)
+        {
+            return NotFound();
+        }
+
+        ModelState.Clear();
+
+        // Ảnh còn nằm trong bài mà xoá file thì bài hiện ảnh vỡ.
+        if (Lesson.Body.Contains(url, StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(string.Empty,
+                "Ảnh này đang được dùng trong bài. Xoá dòng ![...](/" + url + ") khỏi bài, lưu, rồi mới xoá ảnh.");
+            FillInput(Lesson);
+            return Page();
+        }
+
+        var removed = false;
+        await UpdateLessonAsync(khoa, bai, lesson => removed = lesson.Images.Remove(url), cancellationToken);
+
+        if (removed)
+        {
+            _images.Delete(url);
+            Message = "Đã xoá ảnh.";
+        }
+
+        return RedirectToPage(new { khoa, bai });
+    }
+
+    private Task<bool> UpdateLessonAsync(string khoa, string bai, Action<Lesson> mutate, CancellationToken cancellationToken) =>
+        _content.Courses.UpdateAsync(list =>
+        {
+            var lesson = list.FirstOrDefault(item => item.Slug == khoa)?.Lessons.FirstOrDefault(item => item.Slug == bai);
+
+            if (lesson is null)
+            {
+                return false;
+            }
+
+            mutate(lesson);
+            return true;
+        }, cancellationToken);
+
+    private void FillInput(Lesson lesson) =>
+        Input = new LessonInput { Title = lesson.Title, Slug = lesson.Slug, Minutes = lesson.Minutes, Video = lesson.Video, Body = lesson.Body };
 
     private async Task<bool> LoadAsync(string khoa, string? bai, CancellationToken cancellationToken)
     {

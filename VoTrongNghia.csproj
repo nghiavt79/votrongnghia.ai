@@ -10,6 +10,9 @@
   <ItemGroup>
     <!-- Soạn bài viết / bài học bằng Markdown. BSD-2, không kéo thêm gì. Cùng bản với Dokma. -->
     <PackageReference Include="Markdig" Version="1.4.0" />
+    <!-- Xử lý ảnh tải lên qua /cms. Nhánh 2.x còn giấy phép Apache-2.0; bản 3.x chuyển sang
+         Six Labors Split License. Cùng bản với Dokma và kimthyland. -->
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
   </ItemGroup>
 
   <!-- Script cập nhật dữ liệu AI Templates chạy tay trên máy dev, không vào bản publish. -->
@@ -21,7 +24,7 @@
   <!--
     Nội dung sống của site KHÔNG đóng gói vào bản publish.
 
-    Bài viết, khóa học, lớp online, thông tin trang là thứ sửa trong /cms; đơn đăng ký
+    Bài viết, khóa học, lớp online, thông tin trang, ảnh tải lên là thứ sửa trong /cms; đơn đăng ký
     là dữ liệu cá nhân của người học. Nếu bản publish mang theo chúng thì mỗi lần copy
     lên máy chủ là đè thẳng lên bài vừa sửa và xoá sạch đơn — bản publish luôn là ảnh
     chụp cũ từ máy dev.
@@ -43,6 +46,7 @@
     <Content Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <None Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <Content Update="Data\backups\**" CopyToPublishDirectory="Never" />
+    <Content Update="wwwroot\uploads\**" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 </Project>

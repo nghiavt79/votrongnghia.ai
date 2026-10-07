@@ -9,11 +9,13 @@ namespace VoTrongNghia.Pages.Admin.KhoaHoc;
 public class SuaModel : PageModel
 {
     private readonly SiteContent _content;
+    private readonly ImageService _images;
     private readonly ILogger<SuaModel> _logger;
 
-    public SuaModel(SiteContent content, ILogger<SuaModel> logger)
+    public SuaModel(SiteContent content, ImageService images, ILogger<SuaModel> logger)
     {
         _content = content;
+        _images = images;
         _logger = logger;
     }
 
@@ -191,6 +193,7 @@ public class SuaModel : PageModel
         }
 
         await _content.Courses.UpdateAsync(list => list.RemoveAll(item => item.Slug == slug) > 0, cancellationToken);
+        _images.Delete(Course.Lessons.SelectMany(lesson => lesson.Images));
         _logger.LogWarning("Đã xoá khóa {Slug}", slug);
         TempData["Message"] = $"Đã xoá khóa \"{Course.Title}\".";
 

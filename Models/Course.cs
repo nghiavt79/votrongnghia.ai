@@ -44,4 +44,7 @@ public sealed class Lesson
 
     /// <summary>Nội dung bài, Markdown.</summary>
     public string Body { get; set; } = string.Empty;
+
+    /// <summary>Ảnh đã tải lên để chèn vào bài (<c>uploads/khoa-hoc/…</c>), để lấy lại mã chèn và để dọn khi xoá.</summary>
+    public List<string> Images { get; set; } = [];
 }

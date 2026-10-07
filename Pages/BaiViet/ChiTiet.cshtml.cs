@@ -87,6 +87,7 @@ public class ChiTietModel : PageModel
             ["datePublished"] = post.PublishedAt?.ToString("yyyy-MM-dd'T'HH:mm:sszzz"),
             ["dateModified"] = (post.UpdatedAt ?? post.PublishedAt)?.ToString("yyyy-MM-dd'T'HH:mm:sszzz"),
             ["mainEntityOfPage"] = $"{baseUrl}{post.PublicUrl}",
+            ["image"] = post.Cover.Length > 0 ? $"{baseUrl}/{post.Cover}" : null,
             ["keywords"] = post.Tags.Count > 0 ? string.Join(", ", post.Tags) : null,
             ["author"] = new Dictionary<string, object> { ["@type"] = "Person", ["name"] = Site.Name, ["url"] = baseUrl + "/" },
             ["publisher"] = new Dictionary<string, object> { ["@type"] = "Person", ["name"] = Site.Name }

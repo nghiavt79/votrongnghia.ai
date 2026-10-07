@@ -27,6 +27,7 @@ builder.Services.AddSingleton<ContentPaths>();
 builder.Services.AddSingleton<SiteContent>();
 builder.Services.AddSingleton<AdminAccountStore>();
 builder.Services.AddSingleton<RegistrationStore>();
+builder.Services.AddSingleton<ImageService>();
 
 // Khoá ký cookie đăng nhập và mã chống giả form lưu ra Data/keys. Không lưu thì trên IIS
 // (app pool không nạp hồ sơ người dùng) khoá chỉ sống trong bộ nhớ: mỗi lần app pool khởi
@@ -164,13 +165,16 @@ app.UseStaticFiles(new StaticFileOptions
 
         // JS, CSS và dữ liệu không mang dấu phiên bản trong tên, nên bắt hỏi lại mỗi lần —
         // sửa xong deploy là khách thấy ngay (bản tĩnh cũ từng dính: trình duyệt giữ
-        // common.js cũ, trang mới gọi hàm không có). Ảnh thì giữ 30 ngày.
+        // common.js cũ, trang mới gọi hàm không có). Ảnh thì giữ 30 ngày: ảnh tải qua /cms
+        // luôn mang tên mới (ImageService), thay ảnh là đổi tên.
         headers.CacheControl = file.EndsWith(".js", StringComparison.OrdinalIgnoreCase) ||
                                file.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
                                file.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
             ? "no-cache"
             : "public,max-age=2592000";
 
+        // Ảnh tải lên không bao giờ được chạy như trang. web.config khai cho IIS; khai thêm
+        // ở đây cho lúc chạy Kestrel trần.
         headers.XContentTypeOptions = "nosniff";
     }
 });

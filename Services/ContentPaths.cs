@@ -40,8 +40,14 @@ public sealed class ContentPaths
 
     public string BackupsDirectory => Path.Combine(DataDirectory, "backups");
 
+    /// <summary>
+    /// Ảnh tải lên qua /cms, phục vụ ra đường dẫn <c>uploads/…</c>. Nằm trong wwwroot để
+    /// được phục vụ như file tĩnh, nhưng ngoài git và ngoài bản publish như dữ liệu sống.
+    /// </summary>
+    public string UploadsDirectory => Path.Combine(_environment.WebRootPath, "uploads");
+
     /// <summary>Thư mục app pool phải ghi được.</summary>
-    public IReadOnlyList<string> WritableDirectories => [DataDirectory, BackupsDirectory];
+    public IReadOnlyList<string> WritableDirectories => [DataDirectory, BackupsDirectory, UploadsDirectory];
 
     /// <summary>Các file nội dung có seed, theo thứ tự hiện ở nút tải bản sao lưu.</summary>
     public IReadOnlyList<string> ContentFiles => [SiteFile, PostsFile, CoursesFile, LiveFile];

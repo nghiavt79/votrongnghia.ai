@@ -12,6 +12,16 @@ public sealed class Post
     /// <summary>Thân bài, viết bằng Markdown. Máy chủ dựng ra HTML đã lọc.</summary>
     public string Body { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Ảnh bìa 1200×630, đường dẫn tương đối không gạch chéo đầu (<c>uploads/bai-viet/…</c>).
+    /// Hiện ở thẻ bài, đầu bài, và là ảnh khi chia sẻ link lên Facebook / Zalo.
+    /// </summary>
+    public string Cover { get; set; } = string.Empty;
+    public string CoverAlt { get; set; } = string.Empty;
+
+    /// <summary>Ảnh đã tải lên để chèn vào thân bài, giữ lại để lấy lại đoạn mã chèn và để dọn khi xoá bài.</summary>
+    public List<string> BodyImages { get; set; } = [];
+
     /// <summary>Chủ đề, dùng để lọc ở trang tất cả bài viết.</summary>
     public List<string> Tags { get; set; } = [];
 

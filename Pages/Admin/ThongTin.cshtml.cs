@@ -10,6 +10,7 @@ namespace VoTrongNghia.Pages.Admin;
 /// sửa theo dòng: thêm thì điền vào dòng trống cuối bảng, bỏ thì xoá trắng ô tên. Không có
 /// nút thêm/xoá bằng JS — tắt JS vẫn sửa được hết.
 /// </summary>
+[RequestSizeLimit(64 * 1024 * 1024)]
 public class ThongTinModel : PageModel
 {
     /// <summary>Số dòng trống thêm vào cuối mỗi danh sách để gõ mục mới.</summary>
@@ -17,11 +18,13 @@ public class ThongTinModel : PageModel
 
     private readonly SiteContent _content;
     private readonly IWebHostEnvironment _environment;
+    private readonly ImageService _images;
 
-    public ThongTinModel(SiteContent content, IWebHostEnvironment environment)
+    public ThongTinModel(SiteContent content, IWebHostEnvironment environment, ImageService images)
     {
         _content = content;
         _environment = environment;
+        _images = images;
     }
 
     [BindProperty]
@@ -138,6 +141,42 @@ public class ThongTinModel : PageModel
         }, cancellationToken);
 
         Message = "Đã lưu thông tin trang. Tải lại trang chủ là thấy.";
+        return RedirectToPage();
+    }
+
+    /// <summary>Tải ảnh đại diện mới: cắt vuông, thay ảnh cũ, xoá file cũ nếu là ảnh đã tải lên.</summary>
+    public async Task<IActionResult> OnPostAnhDaiDienAsync(IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null || file.Length == 0)
+        {
+            TempData["Error"] = "Chưa chọn ảnh nào.";
+            return RedirectToPage();
+        }
+
+        string url;
+
+        try
+        {
+            url = await _images.AddAsync(ImageService.Kind.Avatar, file, cancellationToken);
+        }
+        catch (ImageUploadException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToPage();
+        }
+
+        string? old = null;
+
+        await _content.Site.UpdateAsync(site =>
+        {
+            old = site.Avatar;
+            site.Avatar = url;
+            return true;
+        }, cancellationToken);
+
+        _images.Delete(old);
+        Message = "Đã thay ảnh đại diện. Tải lại trang chủ là thấy.";
+
         return RedirectToPage();
     }
 

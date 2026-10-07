@@ -24,7 +24,7 @@ dotnet publish VoTrongNghia.csproj -c Release -o publish
 ```
 
 Thư mục `publish\` có `VoTrongNghia.dll`, `web.config` (SDK tự chèn khối `<aspNetCore>`),
-`wwwroot\` và `Data\seed\`. Không có `Data\*.json`, `Data\keys\` — đúng như mong muốn.
+`wwwroot\` và `Data\seed\`. Không có `Data\*.json`, `Data\keys\`, `wwwroot\uploads\` — đúng như mong muốn.
 
 Chép cả thư mục lên máy chủ, ví dụ `D:\sites\votrongnghia`.
 
@@ -43,10 +43,13 @@ HTTPS, HSTS). Đừng đặt `Development` trên máy chủ.
 
 ### 4. Quyền ghi
 
-App pool phải **ghi được** thư mục `Data` (nội dung, đơn đăng ký, bản sao lưu, khoá đều nằm ở đây):
+App pool phải **ghi được** hai thư mục — `Data` (nội dung, đơn đăng ký, bản sao lưu, khoá) và
+`wwwroot\uploads` (ảnh tải lên qua /cms):
 
 ```powershell
+mkdir "D:\sites\votrongnghia\wwwroot\uploads"
 icacls "D:\sites\votrongnghia\Data" /grant "IIS AppPool\votrongnghia:(OI)(CI)M"
+icacls "D:\sites\votrongnghia\wwwroot\uploads" /grant "IIS AppPool\votrongnghia:(OI)(CI)M"
 ```
 
 Thiếu quyền thì `/cms/tong-quan` hiện cảnh báo đỏ, và người học bấm gửi đơn sẽ gặp lỗi.
@@ -95,7 +98,8 @@ powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http
 
 ## Sao lưu
 
-- `D:\sites\votrongnghia\Data\` (trừ `keys\`) — sao lưu hằng ngày bằng lịch của máy chủ.
+- `D:\sites\votrongnghia\Data\` (trừ `keys\`) và `wwwroot\uploads\` — sao lưu hằng ngày bằng lịch
+  của máy chủ. Bản sao lưu tự động trong `Data\backups\` chỉ có JSON, không có ảnh.
   `registrations.json` có họ tên, email, số điện thoại người học: không gửi qua kênh công khai.
 - `Data\keys\` **không** chép sang máy khác: khoá được mã hoá theo máy, sang máy mới thì vô dụng.
   Máy mới tự tạo khoá mới, chỉ phải đăng nhập lại.

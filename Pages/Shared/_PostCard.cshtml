@@ -1,6 +1,10 @@
 @* Thẻ một bài viết: trang chủ, trang tất cả bài viết, khối bài liên quan. *@
 @model Post
 <a class="card post reveal" href="@Model.PublicUrl" data-tags="@string.Join('|', Model.Tags)">
+    @if (Model.Cover.Length > 0)
+    {
+        <img class="post-cover" src="/@Model.Cover" alt="@Model.CoverAlt" loading="lazy" width="1200" height="630" />
+    }
     @if (Model.Tags.Count > 0)
     {
         <div class="tags">@foreach (var tag in Model.Tags) { <span class="tag">@tag</span> }</div>

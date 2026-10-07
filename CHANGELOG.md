@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-08 — Tải ảnh lên qua /cms
+
+- `Services/ImageService.cs` chép từ Dokma: giải mã thật (đổi đuôi file không qua được), xoay ảnh
+  dọc chụp điện thoại về đúng chiều, **xoá EXIF và vị trí GPS**, thu nhỏ, lưu JPG tên mới. Ảnh iPhone
+  HEIC báo rõ phải đổi sang JPG.
+- **Ảnh đại diện** ở `/cms/thong-tin`: tự cắt vuông 512px, thay ảnh là xoá file cũ.
+- **Bài viết**: ảnh bìa (tự cắt 1200×630 — khổ ảnh xem trước khi chia sẻ Facebook / Zalo) kèm mô tả
+  ảnh (bắt buộc khi đăng); ảnh trong bài có nút "Chèn" vào chỗ con trỏ. Ảnh bìa hiện ở thẻ bài, đầu
+  bài, `og:image` và JSON-LD.
+- **Bài học**: ảnh trong bài, cùng cách chèn.
+- Xoá ảnh còn nằm trong bài thì bị chặn; xoá bài / bài học / khóa thì xoá luôn ảnh của nó.
+- Mọi trang có `og:image` (mặc định là ảnh đại diện). Ảnh nằm ở `wwwroot/uploads/`, ngoài git và ngoài
+  bản publish; `web.config` nới giới hạn request lên 64MB (5 ảnh × 12MB một lần).
+- Deploy: thêm quyền ghi cho `wwwroot\uploads` (xem `docs/DEPLOY.md`).
+
 ## 2026-10-08 — Chuyển sang ASP.NET Core 8 theo khuôn Dokma
 
 Bản tĩnh HTML/JS (commit đầu tiên) chuyển sang Razor Pages + dữ liệu JSON + `/cms`, cùng khuôn
@@ -22,7 +37,7 @@ với Dokma.
   - Bài viết, khóa học, bài học: soạn Markdown, xem trước, nháp / đăng, chủ đề, sắp xếp bài.
   - Thông tin trang: giới thiệu, hành trình, công cụ AI, video, mạng xã hội, ủng hộ.
 - `docs/DEPLOY.md`, `scripts/kiem-tra-site.ps1` chép từ Dokma, đổi theo site này.
-- Chưa làm: tải ảnh lên qua `/cms` (ảnh đại diện chép tay vào `wwwroot/assets/img/`), gửi email tự động.
+- Chưa làm: tải ảnh lên qua `/cms`, gửi email tự động.
 
 ## 2026-10-07 — Bản site tĩnh
 

@@ -6,15 +6,18 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace VoTrongNghia.Pages.Admin.BaiViet;
 
-/// <summary>Viết / sửa bài. Chép từ /cms/tin-tuc của Dokma, bỏ phần ảnh, thêm chủ đề.</summary>
+/// <summary>Viết / sửa bài. Chép từ /cms/tin-tuc của Dokma, thêm chủ đề.</summary>
+[RequestSizeLimit(64 * 1024 * 1024)]
 public class SuaModel : PageModel
 {
     private readonly SiteContent _content;
+    private readonly ImageService _images;
     private readonly ILogger<SuaModel> _logger;
 
-    public SuaModel(SiteContent content, ILogger<SuaModel> logger)
+    public SuaModel(SiteContent content, ImageService images, ILogger<SuaModel> logger)
     {
         _content = content;
+        _images = images;
         _logger = logger;
     }
 
@@ -44,6 +47,8 @@ public class SuaModel : PageModel
         public string Slug { get; set; } = string.Empty;
         public string Summary { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
+
+        public string CoverAlt { get; set; } = string.Empty;
 
         /// <summary>Chủ đề, cách nhau bằng dấu phẩy: "Vibe code, Người mới".</summary>
         public string Tags { get; set; } = string.Empty;
@@ -155,6 +160,11 @@ public class SuaModel : PageModel
             {
                 ModelState.AddModelError("Input.Summary", "Viết tóm tắt trước khi đăng — đó là đoạn hiện ở thẻ bài và trên Google.");
             }
+
+            if (!string.IsNullOrEmpty(Post?.Cover) && Input.CoverAlt.Trim().Length == 0)
+            {
+                ModelState.AddModelError("Input.CoverAlt", "Ảnh bìa chưa có mô tả. Tả ngắn nội dung ảnh, ví dụ: Màn hình Claude Code đang chạy trong terminal.");
+            }
         }
 
         if (!ModelState.IsValid)
@@ -171,6 +181,7 @@ public class SuaModel : PageModel
             target.Summary = Input.Summary.Trim();
             target.Body = Input.Body.Replace("\r\n", "\n").Trim();
             target.Tags = tags;
+            target.CoverAlt = Input.CoverAlt.Trim();
             target.PublishedAt = target.PublishedAt?.Date == publishedAt.Date ? target.PublishedAt : publishedAt;
             target.Published = Input.Published;
             target.UpdatedAt = SiteTime.Now;
@@ -216,7 +227,7 @@ public class SuaModel : PageModel
 
         Message = Input.Published
             ? (Post?.Published == true ? "Đã lưu bài. Người đọc tải lại trang là thấy." : "Đã đăng bài lên site.")
-            : "Đã lưu bản nháp — người đọc chưa thấy bài này.";
+            : IsNew ? "Đã lưu bản nháp. Giờ tải ảnh bìa và ảnh trong bài được rồi." : "Đã lưu bản nháp — người đọc chưa thấy bài này.";
 
         return RedirectToPage(new { slug = targetSlug });
     }
@@ -238,12 +249,132 @@ public class SuaModel : PageModel
         }
 
         await _content.Posts.UpdateAsync(list => list.RemoveAll(item => item.Slug == slug) > 0, cancellationToken);
+        _images.Delete(Post!.BodyImages.Append(Post.Cover));
 
         _logger.LogWarning("Đã xoá bài {Slug}", slug);
         TempData["Message"] = $"Đã xoá bài \"{Post!.Title}\".";
 
         return RedirectToPage("/Admin/BaiViet/Index");
     }
+
+    /// <summary>Tải ảnh: <paramref name="loai"/> là "bia" (thay ảnh bìa) hoặc "trong-bai".</summary>
+    public async Task<IActionResult> OnPostAnhAsync(string slug, string loai, List<IFormFile> files, CancellationToken cancellationToken)
+    {
+        if (!await LoadAsync(slug, cancellationToken))
+        {
+            return NotFound();
+        }
+
+        ModelState.Clear();
+        var isCover = loai == "bia";
+        var added = new List<string>();
+
+        foreach (var file in files.Where(file => file.Length > 0).Take(isCover ? 1 : ImageService.MaxFilesPerUpload))
+        {
+            try
+            {
+                added.Add(await _images.AddAsync(isCover ? ImageService.Kind.Cover : ImageService.Kind.Post, file, cancellationToken));
+            }
+            catch (ImageUploadException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+        }
+
+        if (added.Count == 0 && ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Chưa chọn ảnh nào.");
+        }
+
+        if (added.Count > 0)
+        {
+            string? replaced = null;
+
+            await UpdatePostAsync(slug, post =>
+            {
+                if (isCover)
+                {
+                    replaced = post.Cover;
+                    post.Cover = added[0];
+                }
+                else
+                {
+                    post.BodyImages.AddRange(added);
+                }
+            }, cancellationToken);
+
+            _images.Delete(replaced);
+
+            Message = isCover
+                ? "Đã thay ảnh bìa. Nhớ viết mô tả ảnh bìa rồi bấm Lưu."
+                : $"Đã tải {added.Count} ảnh. Bấm \"Chèn\" để đưa ảnh vào chỗ con trỏ trong bài.";
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await LoadAsync(slug, cancellationToken);
+            FillInput(Post!);
+            return Page();
+        }
+
+        return RedirectToPage(new { slug });
+    }
+
+    public async Task<IActionResult> OnPostXoaAnhAsync(string slug, string url, CancellationToken cancellationToken)
+    {
+        if (!await LoadAsync(slug, cancellationToken))
+        {
+            return NotFound();
+        }
+
+        ModelState.Clear();
+
+        // Ảnh còn nằm trong thân bài mà xoá file thì bài hiện ảnh vỡ.
+        if (Post!.Body.Contains(url, StringComparison.Ordinal))
+        {
+            ModelState.AddModelError(string.Empty,
+                "Ảnh này đang được dùng trong thân bài. Xoá dòng ![...](/" + url + ") khỏi bài, lưu, rồi mới xoá ảnh.");
+            FillInput(Post);
+            return Page();
+        }
+
+        var removed = false;
+
+        await UpdatePostAsync(slug, post =>
+        {
+            if (post.Cover == url)
+            {
+                post.Cover = string.Empty;
+                post.CoverAlt = string.Empty;
+                removed = true;
+            }
+
+            removed |= post.BodyImages.Remove(url);
+        }, cancellationToken);
+
+        if (removed)
+        {
+            _images.Delete(url);
+            Message = "Đã xoá ảnh.";
+        }
+
+        return RedirectToPage(new { slug });
+    }
+
+    private Task<bool> UpdatePostAsync(string slug, Action<Post> mutate, CancellationToken cancellationToken) =>
+        _content.Posts.UpdateAsync(list =>
+        {
+            var post = list.FirstOrDefault(item => item.Slug == slug);
+
+            if (post is null)
+            {
+                return false;
+            }
+
+            mutate(post);
+            post.UpdatedAt = SiteTime.Now;
+            return true;
+        }, cancellationToken);
 
     private async Task<bool> LoadAsync(string slug, CancellationToken cancellationToken)
     {
@@ -269,6 +400,7 @@ public class SuaModel : PageModel
             Summary = post.Summary,
             Body = post.Body,
             Tags = string.Join(", ", post.Tags),
+            CoverAlt = post.CoverAlt,
             Date = (post.PublishedAt ?? SiteTime.Now).ToOffset(SiteTime.VietnamOffset).ToString("yyyy-MM-dd"),
             Published = post.Published
         };

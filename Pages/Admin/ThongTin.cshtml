@@ -17,6 +17,11 @@
     </div>
 }
 
+@if (TempData["Error"] is string uploadError)
+{
+    <div class="alert alert-danger"><i class="bi bi-exclamation-octagon me-1"></i>@uploadError</div>
+}
+
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger" role="alert">
@@ -35,9 +40,12 @@
                         <input class="form-control" asp-for="Input.Name" />
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label" asp-for="Input.Avatar">Ảnh đại diện</label>
-                        <input class="form-control" asp-for="Input.Avatar" spellcheck="false" />
-                        <div class="form-text">Đường dẫn trong wwwroot, ví dụ <code>assets/img/nghia.jpg</code>. Ảnh vuông.</div>
+                        <label class="form-label">Ảnh đại diện</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="/@Model.Input.Avatar" alt="" class="rounded-circle border" width="48" height="48" style="object-fit:cover" />
+                            <span class="small text-body-secondary">Thay ảnh ở khung <a href="#anhDaiDien">Ảnh đại diện</a> bên phải.</span>
+                        </div>
+                        <input type="hidden" asp-for="Input.Avatar" />
                     </div>
                     <div class="col-12">
                         <label class="form-label" asp-for="Input.Title">Chức danh</label>
@@ -111,6 +119,19 @@
         </div>
 
         <div class="col-12 col-xl-5">
+            <div class="card shadow-sm mb-3" id="anhDaiDien">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-person-square me-1"></i>Ảnh đại diện</h5></div>
+                <div class="card-body d-flex gap-3 align-items-center">
+                    <img src="/@Model.Input.Avatar" alt="" class="rounded-circle border" width="96" height="96" style="object-fit:cover" />
+                    @* Form tải ảnh nằm ngoài form chính (thẻ form không lồng được), gắn vào bằng thuộc tính form=. *@
+                    <div class="flex-grow-1 d-grid gap-2">
+                        <input class="form-control form-control-sm" type="file" name="file" accept="image/jpeg,image/png,image/webp" form="formAnhDaiDien" aria-label="Chọn ảnh đại diện" />
+                        <button type="submit" class="btn btn-sm btn-primary" form="formAnhDaiDien"><i class="bi bi-upload me-1"></i>Tải ảnh lên</button>
+                        <div class="form-text">Máy tự cắt vuông lấy phần giữa, thu về 512px, xoá vị trí GPS. Ảnh JPG / PNG, tối đa 12MB.</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card shadow-sm mb-3">
                 <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-link-45deg me-1"></i>Liên hệ &amp; mạng xã hội</h5></div>
                 <div class="card-body">
@@ -155,3 +176,5 @@
         </div>
     </div>
 </form>
+
+<form id="formAnhDaiDien" method="post" asp-page-handler="AnhDaiDien" enctype="multipart/form-data"></form>

@@ -6,6 +6,7 @@
     ViewData["Description"] = Model.Description;
     ViewData["OgType"] = "article";
     ViewData["NoIndex"] = Model.IsPreview;
+    ViewData["Image"] = post.Cover;
 }
 
 @section Head {
@@ -48,6 +49,10 @@
                     </div>
                 </div>
             </header>
+            @if (post.Cover.Length > 0)
+            {
+                <img class="article-cover" src="/@post.Cover" alt="@post.CoverAlt" width="1200" height="630" fetchpriority="high" />
+            }
             <div class="prose">@Html.Raw(Model.Body.Html)</div>
 
             <partial name="_ShareCta" model="@("bài viết")" />

@@ -19,8 +19,9 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
 | `Pages/Admin/` | `/cms` (đăng nhập / tạo tài khoản lần đầu), `/cms/tong-quan`, `/cms/dang-ky`, `/cms/lop-online`, `/cms/bai-viet`, `/cms/khoa-hoc`, `/cms/thong-tin`, `/cms/doi-mat-khau` |
 | `Data/seed/*.json` | Dữ liệu gốc, có trong git và trong bản publish. Máy chủ chưa có file sống thì lần khởi động đầu tự chép sang |
 | `Data/site.json`, `posts.json`, `courses.json`, `live.json` | Dữ liệu sống, sửa trong `/cms`. Ngoài git, ngoài bản publish |
+| `wwwroot/uploads/` | Ảnh tải lên qua `/cms` (`Services/ImageService.cs`): `trang/` ảnh đại diện, `bai-viet/` ảnh bìa và ảnh trong bài, `khoa-hoc/` ảnh trong bài học. Ngoài git, ngoài bản publish |
 | `Data/registrations.json` | Đơn đăng ký: họ tên, email, số điện thoại người học. Ngoài git, ngoài bản publish, không có seed |
-| `Services/` | `JsonFileStore`, `AdminAccountStore`, `ChuoiRongKhongThanhNull`, `Slugs` chép nguyên từ Dokma. `MarkdownRenderer` thêm mục lục và bỏ qua khối code khi tìm chỗ trống |
+| `Services/` | `JsonFileStore`, `AdminAccountStore`, `ChuoiRongKhongThanhNull`, `Slugs` chép nguyên từ Dokma; `ImageService` chép từ Dokma, gọn lại một hàm cho mọi loại ảnh. `MarkdownRenderer` thêm mục lục và bỏ qua khối code khi tìm chỗ trống |
 | `docs/DEPLOY.md`, `scripts/kiem-tra-site.ps1` | Deploy lên IIS; script kiểm tra site sau deploy, chạy được cả vào localhost |
 
 ## Những điều dễ vấp
@@ -44,7 +45,11 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
    thêm `SessionLabel` để đọc được kể cả khi buổi bị xoá.
 9. **CSP nằm trong `web.config`** (chỉ IIS gắn). Thêm nguồn ngoài (CDN, video, ảnh) thì mở thêm ở
    đó, rồi chạy `scripts/kiem-tra-site.ps1` vào site thật.
-10. **Máy chủ và repo trôi khỏi nhau** khi sửa trong `/cms`. Tải bản sao lưu ở `/cms/tong-quan`
+10. **Ảnh tải lên luôn ra JPG tên mới** (`ImageService`): giải mã thật, xoay theo EXIF rồi xoá EXIF
+    (GPS), thu nhỏ; ảnh bìa cắt 1200×630, ảnh đại diện cắt vuông 512. Tên mới mỗi lần nên ảnh được
+    cache 30 ngày. Xoá ảnh còn nằm trong thân bài thì bị chặn — gỡ dòng `![…](…)` trước. Trang có tải
+    ảnh khai `[RequestSizeLimit(64MB)]`, khớp `maxAllowedContentLength` trong `web.config`.
+11. **Máy chủ và repo trôi khỏi nhau** khi sửa trong `/cms`. Tải bản sao lưu ở `/cms/tong-quan`
     rồi chép vào `Data/seed/` khi muốn seed mới phản ánh nội dung thật.
 
 ## Quy ước

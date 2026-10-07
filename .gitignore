@@ -16,3 +16,6 @@ Data/*.tmp
 
 # Đơn đăng ký học: họ tên, email, số điện thoại của người học. Không bao giờ vào git.
 Data/registrations.json
+
+# Ảnh tải lên qua /cms: nằm lại trên máy chủ như dữ liệu sống.
+wwwroot/uploads/

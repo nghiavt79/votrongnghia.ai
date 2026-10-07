@@ -41,6 +41,19 @@
         show();
     });
 
+    // Nút "Chèn" ở khung ảnh trong bài: đưa đoạn ![...](...) vào đúng chỗ con trỏ trong ô
+    // thân bài, trên một dòng riêng để Markdown hiểu là ảnh chứ không dính vào chữ.
+    document.querySelectorAll('[data-chen]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var area = document.getElementById(button.getAttribute('data-chen-vao'));
+            if (!area) { return; }
+            var start = area.selectionStart, end = area.selectionEnd;
+            area.setRangeText('\n\n' + button.getAttribute('data-chen') + '\n\n', start, end, 'end');
+            area.dispatchEvent(new Event('input', { bubbles: true }));
+            area.focus();
+        });
+    });
+
     // Ô chọn tự gửi form khi đổi, đỡ một lần bấm "Lọc".
     document.querySelectorAll('[data-tu-gui]').forEach(function (select) {
         select.addEventListener('change', function () { select.form.submit(); });

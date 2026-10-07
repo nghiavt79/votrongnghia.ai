@@ -44,7 +44,7 @@
                     </div>
                     <div>
                         <label class="form-label" asp-for="Input.Body">Nội dung (Markdown)</label>
-                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="22"></textarea>
+                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="22" id="thanBai"></textarea>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -104,18 +104,54 @@
     </div>
 </form>
 
-@if (!Model.IsNew)
+@if (Model.IsNew)
 {
+    <div class="card shadow-sm"><div class="card-body text-body-secondary">
+        <i class="bi bi-images me-1"></i>Tải ảnh cho bài được sau khi lưu bài lần đầu.
+    </div></div>
+}
+else
+{
+    var lesson = Model.Lesson!;
     <div class="row g-3">
-        <div class="col-12 col-xl-8"></div>
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-images me-1"></i>Ảnh trong bài</h5></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Anh" asp-route-khoa="@course.Slug" asp-route-bai="@lesson.Slug"
+                          enctype="multipart/form-data" class="d-flex gap-2 mb-2">
+                        <input class="form-control" type="file" name="files" accept="image/jpeg,image/png,image/webp" multiple aria-label="Chọn ảnh" />
+                        <button type="submit" class="btn btn-primary text-nowrap"><i class="bi bi-upload me-1"></i>Tải lên</button>
+                    </form>
+                    <div class="form-text mb-2">Tối đa @ImageService.MaxFilesPerUpload ảnh một lần, mỗi ảnh 12MB. Ảnh chụp màn hình từng bước rất hợp cho bài hướng dẫn. Nhớ bấm Lưu bài trước nếu đang sửa dở.</div>
+                    @if (lesson.Images.Count == 0)
+                    {
+                        <p class="small text-body-secondary mb-0">Chưa có ảnh. Tải ảnh lên rồi bấm “Chèn” để đưa vào chỗ con trỏ trong bài.</p>
+                    }
+                    @foreach (var url in lesson.Images)
+                    {
+                        var snippet = $"![Mô tả ảnh](/{url})";
+                        <div class="d-flex align-items-center gap-2 border-top py-2">
+                            <img class="vn-thumb" src="/@url" alt="" loading="lazy" />
+                            <input class="form-control form-control-sm font-monospace" value="@snippet" readonly aria-label="Mã chèn ảnh" />
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-chen="@snippet" data-chen-vao="thanBai">Chèn</button>
+                            <form method="post" asp-page-handler="XoaAnh" asp-route-khoa="@course.Slug" asp-route-bai="@lesson.Slug">
+                                <input type="hidden" name="url" value="@url" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Xoá ảnh này?" title="Xoá ảnh"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
         <div class="col-12 col-xl-4">
             <div class="card shadow-sm border-danger-subtle">
                 <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá bài</h6></div>
                 <div class="card-body">
-                    <form method="post" asp-page-handler="Xoa" asp-route-khoa="@course.Slug" asp-route-bai="@Model.Lesson!.Slug">
-                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn bài “@Model.Lesson!.Title”?">Xoá bài này</button>
+                    <form method="post" asp-page-handler="Xoa" asp-route-khoa="@course.Slug" asp-route-bai="@lesson.Slug">
+                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn bài “@lesson.Title” và ảnh của bài?">Xoá bài này</button>
                     </form>
-                    <div class="form-text">Người học đã đánh dấu bài này thì tiến độ của họ tự bỏ qua bài đã xoá.</div>
+                    <div class="form-text">Xoá cả ảnh của bài. Người học đã đánh dấu bài này thì tiến độ của họ tự bỏ qua bài đã xoá.</div>
                 </div>
             </div>
         </div>

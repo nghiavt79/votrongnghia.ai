@@ -5,7 +5,8 @@
     người tắt JS đều đọc được, JS (assets/js/site.js) chỉ thêm phần bấm được.
 
     ViewData nhận: Title, Description, OgType, NoIndex (bool), Canonical (đường dẫn, mặc
-    định là đường dẫn hiện tại, bỏ query).
+    định là đường dẫn hiện tại, bỏ query), Image (ảnh khi chia sẻ link, tương đối; mặc định
+    là ảnh đại diện).
 *@
 @inject SiteContent Content
 @inject IConfiguration Configuration
@@ -16,6 +17,7 @@
     var title = ViewData["Title"] as string;
     var fullTitle = string.IsNullOrEmpty(title) ? $"{site.Name} - Học AI Thực Chiến" : $"{title} - {site.Name}";
     var description = ViewData["Description"] as string ?? site.HeroDescription;
+    var image = ViewData["Image"] as string is { Length: > 0 } custom ? custom : site.Avatar;
 
     // [chữ, đích, có hiện không]. Mục nào chưa có nội dung thì ẩn (chưa có kênh → không có Videos).
     var nav = new (string Text, string Href, bool Show)[]
@@ -50,6 +52,7 @@
     <meta property="og:title" content="@(title ?? site.Name)" />
     <meta property="og:description" content="@description" />
     <meta property="og:url" content="@canonical" />
+    <meta property="og:image" content="@baseUrl/@image" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:site_name" content="@site.Name" />
     <link rel="icon" href="/@site.Avatar" />

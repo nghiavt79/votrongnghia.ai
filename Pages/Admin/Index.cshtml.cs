@@ -68,7 +68,7 @@ public class IndexModel : PageModel
 
         if (site.Avatar.EndsWith("avatar.svg", StringComparison.OrdinalIgnoreCase))
         {
-            todos.Add(new("Ảnh đại diện vẫn là chữ \"VN\" tạm. Chép ảnh thật vào wwwroot/assets/img/ rồi điền đường dẫn.", "/Admin/ThongTin", false));
+            todos.Add(new("Ảnh đại diện vẫn là chữ \"VN\" tạm — tải ảnh thật ở Thông tin trang.", "/Admin/ThongTin", false));
         }
 
         if (site.Facebook.Length == 0 && site.FacebookGroup.Length == 0)
