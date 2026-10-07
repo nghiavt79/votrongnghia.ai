@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-08 — Gửi email tự động qua Gmail
+
+- **`/cms/email`** (menu "Gửi email (Gmail)"): hướng dẫn 5 bước có nhãn Xong / Chưa — chọn Gmail riêng
+  cho trang, bật xác minh 2 bước, tạo mật khẩu ứng dụng, dán vào site, gửi thư thử. Mật khẩu ứng
+  dụng mã hoá bằng Data Protection, không bao giờ hiện lại; dán nguyên cả dấu cách cũng được.
+- **Tự gửi khi có đơn mới**: thư xác nhận cho người đăng ký (mã đơn, buổi đã chọn) và thư báo cho
+  bạn (đủ câu trả lời, link duyệt; bấm Trả lời là trả lời thẳng người đăng ký). Đi qua hàng đợi nền:
+  Gmail lỗi thì đơn vẫn lưu, trang cảm ơn vẫn hiện ngay.
+- **Báo kết quả khi duyệt**: ô "Gửi email báo kết quả" ở trang chi tiết đơn (bật sẵn). Thư duyệt kèm
+  lịch học và **link phòng học** — trường mới, riêng tư, ở form buổi học (`/cms/lop-online`), không
+  hiện trên site. Thêm khung soạn thư tuỳ ý (điền sẵn theo trạng thái) và **lịch sử email** từng đơn.
+- Lỗi Gmail đổi thành câu dễ hiểu: sai mật khẩu ứng dụng, vượt giới hạn ngày, máy chủ chặn cổng 587.
+- Bảng điều khiển nhắc khi chưa thiết lập Gmail / chưa gửi thử thành công / buổi học chưa có link.
+- Chưa thiết lập Gmail thì vẫn còn nút soạn email bằng ứng dụng thư như trước.
+
 ## 2026-10-08 — Tải ảnh lên qua /cms
 
 - `Services/ImageService.cs` chép từ Dokma: giải mã thật (đổi đuôi file không qua được), xoay ảnh

@@ -6,20 +6,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace VoTrongNghia.Pages.Admin.DangKy;
 
 /// <summary>
-/// Đọc một đơn và quyết định: duyệt, chờ đợt sau, không phù hợp. Đổi trạng thái chỉ ghi lại
-/// trong sổ — site không tự gửi email. Báo kết quả cho người học bằng nút "Soạn email" (mở
-/// ứng dụng email của người duyệt với nội dung soạn sẵn), để mỗi thư vẫn do người thật gửi.
+/// Đọc một đơn và quyết định: duyệt, chờ đợt sau, không phù hợp.
+///
+/// <para>Đã thiết lập Gmail (/cms/email) thì lưu trạng thái kèm gửi luôn thư báo kết quả theo
+/// mẫu (<see cref="EmailTemplates.Result"/>), hoặc soạn thư tuỳ ý rồi gửi. Gửi ngay trong
+/// request chứ không qua hàng đợi: người duyệt cần thấy gửi được hay lỗi ngay tại chỗ. Chưa
+/// thiết lập thì vẫn còn nút mở ứng dụng email của người duyệt với nội dung soạn sẵn.</para>
 /// </summary>
 public class ChiTietModel : PageModel
 {
     private readonly RegistrationStore _registrations;
     private readonly SiteContent _content;
+    private readonly EmailSender _email;
+    private readonly string _baseUrl;
     private readonly ILogger<ChiTietModel> _logger;
 
-    public ChiTietModel(RegistrationStore registrations, SiteContent content, ILogger<ChiTietModel> logger)
+    public ChiTietModel(RegistrationStore registrations, SiteContent content, EmailSender email, IConfiguration configuration, ILogger<ChiTietModel> logger)
     {
         _registrations = registrations;
         _content = content;
+        _email = email;
+        _baseUrl = (configuration["Site:BaseUrl"] ?? string.Empty).TrimEnd('/');
         _logger = logger;
     }
 
@@ -33,6 +40,8 @@ public class ChiTietModel : PageModel
     public IReadOnlyList<Registration> Others { get; private set; } = [];
 
     public string SiteName { get; private set; } = string.Empty;
+    public EmailSettings EmailSettings { get; private set; } = new();
+    public bool EmailReady => EmailSettings.IsReady;
 
     [BindProperty]
     public string Status { get; set; } = string.Empty;
@@ -40,8 +49,21 @@ public class ChiTietModel : PageModel
     [BindProperty]
     public string AdminNote { get; set; } = string.Empty;
 
+    /// <summary>Tích "Gửi email báo kết quả" khi lưu trạng thái.</summary>
+    [BindProperty]
+    public bool SendResult { get; set; }
+
+    [BindProperty]
+    public string EmailSubject { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string EmailBody { get; set; } = string.Empty;
+
     [TempData]
     public string? Message { get; set; }
+
+    [TempData]
+    public string? EmailError { get; set; }
 
     public async Task<IActionResult> OnGetAsync(string ma, CancellationToken cancellationToken)
     {
@@ -52,6 +74,8 @@ public class ChiTietModel : PageModel
 
         Status = Item.Status;
         AdminNote = Item.AdminNote;
+        SendResult = EmailReady;
+        FillDraft();
         return Page();
     }
 
@@ -84,7 +108,66 @@ public class ChiTietModel : PageModel
         }
 
         _logger.LogInformation("{User} đổi đơn {Code} sang {Status}", User.Identity?.Name, ma, Status);
-        Message = "Đã lưu. Nhớ báo kết quả cho người học — bấm \"Soạn email\".";
+
+        await LoadAsync(ma, cancellationToken);
+
+        if (SendResult && EmailReady && EmailTemplates.Result(Item, Session, SiteName, _baseUrl, EmailSettings.OwnerAddress) is { } result)
+        {
+            var error = await SendAndLogAsync(result, EmailLogEntry.KindResult, cancellationToken);
+
+            if (error is null)
+            {
+                Message = $"Đã lưu và gửi email báo kết quả tới {Item.Email}.";
+            }
+            else
+            {
+                Message = "Đã lưu trạng thái.";
+                EmailError = "Chưa gửi được email báo kết quả: " + error;
+            }
+        }
+        else
+        {
+            Message = EmailReady || Status == Registration.StatusNew
+                ? "Đã lưu."
+                : "Đã lưu. Nhớ báo kết quả cho người học — bấm \"Soạn email\".";
+        }
+
+        return RedirectToPage(new { ma });
+    }
+
+    /// <summary>Gửi thư tự soạn (đã điền sẵn theo trạng thái, sửa thoải mái trước khi gửi).</summary>
+    public async Task<IActionResult> OnPostGuiEmailAsync(string ma, CancellationToken cancellationToken)
+    {
+        if (!await LoadAsync(ma, cancellationToken))
+        {
+            return NotFound();
+        }
+
+        var subject = EmailSubject.Trim();
+        var body = EmailBody.Replace("\r\n", "\n").Trim();
+
+        if (subject.Length == 0 || body.Length == 0)
+        {
+            EmailError = "Nhập tiêu đề và nội dung thư.";
+            return RedirectToPage(new { ma });
+        }
+
+        if (MarkdownRenderer.FindPlaceholder(body) is { } placeholder)
+        {
+            EmailError = $"Thư còn chỗ trống chưa điền: {placeholder}.";
+            return RedirectToPage(new { ma });
+        }
+
+        var error = await SendAndLogAsync(new EmailMessage(Item.Email, subject, body, EmailSettings.OwnerAddress), EmailLogEntry.KindCustom, cancellationToken);
+
+        if (error is null)
+        {
+            Message = $"Đã gửi email tới {Item.Email}.";
+        }
+        else
+        {
+            EmailError = error;
+        }
 
         return RedirectToPage(new { ma });
     }
@@ -102,6 +185,7 @@ public class ChiTietModel : PageModel
             ModelState.AddModelError(string.Empty, $"Muốn xoá thì gõ đúng mã \"{ma}\" vào ô xác nhận.");
             Status = Item.Status;
             AdminNote = Item.AdminNote;
+            FillDraft();
             return Page();
         }
 
@@ -112,29 +196,37 @@ public class ChiTietModel : PageModel
         return RedirectToPage("/Admin/DangKy/Index");
     }
 
-    /// <summary>Link mailto soạn sẵn thư báo kết quả theo trạng thái đang chọn.</summary>
+    /// <summary>Link mailto soạn sẵn thư báo kết quả — lối cũ khi chưa thiết lập Gmail.</summary>
     public string MailTo()
     {
-        var first = Item.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? Item.Name;
-        var session = Session is null ? "lớp học online" : $"buổi \"{Session.Title}\" ngày {Session.Date:dd/MM/yyyy} ({Session.Time}, {Session.Platform})";
+        var draft = EmailTemplates.Result(Item, Session, SiteName, _baseUrl, null)
+                    ?? EmailTemplates.Receipt(Item, SiteName, _baseUrl, null);
 
-        var (subject, body) = Item.Status switch
+        return $"mailto:{Item.Email}?subject={Uri.EscapeDataString(draft.Subject)}&body={Uri.EscapeDataString(draft.Body)}";
+    }
+
+    private async Task<string?> SendAndLogAsync(EmailMessage message, string kind, CancellationToken cancellationToken)
+    {
+        var error = await _email.SendAsync(message, cancellationToken);
+
+        await _registrations.LogEmailAsync(Item.Code, new EmailLogEntry
         {
-            Registration.StatusApproved => (
-                $"[{SiteName}] Chúc mừng {first} — bạn đã được nhận vào lớp online",
-                $"Chào {first},\n\nCảm ơn bạn đã đăng ký và chia sẻ rất cụ thể về mục tiêu của mình. Mình rất vui báo bạn đã được nhận vào {session}.\n\nLink vào lớp: [điền link]\n\nNhắc lại cam kết: tham gia đầy đủ, làm bài tập sau mỗi buổi, báo trước nếu vắng.\n\nHẹn gặp bạn!\n{SiteName}"),
-            Registration.StatusWaiting => (
-                $"[{SiteName}] Đơn đăng ký của {first} — hẹn bạn đợt sau",
-                $"Chào {first},\n\nCảm ơn bạn đã đăng ký. Đợt này lớp đã đủ chỗ nên mình xin hẹn bạn ở đợt kế tiếp — mình sẽ báo ngay khi có lịch.\n\nTrong lúc chờ, bạn cứ học tiếp các khóa miễn phí trên trang nhé.\n\n{SiteName}"),
-            Registration.StatusRejected => (
-                $"[{SiteName}] Về đơn đăng ký lớp online của {first}",
-                $"Chào {first},\n\nCảm ơn bạn đã quan tâm. Lần này mình chưa thể nhận bạn vào lớp vì [lý do]. Bạn có thể học các khóa miễn phí trên trang và đăng ký lại ở đợt sau.\n\n{SiteName}"),
-            _ => (
-                $"[{SiteName}] Đã nhận đơn đăng ký của {first}",
-                $"Chào {first},\n\nMình đã nhận đơn đăng ký (mã {Item.Code}) và sẽ phản hồi trong vài ngày tới.\n\n{SiteName}")
-        };
+            At = SiteTime.Now,
+            Kind = kind,
+            To = message.To,
+            Subject = message.Subject,
+            Error = error
+        }, cancellationToken);
 
-        return $"mailto:{Item.Email}?subject={Uri.EscapeDataString(subject)}&body={Uri.EscapeDataString(body)}";
+        return error;
+    }
+
+    /// <summary>Điền sẵn khung thư tự soạn theo trạng thái đã lưu.</summary>
+    private void FillDraft()
+    {
+        var draft = EmailTemplates.Result(Item, Session, SiteName, _baseUrl, null);
+        EmailSubject = draft?.Subject ?? $"[{SiteName}] Về đơn đăng ký lớp online của {EmailTemplates.FirstName(Item.Name)}";
+        EmailBody = draft?.Body ?? $"Chào {EmailTemplates.FirstName(Item.Name)},\n\n\n\n{SiteName}\n{_baseUrl}\n";
     }
 
     private async Task<bool> LoadAsync(string ma, CancellationToken cancellationToken)
@@ -149,6 +241,7 @@ public class ChiTietModel : PageModel
 
         Item = item;
         SiteName = (await _content.Site.ReadAsync(cancellationToken)).Name;
+        EmailSettings = await _email.Settings.ReadAsync(cancellationToken);
         Session = (await _content.Live.ReadAsync(cancellationToken)).Sessions.FirstOrDefault(session => session.Id == item.SessionId);
         ApprovedInSession = item.SessionId.Length == 0
             ? 0

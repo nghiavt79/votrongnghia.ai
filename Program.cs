@@ -28,6 +28,9 @@ builder.Services.AddSingleton<SiteContent>();
 builder.Services.AddSingleton<AdminAccountStore>();
 builder.Services.AddSingleton<RegistrationStore>();
 builder.Services.AddSingleton<ImageService>();
+builder.Services.AddSingleton<EmailSender>();
+builder.Services.AddSingleton<EmailQueue>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<EmailQueue>());
 
 // Khoá ký cookie đăng nhập và mã chống giả form lưu ra Data/keys. Không lưu thì trên IIS
 // (app pool không nạp hồ sơ người dùng) khoá chỉ sống trong bộ nhớ: mỗi lần app pool khởi

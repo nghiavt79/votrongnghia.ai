@@ -49,7 +49,9 @@
                             </div>
                             <div class="flex-grow-1">
                                 <div class="fw-semibold">@session.Title @(past ? "(đã qua)" : "")</div>
-                                <div class="small text-body-secondary">@session.Time · @session.Platform@(session.Capacity > 0 ? $" · {session.Capacity} chỗ" : "")</div>
+                                <div class="small text-body-secondary">@session.Time · @session.Platform@(session.Capacity > 0 ? $" · {session.Capacity} chỗ" : "")
+                                    @if (session.MeetingLink.Length > 0) { <i class="bi bi-link-45deg text-success" title="Đã có link phòng học"></i> }
+                                    else if (!past) { <span class="text-warning">· chưa có link phòng học</span> }</div>
                                 <a class="small" asp-page="/Admin/DangKy/Index" asp-route-buoi="@session.Id">@all đơn · @approved đã duyệt</a>
                             </div>
                             <a class="btn btn-sm btn-outline-secondary" asp-route-sua="@session.Id" title="Sửa"><i class="bi bi-pencil"></i></a>
@@ -83,12 +85,17 @@
                         <label class="form-label" asp-for="Session.Platform">Hình thức</label>
                         <input class="form-control" asp-for="Session.Platform" list="nenTang" />
                         <datalist id="nenTang"><option value="Google Meet"></option><option value="Zoom"></option><option value="Livestream Facebook"></option></datalist>
-                        <div class="form-text">Không dán link phòng học ở đây — link chỉ gửi riêng cho người được duyệt.</div>
+                        <div class="form-text">Chữ hiện trên trang chủ.</div>
                     </div>
                     <div class="col-sm-6">
                         <label class="form-label" asp-for="Session.Capacity">Số chỗ</label>
                         <input class="form-control" type="number" min="0" asp-for="Session.Capacity" />
                         <div class="form-text">0 là không giới hạn. Chỉ để hiện và nhắc khi duyệt, không tự chặn đăng ký.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Session.MeetingLink"><i class="bi bi-lock me-1"></i>Link phòng học (riêng tư)</label>
+                        <input class="form-control" asp-for="Session.MeetingLink" placeholder="https://meet.google.com/…" spellcheck="false" />
+                        <div class="form-text">Không hiện trên site. Chỉ đi vào email báo duyệt gửi riêng cho người được nhận vào buổi này.</div>
                     </div>
                     <div class="col-12">
                         <label class="form-label" asp-for="Session.Description">Mô tả ngắn</label>

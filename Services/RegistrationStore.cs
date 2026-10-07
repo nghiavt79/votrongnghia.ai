@@ -19,11 +19,23 @@ public sealed partial class RegistrationStore
     public const int ProjectMinLength = 30;
 
     private readonly SiteContent _content;
+    private readonly EmailSender _email;
+    private readonly EmailQueue _emailQueue;
+    private readonly string _baseUrl;
     private readonly ILogger<RegistrationStore> _logger;
 
-    public RegistrationStore(ContentPaths paths, SiteContent content, ILogger<RegistrationStore> logger)
+    public RegistrationStore(
+        ContentPaths paths,
+        SiteContent content,
+        EmailSender email,
+        EmailQueue emailQueue,
+        IConfiguration configuration,
+        ILogger<RegistrationStore> logger)
     {
         _content = content;
+        _email = email;
+        _emailQueue = emailQueue;
+        _baseUrl = (configuration["Site:BaseUrl"] ?? string.Empty).TrimEnd('/');
         _logger = logger;
 
         // Không có seed: đường dẫn seed trỏ vào file không tồn tại.
@@ -211,8 +223,50 @@ public sealed partial class RegistrationStore
 
         _logger.LogInformation("Nhận đơn đăng ký {Code}", registration.Code);
 
+        await QueueNewRegistrationEmailsAsync(registration, cancellationToken);
+
         return new Result(registration.Code, []);
     }
+
+    /// <summary>Xếp thư xác nhận cho người đăng ký và thư báo đơn mới cho người quản trị (nếu bật).</summary>
+    private async Task QueueNewRegistrationEmailsAsync(Registration registration, CancellationToken cancellationToken)
+    {
+        var settings = await _email.Settings.ReadAsync(cancellationToken);
+
+        if (!settings.IsReady)
+        {
+            return;
+        }
+
+        var siteName = (await _content.Site.ReadAsync(cancellationToken)).Name;
+
+        if (settings.SendReceipt)
+        {
+            _emailQueue.Enqueue(EmailTemplates.Receipt(registration, siteName, _baseUrl, settings.OwnerAddress),
+                EmailLogEntry.KindReceipt, registration.Code);
+        }
+
+        if (settings.NotifyOwner)
+        {
+            _emailQueue.Enqueue(EmailTemplates.OwnerNotice(registration, settings.OwnerAddress, _baseUrl),
+                EmailLogEntry.KindOwner, registration.Code);
+        }
+    }
+
+    /// <summary>Ghi một lần gửi email vào lịch sử của đơn. Đơn đã bị xoá thì thôi.</summary>
+    public Task LogEmailAsync(string code, EmailLogEntry entry, CancellationToken cancellationToken = default) =>
+        Registrations.UpdateAsync(list =>
+        {
+            var item = list.FirstOrDefault(registration => registration.Code == code);
+
+            if (item is null)
+            {
+                return false;
+            }
+
+            item.Emails.Add(entry);
+            return true;
+        }, cancellationToken);
 
     public async Task<int> CountNewAsync(CancellationToken cancellationToken = default) =>
         (await Registrations.ReadAsync(cancellationToken)).Count(item => item.Status == Registration.StatusNew);

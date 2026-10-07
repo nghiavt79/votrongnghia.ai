@@ -35,6 +35,9 @@ public sealed class ContentPaths
     /// </summary>
     public string RegistrationsFile => Path.Combine(DataDirectory, "registrations.json");
 
+    /// <summary>Cấu hình SMTP (mật khẩu đã mã hoá). Ngoài git, ngoài bản publish, không có seed.</summary>
+    public string EmailFile => Path.Combine(DataDirectory, "email.json");
+
     /// <summary>Tài khoản quản trị. Không bao giờ nằm trong git.</summary>
     public string AdminFile => Path.Combine(DataDirectory, "admin.json");
 

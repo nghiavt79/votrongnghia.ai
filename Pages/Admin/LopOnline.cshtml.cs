@@ -53,6 +53,7 @@ public class LopOnlineModel : PageModel
         public string Date { get; set; } = string.Empty;
         public string Time { get; set; } = string.Empty;
         public string Platform { get; set; } = "Google Meet";
+        public string MeetingLink { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int Capacity { get; set; }
     }
@@ -78,6 +79,7 @@ public class LopOnlineModel : PageModel
                 Date = session.Date.ToString("yyyy-MM-dd"),
                 Time = session.Time,
                 Platform = session.Platform,
+                MeetingLink = session.MeetingLink,
                 Description = session.Description,
                 Capacity = session.Capacity
             };
@@ -150,6 +152,13 @@ public class LopOnlineModel : PageModel
             ModelState.AddModelError("Session.Time", "Nhập giờ học, ví dụ 20:00 – 21:30.");
         }
 
+        var meetingLink = Session.MeetingLink.Trim();
+
+        if (meetingLink.Length > 0 && !meetingLink.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError("Session.MeetingLink", "Link phòng học phải bắt đầu bằng https://");
+        }
+
         if (Session.Capacity is < 0 or > 1000)
         {
             ModelState.AddModelError("Session.Capacity", "Số chỗ từ 0 (không giới hạn) đến 1000.");
@@ -183,6 +192,7 @@ public class LopOnlineModel : PageModel
             session.Date = date;
             session.Time = Session.Time.Trim();
             session.Platform = Session.Platform.Trim();
+            session.MeetingLink = meetingLink;
             session.Description = Session.Description.Trim();
             session.Capacity = Session.Capacity;
             live.Sessions = live.Sessions.OrderBy(item => item.Date).ToList();

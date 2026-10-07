@@ -1,0 +1,186 @@
+@page "/cms/email"
+@model VoTrongNghia.Pages.Admin.EmailModel
+@{
+    ViewData["Title"] = "Gửi email (Gmail)";
+    var s = Model.Settings;
+    var testOk = s.LastTestAt is not null && s.LastTestError is null;
+    ViewData["Subtitle"] = s.IsReady ? (testOk ? "Đang gửi email qua " + s.GmailAddress : "Đã thiết lập — chưa gửi thử thành công") : "Chưa bật — site chưa gửi email nào";
+
+    Microsoft.AspNetCore.Html.IHtmlContent Badge(bool done) => new Microsoft.AspNetCore.Html.HtmlString(done
+        ? "<span class=\"badge text-bg-success ms-auto\">Xong</span>"
+        : "<span class=\"badge text-bg-secondary ms-auto\">Chưa</span>");
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.TestError))
+{
+    <div class="alert alert-danger" role="alert"><i class="bi bi-exclamation-octagon me-1"></i>@Model.TestError</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-envelope-paper me-1"></i>Site sẽ tự gửi những thư nào?</h5></div>
+            <div class="card-body small">
+                <ul class="mb-0">
+                    <li><strong>Gửi người đăng ký</strong>, ngay khi họ gửi đơn: xác nhận đã nhận đơn, mã đơn, hẹn 3–5 ngày báo kết quả.</li>
+                    <li><strong>Gửi bạn</strong>, khi có đơn mới: tóm tắt đơn và link mở đơn trong /cms. Bấm "Trả lời" là trả lời thẳng người đăng ký.</li>
+                    <li><strong>Báo kết quả</strong>, khi bạn đổi trạng thái đơn và tích ô "Gửi email báo kết quả": thư duyệt kèm lịch học và <strong>link phòng học</strong> của buổi đó (điền ở <a asp-page="/Admin/LopOnline">Lịch &amp; điều kiện</a>).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="accordion mb-3" id="buocThietLap">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button @(s.GmailAddress.Length > 0 ? "collapsed" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#b1">
+                        <span class="me-2">1.</span>Chọn tài khoản Gmail để gửi @Badge(s.GmailAddress.Length > 0)
+                    </button>
+                </h2>
+                <div id="b1" class="accordion-collapse collapse @(s.GmailAddress.Length > 0 ? "" : "show")" data-bs-parent="#buocThietLap">
+                    <div class="accordion-body small">
+                        <p>Nên dùng <strong>một Gmail riêng cho trang</strong> (ví dụ <code>votrongnghia.ai@@gmail.com</code>) thay vì Gmail cá nhân:</p>
+                        <ul>
+                            <li>Người học thấy thư đến từ địa chỉ của trang, không lộ email riêng của bạn.</li>
+                            <li>Mật khẩu ứng dụng chỉ mở được tài khoản đó — lỡ lộ cũng không đụng tới hộp thư cá nhân.</li>
+                        </ul>
+                        <p class="mb-0">Chưa có thì tạo ở <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">accounts.google.com/signup</a>. Thư báo đơn mới vẫn gửi về email cá nhân được (ô "Email nhận báo đơn mới" ở bước 4).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b2">
+                        <span class="me-2">2.</span>Bật xác minh 2 bước cho Gmail đó @Badge(s.ProtectedPassword.Length > 0)
+                    </button>
+                </h2>
+                <div id="b2" class="accordion-collapse collapse" data-bs-parent="#buocThietLap">
+                    <div class="accordion-body small">
+                        <p>Google chỉ cho tạo mật khẩu ứng dụng khi tài khoản đã bật xác minh 2 bước.</p>
+                        <ol class="mb-0">
+                            <li>Đăng nhập đúng Gmail ở bước 1, mở <a href="https://myaccount.google.com/signinoptions/twosv" target="_blank" rel="noopener">myaccount.google.com/signinoptions/twosv</a>.</li>
+                            <li>Bấm <strong>Bật xác minh 2 bước</strong>, làm theo hướng dẫn (thường là nhận mã qua số điện thoại).</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b3">
+                        <span class="me-2">3.</span>Tạo mật khẩu ứng dụng @Badge(s.ProtectedPassword.Length > 0)
+                    </button>
+                </h2>
+                <div id="b3" class="accordion-collapse collapse" data-bs-parent="#buocThietLap">
+                    <div class="accordion-body small">
+                        <ol>
+                            <li>Mở <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a> (vẫn đăng nhập Gmail ở bước 1).</li>
+                            <li>Ô <strong>Tên ứng dụng</strong> gõ <code>votrongnghia.ai</code> rồi bấm <strong>Tạo</strong>.</li>
+                            <li>Google hiện một mật khẩu <strong>16 chữ cái</strong> dạng <code>abcd efgh ijkl mnop</code>. Chép lại — Google chỉ hiện <strong>một lần</strong>.</li>
+                            <li>Dán vào ô "Mật khẩu ứng dụng" ở bước 4.</li>
+                        </ol>
+                        <div class="alert alert-warning small mb-0">
+                            Đây <strong>không phải</strong> mật khẩu Gmail. Site chỉ lưu mật khẩu ứng dụng (đã mã hoá theo máy chủ).
+                            Muốn thu hồi: xoá nó ở trang apppasswords — site lập tức hết gửi được, Gmail của bạn không bị ảnh hưởng.
+                            Đổi mật khẩu Gmail cũng làm mật khẩu ứng dụng hết hạn: khi đó tạo cái mới và dán lại.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b4">
+                        <span class="me-2">4.</span>Dán vào site và bật gửi email @Badge(s.IsReady)
+                    </button>
+                </h2>
+                <div id="b4" class="accordion-collapse collapse" data-bs-parent="#buocThietLap">
+                    <div class="accordion-body small">Điền khung <strong>Thiết lập</strong> bên phải rồi bấm Lưu.</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#b5">
+                        <span class="me-2">5.</span>Gửi thư thử @Badge(testOk)
+                    </button>
+                </h2>
+                <div id="b5" class="accordion-collapse collapse @(s.IsReady && !testOk ? "show" : "")" data-bs-parent="#buocThietLap">
+                    <div class="accordion-body small">
+                        <p>Site gửi một thư tới <strong>@(s.OwnerAddress.Length > 0 ? s.OwnerAddress : "email nhận báo đơn mới")</strong>. Nhận được là xong.</p>
+                        @if (s.LastTestAt is not null)
+                        {
+                            <p class="@(testOk ? "text-success" : "text-danger")">
+                                Lần thử gần nhất @s.LastTestAt.Value.ToString("HH:mm dd/MM/yyyy"): @(testOk ? "gửi được." : s.LastTestError)
+                            </p>
+                        }
+                        <form method="post" asp-page-handler="GuiThu">
+                            <button type="submit" class="btn btn-sm btn-primary" disabled="@(!s.IsReady)"><i class="bi bi-send me-1"></i>Gửi thư thử</button>
+                        </form>
+                        <p class="text-body-secondary mt-2 mb-0">
+                            Thư đầu tiên hay rơi vào mục <strong>Spam</strong>: mở ra, bấm "Không phải thư rác". Gmail cá nhân gửi được
+                            khoảng 500 thư mỗi ngày — thừa cho một lớp học.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <form method="post" autocomplete="off">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-gear me-1"></i>Thiết lập</h5></div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" asp-for="Input.Enabled" />
+                        <label class="form-check-label fw-semibold" asp-for="Input.Enabled">Bật gửi email</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.GmailAddress">Địa chỉ Gmail gửi đi</label>
+                        <input class="form-control" type="email" asp-for="Input.GmailAddress" placeholder="votrongnghia.ai@@gmail.com" spellcheck="false" />
+                        <div class="form-text">Tài khoản Google Workspace (email tên miền riêng dùng Gmail) cũng được.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.AppPassword">Mật khẩu ứng dụng</label>
+                        <input class="form-control font-monospace" type="password" asp-for="Input.AppPassword" value=""
+                               placeholder="@(s.ProtectedPassword.Length > 0 ? "Đã lưu — để trống nếu không đổi" : "abcd efgh ijkl mnop")" autocomplete="new-password" spellcheck="false" />
+                        <div class="form-text">16 chữ cái từ bước 3, dán nguyên cả dấu cách cũng được.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.FromName">Tên người gửi</label>
+                        <input class="form-control" asp-for="Input.FromName" placeholder="@Model.SiteName" />
+                        <div class="form-text">Hiện ở ô "Từ" trong hộp thư người nhận.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.NotifyAddress">Email nhận báo đơn mới</label>
+                        <input class="form-control" type="email" asp-for="Input.NotifyAddress" placeholder="Trống = gửi về chính Gmail ở trên" spellcheck="false" />
+                        <div class="form-text">Cũng là địa chỉ người học thấy khi bấm "Trả lời" thư của site.</div>
+                    </div>
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" asp-for="Input.SendReceipt" />
+                        <label class="form-check-label" asp-for="Input.SendReceipt">Gửi thư xác nhận cho người đăng ký</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="Input.NotifyOwner" />
+                        <label class="form-check-label" asp-for="Input.NotifyOwner">Báo tôi mỗi khi có đơn mới</label>
+                    </div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

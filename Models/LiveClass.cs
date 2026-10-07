@@ -43,8 +43,14 @@ public sealed class LiveSession
     /// <summary>Giờ học, chữ tự do: "20:00 – 21:30".</summary>
     public string Time { get; set; } = string.Empty;
 
-    /// <summary>Google Meet, Zoom… Link phòng học không để ở đây: chỉ gửi riêng cho người được duyệt.</summary>
+    /// <summary>Google Meet, Zoom… — chỉ là chữ hiện trên trang chủ.</summary>
     public string Platform { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Link phòng học. KHÔNG BAO GIỜ hiện trên trang công khai: chỉ đi vào email báo duyệt gửi
+    /// riêng cho người được nhận. Lớp miễn phí có cam kết — lộ link là ai cũng vào được.
+    /// </summary>
+    public string MeetingLink { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
 

@@ -67,7 +67,10 @@ Rewrite → Add Rule → Canonical domain name), hoặc chuyển hướng ở nh
    báo địa chỉ cho ai: chưa đặt thì ai mở trang này trước người đó cầm chìa khoá.
 3. `/cms/tong-quan` không có cảnh báo quyền ghi; làm các dòng "Việc cần làm" (email liên hệ, ảnh
    đại diện, link Facebook…).
-4. Chạy kiểm tra (mục dưới).
+4. Thiết lập Gmail ở `/cms/email` và bấm **Gửi thư thử**. Báo lỗi "không kết nối được
+   smtp.gmail.com:587" là máy chủ đang chặn cổng 587 đi ra ngoài — mở trong tường lửa / hỏi bên cho
+   thuê máy chủ (nhiều nhà cung cấp chặn sẵn cổng thư để chống spam).
+5. Chạy kiểm tra (mục dưới).
 
 Quên mật khẩu quản trị: trên máy chủ chạy `dotnet VoTrongNghia.dll --dat-mat-khau` trong thư mục site.
 
@@ -102,6 +105,7 @@ powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http
   của máy chủ. Bản sao lưu tự động trong `Data\backups\` chỉ có JSON, không có ảnh.
   `registrations.json` có họ tên, email, số điện thoại người học: không gửi qua kênh công khai.
 - `Data\keys\` **không** chép sang máy khác: khoá được mã hoá theo máy, sang máy mới thì vô dụng.
-  Máy mới tự tạo khoá mới, chỉ phải đăng nhập lại.
+  Máy mới tự tạo khoá mới, chỉ phải đăng nhập lại — và **nhập lại mật khẩu ứng dụng Gmail** ở
+  `/cms/email` (mật khẩu trong `email.json` mã hoá bằng khoá cũ, máy mới không đọc được).
 - Nút **Tải bản sao lưu nội dung** ở `/cms/tong-quan` lấy nội dung (không có đơn đăng ký) để chép
   về `Data\seed\` trong repo khi muốn seed phản ánh dữ liệu thật.

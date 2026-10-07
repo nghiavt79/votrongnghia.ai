@@ -11,12 +11,14 @@ public class IndexModel : PageModel
     private readonly SiteContent _content;
     private readonly RegistrationStore _registrations;
     private readonly ContentPaths _paths;
+    private readonly EmailSender _email;
 
-    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths)
+    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths, EmailSender email)
     {
         _content = content;
         _registrations = registrations;
         _paths = paths;
+        _email = email;
     }
 
     [TempData]
@@ -64,6 +66,22 @@ public class IndexModel : PageModel
         if (site.Email.Length == 0)
         {
             todos.Add(new("Chưa có email liên hệ: mục Liên hệ đang ẩn, người học không có cách hỏi bạn.", "/Admin/ThongTin", true));
+        }
+
+        var email = await _email.Settings.ReadAsync(cancellationToken);
+
+        if (!email.IsReady)
+        {
+            todos.Add(new("Chưa thiết lập Gmail: người đăng ký không nhận được thư xác nhận, bạn không được báo khi có đơn mới.", "/Admin/Email", true));
+        }
+        else if (email.LastTestAt is null || email.LastTestError is not null)
+        {
+            todos.Add(new("Gmail đã thiết lập nhưng chưa gửi thư thử thành công.", "/Admin/Email", true));
+        }
+
+        if (Upcoming.Any(session => session.MeetingLink.Length == 0))
+        {
+            todos.Add(new("Có buổi học sắp tới chưa có link phòng học — thư báo duyệt sẽ hẹn gửi link sau.", "/Admin/LopOnline", false));
         }
 
         if (site.Avatar.EndsWith("avatar.svg", StringComparison.OrdinalIgnoreCase))

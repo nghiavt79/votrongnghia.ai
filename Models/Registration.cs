@@ -46,6 +46,9 @@ public sealed class Registration
     /// <summary>Ghi chú riêng của người duyệt, người đăng ký không thấy.</summary>
     public string AdminNote { get; set; } = string.Empty;
 
+    /// <summary>Các email đã gửi (hoặc gửi lỗi) liên quan tới đơn này, cũ trước.</summary>
+    public List<EmailLogEntry> Emails { get; set; } = [];
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 

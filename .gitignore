@@ -10,6 +10,8 @@ Data/posts.json
 Data/courses.json
 Data/live.json
 Data/admin.json
+# Cấu hình Gmail gửi thư (mật khẩu ứng dụng đã mã hoá theo máy chủ).
+Data/email.json
 Data/keys/
 Data/backups/
 Data/*.tmp

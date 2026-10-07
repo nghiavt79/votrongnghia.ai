@@ -16,7 +16,9 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
 | `Pages/DangKy.cshtml` | `/dang-ky`: đăng ký lớp online miễn phí có cam kết. Form khoá sẵn, `dang-ky.js` mở khi đã học xong khóa đầu vào; máy chủ kiểm lại mọi điều kiện khác ở `Services/RegistrationStore.cs` |
 | `Pages/AiTemplates.cshtml` | `/ai-templates`: trang thuần JS, dữ liệu ở `wwwroot/assets/data/ai-templates.json` (sinh bằng `scripts/update-ai-templates.py`) và `ai-templates-vi.json` (bản dịch, sửa tay) |
 | `Pages/Shared/_SiteLayout.cshtml` | Header, menu, footer, nút nổi — máy chủ dựng. `wwwroot/assets/js/site.js` chỉ thêm phần bấm được |
-| `Pages/Admin/` | `/cms` (đăng nhập / tạo tài khoản lần đầu), `/cms/tong-quan`, `/cms/dang-ky`, `/cms/lop-online`, `/cms/bai-viet`, `/cms/khoa-hoc`, `/cms/thong-tin`, `/cms/doi-mat-khau` |
+| `Pages/Admin/` | `/cms` (đăng nhập / tạo tài khoản lần đầu), `/cms/tong-quan`, `/cms/dang-ky`, `/cms/lop-online`, `/cms/bai-viet`, `/cms/khoa-hoc`, `/cms/thong-tin`, `/cms/email`, `/cms/doi-mat-khau` |
+| `Services/EmailSender.cs`, `EmailQueue.cs`, `EmailTemplates.cs` | Gửi email qua Gmail (SMTP 587 + mật khẩu ứng dụng). Thư xác nhận và báo đơn mới đi qua hàng đợi chạy nền; thư báo kết quả và thư tự soạn ở `/cms/dang-ky/{mã}` gửi ngay. Mỗi lần gửi ghi vào `Registration.Emails` |
+| `Data/email.json` | Cấu hình Gmail, mật khẩu ứng dụng mã hoá bằng Data Protection (khoá trong `Data/keys`). Ngoài git, ngoài bản publish, không có seed |
 | `Data/seed/*.json` | Dữ liệu gốc, có trong git và trong bản publish. Máy chủ chưa có file sống thì lần khởi động đầu tự chép sang |
 | `Data/site.json`, `posts.json`, `courses.json`, `live.json` | Dữ liệu sống, sửa trong `/cms`. Ngoài git, ngoài bản publish |
 | `wwwroot/uploads/` | Ảnh tải lên qua `/cms` (`Services/ImageService.cs`): `trang/` ảnh đại diện, `bai-viet/` ảnh bìa và ảnh trong bài, `khoa-hoc/` ảnh trong bài học. Ngoài git, ngoài bản publish |
@@ -30,10 +32,15 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
    đó không hiện. Đừng bao giờ để link mẫu kiểu `your-profile` lọt ra site — `/cms/thong-tin` chặn.
 2. **Bài đầu vào không phải khoá thật.** Tiến độ học nằm trên máy người học, ai sửa `localStorage`
    là qua. Đó là bộ lọc người chỉ tò mò; lớp lọc thật là người duyệt đọc đơn ở `/cms/dang-ky`.
-3. **Site không gửi email.** Đổi trạng thái đơn chỉ ghi vào sổ; báo kết quả bằng nút "Soạn email"
-   (mở ứng dụng email của người duyệt). Muốn gửi tự động thì phải thêm SMTP — chưa làm.
-4. **Không dán link phòng học (Meet/Zoom) vào lịch buổi học** — lịch hiện công khai trên trang chủ.
-   Link chỉ gửi riêng cho người được duyệt.
+3. **Email là phần thêm, không được làm hỏng việc chính.** Gmail lỗi / chậm thì đơn vẫn lưu và
+   người học vẫn thấy trang cảm ơn ngay (hàng đợi nền); lỗi ghi vào lịch sử email của đơn. Hàng đợi
+   nằm trong bộ nhớ — app pool khởi động lại đúng lúc còn thư là mất thư đó. Mẫu thư
+   (`EmailTemplates`) không được có chỗ trống `[…]`: thư báo kết quả đi tự động, không ai đọc lại.
+4. **`LiveSession.MeetingLink` không bao giờ ra trang công khai** — chỉ vào thư báo duyệt. Thêm chỗ
+   hiện lịch học mới thì kiểm lại. Trường `Platform` mới là chữ hiện công khai.
+   Thử gửi email trên máy dev: sửa tay `host`/`port`/`useSsl` trong `Data/email.json` trỏ sang một
+   máy chủ SMTP giả (form `/cms/email` cố ý không có các ô này). `SmtpClient` đăng nhập hỏng vẫn
+   gửi tiếp không đăng nhập — máy chủ giả phải đòi đăng nhập trước `MAIL FROM` như Gmail mới thử đúng.
 5. **File dữ liệu sống mới thì phải loại ở 2 chỗ**: `.gitignore` và `VoTrongNghia.csproj`
    (`CopyToPublishDirectory="Never"`). Chỉ `.gitignore` là chưa đủ: `dotnet publish` đọc đĩa,
    bản publish từ máy dev sẽ đè dữ liệu thật trên máy chủ. `Data/keys/` là khoá ký cookie — không

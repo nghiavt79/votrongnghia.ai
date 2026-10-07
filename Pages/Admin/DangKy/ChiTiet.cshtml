@@ -18,6 +18,11 @@
     </div>
 }
 
+@if (!string.IsNullOrEmpty(Model.EmailError))
+{
+    <div class="alert alert-danger" role="alert"><i class="bi bi-envelope-exclamation me-1"></i>@Model.EmailError</div>
+}
+
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger" role="alert">
@@ -69,6 +74,55 @@
             </div>
         </div>
 
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-envelope me-1"></i>Email đã gửi</h5></div>
+            @if (item.Emails.Count == 0)
+            {
+                <div class="card-body small text-body-secondary">
+                    @(Model.EmailReady ? "Chưa gửi thư nào cho đơn này." : "Site chưa gửi email (chưa thiết lập Gmail).")
+                </div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush small">
+                    @foreach (var mail in Enumerable.Reverse(item.Emails))
+                    {
+                        <li class="list-group-item d-flex gap-2 align-items-start">
+                            <i class="bi @(mail.Error is null ? "bi-check-circle text-success" : "bi-x-circle text-danger") mt-1"></i>
+                            <div class="flex-grow-1">
+                                <div><strong>@mail.KindLabel</strong> → @mail.To</div>
+                                <div class="text-body-secondary">@mail.Subject</div>
+                                @if (mail.Error is not null)
+                                {
+                                    <div class="text-danger">@mail.Error</div>
+                                }
+                            </div>
+                            <span class="text-body-secondary text-nowrap">@mail.At.ToString("HH:mm dd/MM")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if (Model.EmailReady)
+        {
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-pencil-square me-1"></i>Soạn email cho @item.Name</h5></div>
+                <form method="post" asp-page-handler="GuiEmail" asp-route-ma="@item.Code">
+                    <div class="card-body">
+                        <label class="form-label small" asp-for="EmailSubject">Tiêu đề</label>
+                        <input class="form-control mb-2" asp-for="EmailSubject" />
+                        <label class="form-label small" asp-for="EmailBody">Nội dung</label>
+                        <textarea class="form-control" asp-for="EmailBody" rows="12"></textarea>
+                        <div class="form-text">Điền sẵn theo trạng thái đã lưu (@item.StatusLabel) — sửa thoải mái. Gửi từ @Model.EmailSettings.GmailAddress, người học trả lời về @Model.EmailSettings.OwnerAddress.</div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary" data-confirm="Gửi thư này tới @item.Email?"><i class="bi bi-send me-1"></i>Gửi email</button>
+                    </div>
+                </form>
+            </div>
+        }
+
         @if (Model.Others.Count > 0)
         {
             <div class="alert alert-info small">
@@ -97,9 +151,21 @@
                     <textarea class="form-control" asp-for="AdminNote" rows="3" placeholder="Người học không thấy ghi chú này"></textarea>
                 </div>
                 <div class="card-footer d-grid gap-2">
+                    @if (Model.EmailReady)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" asp-for="SendResult" />
+                            <label class="form-check-label small" asp-for="SendResult">Gửi email báo kết quả cho người học</label>
+                            <div class="form-text">Theo mẫu của trạng thái vừa chọn (thư duyệt có lịch học và link phòng học). Chọn "Mới" thì không gửi gì.</div>
+                        </div>
+                    }
                     <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>
-                    <a class="btn btn-outline-secondary" href="@Model.MailTo()"><i class="bi bi-envelope me-1"></i>Soạn email báo kết quả</a>
-                    <div class="form-text">Soạn email theo trạng thái <strong>đã lưu</strong> (@item.StatusLabel). Site không tự gửi thư — bạn đọc lại, sửa chỗ <code>[…]</code> rồi gửi.</div>
+                    @if (!Model.EmailReady)
+                    {
+                        <a class="btn btn-outline-secondary" href="@Model.MailTo()"><i class="bi bi-envelope me-1"></i>Soạn email báo kết quả</a>
+                        <div class="form-text">Mở ứng dụng email của bạn với thư soạn sẵn theo trạng thái <strong>đã lưu</strong>.
+                            Muốn site tự gửi, thiết lập Gmail ở <a asp-page="/Admin/Email">Gửi email</a>.</div>
+                    }
                 </div>
             </form>
         </div>
