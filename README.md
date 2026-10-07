@@ -1,4 +1,4 @@
-# votrongnghia.ai
+# votrongnghia.vn
 
 Trang cá nhân chia sẻ kiến thức AI và vibe code — miễn phí, cho mọi người.
 ASP.NET Core 8 Razor Pages, dữ liệu JSON, quản trị ở `/cms`.

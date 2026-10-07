@@ -47,6 +47,8 @@ public class ThongTinModel : PageModel
         string Clean(string value) => value.Trim();
 
         Input.Name = Clean(Input.Name);
+        Input.Zalo = SiteInfo.ZaloLink(Input.Zalo);
+        Input.ZaloGroup = SiteInfo.ZaloLink(Input.ZaloGroup);
         Input.Avatar = Clean(Input.Avatar).TrimStart('/');
         Input.Story = Input.Story.Where(item => item.Title.Trim().Length > 0)
             .Select(item => new StoryStep { Icon = Clean(item.Icon), Title = Clean(item.Title), Description = Clean(item.Description) }).ToList();
@@ -76,6 +78,7 @@ public class ThongTinModel : PageModel
                  {
                      ("Youtube", Input.Youtube), ("Facebook", Input.Facebook), ("FacebookGroup", Input.FacebookGroup),
                      ("Tiktok", Input.Tiktok), ("Linkedin", Input.Linkedin), ("X", Input.X), ("Threads", Input.Threads),
+                     ("Zalo", Input.Zalo), ("ZaloGroup", Input.ZaloGroup),
                      ("Paypal", Input.Paypal)
                  })
         {
@@ -86,6 +89,15 @@ public class ThongTinModel : PageModel
             else if (value.Contains("your-", StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError("Input." + field, $"Link {field} vẫn là link mẫu — điền link thật hoặc để trống.");
+            }
+        }
+
+        // Gõ nhầm link Facebook vào ô Zalo là nút "Nhắn Zalo" dẫn sang Facebook.
+        foreach (var (field, value) in new[] { ("Zalo", Input.Zalo), ("ZaloGroup", Input.ZaloGroup) })
+        {
+            if (value.Length > 0 && !value.StartsWith("https://zalo.me/", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError("Input." + field, $"Ô {field} nhận số điện thoại hoặc link dạng https://zalo.me/…");
             }
         }
 
@@ -125,6 +137,8 @@ public class ThongTinModel : PageModel
             site.Youtube = input.Youtube.Trim();
             site.Facebook = input.Facebook.Trim();
             site.FacebookGroup = input.FacebookGroup.Trim();
+            site.Zalo = input.Zalo;
+            site.ZaloGroup = input.ZaloGroup;
             site.Tiktok = input.Tiktok.Trim();
             site.Linkedin = input.Linkedin.Trim();
             site.X = input.X.Trim();

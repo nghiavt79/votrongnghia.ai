@@ -29,7 +29,7 @@ def to_int(v):
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
-    req = urllib.request.Request(SOURCE, headers={"User-Agent": "Mozilla/5.0 (votrongnghia.ai updater)"})
+    req = urllib.request.Request(SOURCE, headers={"User-Agent": "Mozilla/5.0 (votrongnghia.vn updater)"})
     with urllib.request.urlopen(req, timeout=60) as r:
         data = json.load(r)
 

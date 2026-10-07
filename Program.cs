@@ -257,7 +257,7 @@ app.Run();
 static async Task SetAdminPasswordAsync(AdminAccountStore store)
 {
     Console.OutputEncoding = Encoding.UTF8;
-    Console.WriteLine("Đặt tài khoản quản trị votrongnghia.ai");
+    Console.WriteLine("Đặt tài khoản quản trị votrongnghia.vn");
     Console.Write("Tên đăng nhập: ");
     var userName = Console.ReadLine()?.Trim();
 

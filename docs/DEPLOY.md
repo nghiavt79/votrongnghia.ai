@@ -1,4 +1,4 @@
-# Deploy votrongnghia.ai lên IIS
+# Deploy votrongnghia.vn lên IIS
 
 Cùng khuôn với Dokma và kimthyland: Windows Server + IIS, repo có sẵn `web.config`. Máy chủ khác
 (Linux, hosting dùng chung) thì báo lại để sửa hướng dẫn.
@@ -13,9 +13,9 @@ tin trang, đơn đăng ký, tài khoản quản trị, khoá đăng nhập đ�
 
 - Cài **ASP.NET Core 8 Hosting Bundle** (bản Runtime 8.0.x mới nhất, mục "Hosting Bundle"), rồi
   chạy `iisreset`.
-- IIS có sẵn module **URL Rewrite** nếu muốn chuyển `www.` về tên miền gốc (mục 5).
+- IIS có sẵn module **URL Rewrite** để chuyển `www.` và tên miền phụ (`votrongnghia.ai`) về tên miền chính (mục 5).
 - Bật **Static Content Compression** của IIS: `ai-templates.json` hơn 1MB, nén là còn khoảng một phần năm.
-- DNS: bản ghi A của `votrongnghia.ai` (và `www`) trỏ về IP máy chủ.
+- DNS: bản ghi A của `votrongnghia.vn` (và `www`) trỏ về IP máy chủ.
 
 ### 2. Bản publish (ở máy dev)
 
@@ -35,8 +35,8 @@ Chép cả thư mục lên máy chủ, ví dụ `D:\sites\votrongnghia`.
 - Advanced Settings của app pool: **Start Mode = AlwaysRunning**, **Idle Time-out = 0** — app ngủ
   thì người đầu tiên vào trang phải chờ vài giây.
 - **Site** tên `votrongnghia`, physical path `D:\sites\votrongnghia`, app pool `votrongnghia`, binding:
-  - `https` cổng 443, host `votrongnghia.ai`, chứng chỉ SSL (Let's Encrypt qua **win-acme**, tự gia hạn);
-  - `http` cổng 80, host `votrongnghia.ai` — app tự chuyển sang https (mã 308).
+  - `https` cổng 443, host `votrongnghia.vn`, chứng chỉ SSL (Let's Encrypt qua **win-acme**, tự gia hạn);
+  - `http` cổng 80, host `votrongnghia.vn` — app tự chuyển sang https (mã 308).
 
 Không cần đặt `ASPNETCORE_ENVIRONMENT`: không đặt thì là **Production** — đúng cái cần (bật
 HTTPS, HSTS). Đừng đặt `Development` trên máy chủ.
@@ -54,16 +54,42 @@ icacls "D:\sites\votrongnghia\wwwroot\uploads" /grant "IIS AppPool\votrongnghia:
 
 Thiếu quyền thì `/cms/tong-quan` hiện cảnh báo đỏ, và người học bấm gửi đơn sẽ gặp lỗi.
 
-### 5. `www.` về tên miền gốc (nên làm)
+### 5. Các tên miền phụ về tên miền chính (nên làm)
 
-Canonical của site luôn là `https://votrongnghia.ai` (`Site:BaseUrl` trong `appsettings.json`). Để
-`www.votrongnghia.ai` không thành bản sao, thêm quy tắc URL Rewrite ở cấp site (IIS Manager → URL
-Rewrite → Add Rule → Canonical domain name), hoặc chuyển hướng ở nhà cung cấp DNS.
+Canonical của site luôn là `https://votrongnghia.vn` (`Site:BaseUrl` trong `appsettings.json`). Mọi
+tên miền khác trỏ vào site phải **chuyển hướng 301** về đó, không thì Google thấy nhiều bản sao:
+
+- `www.votrongnghia.vn`
+- `votrongnghia.ai` và `www.votrongnghia.ai`, nếu mua thêm để giữ tên.
+
+Cách làm trên IIS: thêm các tên miền phụ vào binding của site (cả http và https; chứng chỉ win-acme
+cấp chung được cho nhiều tên), rồi thêm một quy tắc URL Rewrite ở cấp site:
+
+```xml
+<rewrite>
+  <rules>
+    <rule name="Ve ten mien chinh" stopProcessing="true">
+      <match url="(.*)" />
+      <conditions>
+        <add input="{HTTP_HOST}" pattern="^votrongnghia\.vn$" negate="true" />
+      </conditions>
+      <action type="Redirect" url="https://votrongnghia.vn/{R:1}" redirectType="Permanent" />
+    </rule>
+  </rules>
+</rewrite>
+```
+
+Khối này đặt trong `<system.webServer>` của `web.config` **trên máy chủ** (IIS Manager → URL Rewrite
+ghi vào đó). Không đưa vào `web.config` trong repo: chạy ở máy dev (localhost) sẽ bị chuyển hướng đi
+mất. Hoặc đơn giản hơn: cấu hình chuyển hướng tên miền ngay ở nhà cung cấp tên miền `.ai`, nếu họ có.
+
+Sau khi đổi tên miền chính trong `appsettings.json`, chạy lại `scripts/kiem-tra-site.ps1`: canonical và
+sitemap phải ra đúng `https://votrongnghia.vn`.
 
 ### 6. Chạy lần đầu
 
-1. Mở `https://votrongnghia.ai` — lần khởi động đầu, site tự chép `Data\seed\` sang dữ liệu sống.
-2. Mở `https://votrongnghia.ai/cms` — hiện form **tạo tài khoản quản trị**. Tạo ngay, trước khi
+1. Mở `https://votrongnghia.vn` — lần khởi động đầu, site tự chép `Data\seed\` sang dữ liệu sống.
+2. Mở `https://votrongnghia.vn/cms` — hiện form **tạo tài khoản quản trị**. Tạo ngay, trước khi
    báo địa chỉ cho ai: chưa đặt thì ai mở trang này trước người đó cầm chìa khoá.
 3. `/cms/tong-quan` không có cảnh báo quyền ghi; làm các dòng "Việc cần làm" (email liên hệ, ảnh
    đại diện, link Facebook…).
@@ -96,7 +122,7 @@ sitemap, một bài viết (JSON-LD), một bài học, `/dang-ky`, `/ai-templat
 Thử ở máy trước khi deploy:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http://localhost:5090 -Canonical https://votrongnghia.ai
+powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http://localhost:5090 -Canonical https://votrongnghia.vn
 ```
 
 ## Sao lưu

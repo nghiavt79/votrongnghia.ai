@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-08 — Tên miền chính: votrongnghia.vn
+
+- `Site:BaseUrl` = `https://votrongnghia.vn`: canonical, `og:url`, `og:image`, sitemap, robots.txt, link
+  trong email đều theo tên miền mới. Tên hiện trong /cms, script kiểm tra site, hướng dẫn deploy đổi theo.
+- `docs/DEPLOY.md` mục 5: chuyển hướng 301 `www.` và `votrongnghia.ai` (nếu mua thêm) về `.vn` bằng URL
+  Rewrite trên máy chủ.
+- Thư mục dự án và repo GitHub giữ tên `votrongnghia.ai`.
+- **Zalo** vào `/cms/thong-tin`: ô Zalo liên hệ (gõ số điện thoại hay dán link đều được, máy đổi thành
+  `https://zalo.me/…`) và ô nhóm Zalo cộng đồng. Hiện ở mục Liên hệ (nút "Nhắn Zalo"), Cộng đồng,
+  Theo dõi mình, phần giới thiệu và chân trang; trống thì ẩn. Mục Liên hệ giờ hiện khi có email
+  **hoặc** Zalo. Chân trang thêm link TikTok.
+
 ## 2026-10-08 — Gửi email tự động qua Gmail
 
 - **`/cms/email`** (menu "Gửi email (Gmail)"): hướng dẫn 5 bước có nhãn Xong / Chưa — chọn Gmail riêng

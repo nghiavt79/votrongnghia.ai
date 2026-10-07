@@ -55,6 +55,8 @@
                         @if (site.Youtube.Length > 0) { <a class="chip" href="@site.Youtube" target="_blank" rel="noopener">▶ Kênh YouTube</a> }
                         @if (site.Facebook.Length > 0) { <a class="chip" href="@site.Facebook" target="_blank" rel="noopener">📘 Facebook</a> }
                         @if (site.FacebookGroup.Length > 0) { <a class="chip" href="@site.FacebookGroup" target="_blank" rel="noopener">👥 Nhóm Facebook</a> }
+                        @if (site.Zalo.Length > 0) { <a class="chip" href="@site.Zalo" target="_blank" rel="noopener">💬 Zalo</a> }
+                        @if (site.ZaloGroup.Length > 0) { <a class="chip" href="@site.ZaloGroup" target="_blank" rel="noopener">👥 Nhóm Zalo</a> }
                     </div>
                 </div>
             </div>
@@ -206,9 +208,18 @@
             <div class="card community reveal">
                 <h2>Tham Gia Cộng Đồng AI Việt Nam</h2>
                 <p>Kết nối với những người đam mê AI. Chia sẻ kiến thức, đặt câu hỏi và cùng nhau học hỏi mỗi ngày.</p>
-                @if (site.FacebookGroup.Length > 0)
+                @if (site.FacebookGroup.Length > 0 || site.ZaloGroup.Length > 0)
                 {
-                    <a class="btn btn-primary" href="@site.FacebookGroup" target="_blank" rel="noopener">👥 Tham gia nhóm ngay</a>
+                    <div class="chips" style="justify-content:center">
+                        @if (site.FacebookGroup.Length > 0)
+                        {
+                            <a class="btn btn-primary" href="@site.FacebookGroup" target="_blank" rel="noopener">👥 Nhóm Facebook</a>
+                        }
+                        @if (site.ZaloGroup.Length > 0)
+                        {
+                            <a class="btn btn-primary" href="@site.ZaloGroup" target="_blank" rel="noopener">💬 Nhóm Zalo</a>
+                        }
+                    </div>
                 }
                 else
                 {
@@ -268,14 +279,23 @@
         </section>
     }
 
-    @if (site.Email.Length > 0)
+    @if (site.ShowContact)
     {
         <section class="section" id="lien-he">
             <div class="container">
                 <div class="card contact-card reveal">
                     <h2>Liên Hệ Với Mình</h2>
-                    <p>Có câu hỏi, góp ý hay muốn mình viết về chủ đề nào — cứ gửi email cho mình nhé.</p>
-                    <a class="btn btn-primary" href="mailto:@site.Email">✉️ @site.Email</a>
+                    <p>Có câu hỏi, góp ý hay muốn mình viết về chủ đề nào — cứ nhắn cho mình nhé.</p>
+                    <div class="chips" style="justify-content:center">
+                        @if (site.Zalo.Length > 0)
+                        {
+                            <a class="btn btn-primary" href="@site.Zalo" target="_blank" rel="noopener">💬 Nhắn Zalo</a>
+                        }
+                        @if (site.Email.Length > 0)
+                        {
+                            <a class="btn @(site.Zalo.Length > 0 ? "btn-ghost" : "btn-primary")" href="mailto:@site.Email">✉️ @site.Email</a>
+                        }
+                    </div>
                 </div>
             </div>
         </section>

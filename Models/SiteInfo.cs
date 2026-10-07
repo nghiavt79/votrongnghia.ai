@@ -36,6 +36,15 @@ public sealed class SiteInfo
     public string X { get; set; } = string.Empty;
     public string Threads { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Zalo liên hệ trực tiếp (cá nhân hoặc Official Account), luôn lưu dạng link
+    /// <c>https://zalo.me/…</c> — form /cms nhận cả số điện thoại rồi đổi sang link (<see cref="ZaloLink"/>).
+    /// </summary>
+    public string Zalo { get; set; } = string.Empty;
+
+    /// <summary>Link mời vào nhóm Zalo cộng đồng (<c>https://zalo.me/g/…</c>).</summary>
+    public string ZaloGroup { get; set; } = string.Empty;
+
     public string BankName { get; set; } = string.Empty;
     public string BankNumber { get; set; } = string.Empty;
     public string BankOwner { get; set; } = string.Empty;
@@ -56,6 +65,31 @@ public sealed class SiteInfo
 
     public bool ShowDonate => Donate && (BankNumber.Length > 0 || Paypal.Length > 0);
 
+    /// <summary>Mục Liên hệ hiện khi có ít nhất một cách liên hệ.</summary>
+    public bool ShowContact => Email.Length > 0 || Zalo.Length > 0;
+
+    /// <summary>
+    /// Chuẩn hoá ô Zalo: số điện thoại ("0912 345 678", "+84912345678") thành
+    /// <c>https://zalo.me/0912345678</c>; link thì giữ nguyên; trống là trống.
+    /// </summary>
+    public static string ZaloLink(string input)
+    {
+        var value = input.Trim();
+        var digits = new string(value.Where(char.IsAsciiDigit).ToArray());
+
+        if (value.Length > 0 && value.All(c => char.IsAsciiDigit(c) || c is ' ' or '.' or '-' or '+'))
+        {
+            if (digits.StartsWith("84") && digits.Length >= 11)
+            {
+                digits = "0" + digits[2..];
+            }
+
+            return "https://zalo.me/" + digits;
+        }
+
+        return value.StartsWith("zalo.me/", StringComparison.OrdinalIgnoreCase) ? "https://" + value : value;
+    }
+
     /// <summary>
     /// Các mạng xã hội đã điền, theo thứ tự cố định. Danh sách nền tảng cố định trong mã
     /// chứ không cho thêm bớt: mỗi nền tảng cần icon và câu mô tả riêng.
@@ -70,6 +104,7 @@ public sealed class SiteInfo
             ("LinkedIn", "Kết nối chuyên môn", "💼", Linkedin),
             ("X (Twitter)", "Tin AI nhanh mỗi ngày", "✖️", X),
             ("Threads", "Trò chuyện & chia sẻ", "🧵", Threads),
+            ("Zalo", "Nhắn tin trực tiếp cho mình", "💬", Zalo),
         };
 
         return all.Where(item => item.Item4.Length > 0);

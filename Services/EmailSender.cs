@@ -75,7 +75,7 @@ public sealed class EmailSender
                 Timeout = 20000
             };
 
-            var siteName = settings.FromName.Length > 0 ? settings.FromName : "votrongnghia.ai";
+            var siteName = settings.FromName.Length > 0 ? settings.FromName : "votrongnghia.vn";
 
             using var mail = new MailMessage
             {

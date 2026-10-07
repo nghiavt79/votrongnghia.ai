@@ -140,7 +140,8 @@
                         <input class="form-control" type="email" asp-for="Input.Email" />
                         <div class="form-text">Hiện công khai ở mục Liên hệ và chân trang.</div>
                     </div>
-                    @foreach (var (field, label) in new[] { ("Youtube", "Kênh YouTube"), ("Facebook", "Facebook cá nhân"), ("FacebookGroup", "Nhóm Facebook"), ("Tiktok", "TikTok"), ("Linkedin", "LinkedIn"), ("X", "X (Twitter)"), ("Threads", "Threads") })
+                    @foreach (var (field, label) in new[] { ("Youtube", "Kênh YouTube"), ("Facebook", "Facebook cá nhân"), ("FacebookGroup", "Nhóm Facebook"), ("Tiktok", "TikTok"), ("Linkedin", "LinkedIn"), ("X", "X (Twitter)"), ("Threads", "Threads"),
+                        ("Zalo", "Zalo liên hệ — số điện thoại hoặc link zalo.me"), ("ZaloGroup", "Nhóm Zalo cộng đồng — link mời zalo.me/g/…") })
                     {
                         var value = (string)typeof(SiteInfo).GetProperty(field)!.GetValue(Model.Input)!;
                         <div class="mb-2">

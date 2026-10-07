@@ -1,4 +1,4 @@
-# votrongnghia.ai
+# votrongnghia.vn
 
 Trang cá nhân chia sẻ kiến thức AI và vibe code — **miễn phí, lan tỏa**. ASP.NET Core 8 Razor
 Pages, không database, dữ liệu JSON. Dựng theo đúng khuôn của `D:\2026\Dokma` (kho JSON ghi
@@ -62,6 +62,9 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
 ## Repo
 
 - GitHub: https://github.com/nghiavt79/votrongnghia.ai (private), nhánh `main`.
+- Tên miền chính là **votrongnghia.vn** (chốt 08/10/2026, `Site:BaseUrl`). Thư mục máy dev và tên repo
+  vẫn là `votrongnghia.ai` — tên cũ, cố ý không đổi. `votrongnghia.ai` nếu mua thêm thì chỉ chuyển
+  hướng 301 về `.vn` (xem `docs/DEPLOY.md` mục 5).
 - Dữ liệu sống trên máy chủ (`Data/*.json` ngoài `seed/`, `admin.json`, `registrations.json`,
   `Data/keys/`, `wwwroot/uploads/`) không bao giờ vào git — xem `.gitignore`.
 

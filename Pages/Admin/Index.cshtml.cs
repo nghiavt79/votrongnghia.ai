@@ -63,9 +63,9 @@ public class IndexModel : PageModel
         // Việc cần làm, máy tự đọc từ dữ liệu. Làm xong thì dòng đó tự biến mất.
         var todos = new List<Todo>();
 
-        if (site.Email.Length == 0)
+        if (!site.ShowContact)
         {
-            todos.Add(new("Chưa có email liên hệ: mục Liên hệ đang ẩn, người học không có cách hỏi bạn.", "/Admin/ThongTin", true));
+            todos.Add(new("Chưa có email hay Zalo liên hệ: mục Liên hệ đang ẩn, người học không có cách hỏi bạn.", "/Admin/ThongTin", true));
         }
 
         var email = await _email.Settings.ReadAsync(cancellationToken);
@@ -89,9 +89,9 @@ public class IndexModel : PageModel
             todos.Add(new("Ảnh đại diện vẫn là chữ \"VN\" tạm — tải ảnh thật ở Thông tin trang.", "/Admin/ThongTin", false));
         }
 
-        if (site.Facebook.Length == 0 && site.FacebookGroup.Length == 0)
+        if (site.FacebookGroup.Length == 0 && site.ZaloGroup.Length == 0)
         {
-            todos.Add(new("Chưa có link Facebook / nhóm Facebook: mục Cộng đồng chỉ có nút đăng ký học.", "/Admin/ThongTin", false));
+            todos.Add(new("Chưa có nhóm Facebook / nhóm Zalo: mục Cộng đồng chỉ có nút đăng ký học.", "/Admin/ThongTin", false));
         }
 
         if (live.RequireCourse.Length > 0 && courses.All(course => course.Slug != live.RequireCourse))

@@ -1,18 +1,18 @@
 ﻿<#
-  Kiểm tra site sau mỗi lần deploy. Chép từ Dokma, đổi theo các trang của votrongnghia.ai. Chạy:
+  Kiểm tra site sau mỗi lần deploy. Chép từ Dokma, đổi theo các trang của votrongnghia.vn. Chạy:
 
       powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1
-      powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http://localhost:5090 -Canonical https://votrongnghia.ai
+      powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http://localhost:5090 -Canonical https://votrongnghia.vn
 
   -BaseUrl   địa chỉ để gọi (mặc định site thật).
   -Canonical địa chỉ mà canonical / sitemap phải trỏ tới, tức Site:BaseUrl trong appsettings.json.
-             Mặc định bằng -BaseUrl. Thử ở máy thì đặt https://votrongnghia.ai.
+             Mặc định bằng -BaseUrl. Thử ở máy thì đặt https://votrongnghia.vn.
 
   Chỉ đọc (GET), không ghi gì lên site. Thoát với mã 1 nếu có mục hỏng.
   File lưu UTF-8 có BOM: PowerShell 5.1 đọc file không BOM theo bảng mã ANSI, chú thích thành chữ lỗi.
 #>
 param(
-    [string]$BaseUrl = "https://votrongnghia.ai",
+    [string]$BaseUrl = "https://votrongnghia.vn",
     [string]$Canonical = ""
 )
 
