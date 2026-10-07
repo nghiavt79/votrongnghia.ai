@@ -1,0 +1,11 @@
+@* Thẻ một bài viết: trang chủ, trang tất cả bài viết, khối bài liên quan. *@
+@model Post
+<a class="card post reveal" href="@Model.PublicUrl" data-tags="@string.Join('|', Model.Tags)">
+    @if (Model.Tags.Count > 0)
+    {
+        <div class="tags">@foreach (var tag in Model.Tags) { <span class="tag">@tag</span> }</div>
+    }
+    <h3>@Model.Title</h3>
+    <p>@Model.Summary</p>
+    <span class="muted">📅 @SiteTime.Day(Model.PublishedAt) · @SiteTime.ReadMinutes(Model.Body) phút đọc</span>
+</a>

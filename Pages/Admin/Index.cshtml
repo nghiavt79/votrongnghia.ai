@@ -1,0 +1,120 @@
+@page "/cms/tong-quan"
+@model VoTrongNghia.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Bảng điều khiển";
+    ViewData["Subtitle"] = "Chào " + User.Identity!.Name;
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" asp-page-handler="SaoLuu">
+        <i class="bi bi-download me-1"></i>Tải bản sao lưu nội dung
+    </a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (Model.Unwritable.Count > 0)
+{
+    <div class="alert alert-danger">
+        <strong><i class="bi bi-exclamation-octagon me-1"></i>Website không ghi được dữ liệu.</strong>
+        Bấm Lưu sẽ báo lỗi và người học không gửi được đơn. Cấp quyền <em>Modify</em> cho tài khoản
+        <code>@ContentPaths.ProcessIdentity</code> trên:
+        <ul class="mb-0 mt-1">@foreach (var dir in Model.Unwritable) { <li><code>@dir</code></li> }</ul>
+    </div>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <a class="text-decoration-none" asp-page="/Admin/DangKy/Index" asp-route-trangThai="@Registration.StatusNew">
+            <div class="small-box text-bg-@(Model.NewCount > 0 ? "danger" : "secondary")">
+                <div class="inner"><h3>@Model.NewCount</h3><p>Đơn đăng ký mới</p></div>
+                <i class="small-box-icon bi bi-person-plus"></i>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="text-decoration-none" asp-page="/Admin/LopOnline">
+            <div class="small-box text-bg-primary">
+                <div class="inner"><h3>@Model.Upcoming.Count</h3><p>Buổi học sắp tới</p></div>
+                <i class="small-box-icon bi bi-calendar-event"></i>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="text-decoration-none" asp-page="/Admin/BaiViet/Index">
+            <div class="small-box text-bg-success">
+                <div class="inner"><h3>@Model.PublishedPosts</h3><p>Bài viết đã đăng</p></div>
+                <i class="small-box-icon bi bi-newspaper"></i>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="text-decoration-none" asp-page="/Admin/KhoaHoc/Index">
+            <div class="small-box text-bg-info">
+                <div class="inner"><h3>@Model.PublishedCourses</h3><p>Khóa học · @Model.LessonCount bài</p></div>
+                <i class="small-box-icon bi bi-mortarboard"></i>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-person-lines-fill me-1"></i>Đơn đăng ký gần đây</h5>
+                <a class="ms-auto small" asp-page="/Admin/DangKy/Index">Tất cả @Model.TotalRegistrations đơn →</a>
+            </div>
+            @if (Model.Latest.Count == 0)
+            {
+                <div class="card-body text-body-secondary">
+                    Chưa có đơn nào. Người học đăng ký ở <a href="/dang-ky" target="_blank" rel="noopener">/dang-ky</a>
+                    sau khi học xong khóa bắt buộc.
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var item in Model.Latest)
+                    {
+                        <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" asp-page="/Admin/DangKy/ChiTiet" asp-route-ma="@item.Code">
+                            <span class="badge @item.StatusBadge">@item.StatusLabel</span>
+                            <span class="fw-semibold">@item.Name</span>
+                            <span class="small text-body-secondary text-truncate">@item.Job</span>
+                            <span class="ms-auto small text-body-secondary text-nowrap">@item.CreatedAt.ToString("dd/MM HH:mm")</span>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <div class="card shadow-sm">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-list-check me-1"></i>Việc cần làm</h5></div>
+            @if (Model.Todos.Count == 0)
+            {
+                <div class="card-body text-success"><i class="bi bi-check-circle me-1"></i>Không còn việc gì thiếu.</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var todo in Model.Todos)
+                    {
+                        <li class="list-group-item d-flex gap-2 align-items-start">
+                            <i class="bi @(todo.Important ? "bi-exclamation-circle text-danger" : "bi-circle text-body-tertiary") mt-1"></i>
+                            <span class="small">@todo.Text</span>
+                            <a class="btn btn-sm btn-outline-secondary ms-auto text-nowrap" asp-page="@todo.Page">Làm</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

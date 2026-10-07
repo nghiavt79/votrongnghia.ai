@@ -1,0 +1,49 @@
+@page "/khoa-hoc/{khoa}"
+@model VoTrongNghia.Pages.KhoaHoc.KhoaModel
+@{
+    var course = Model.Course;
+    ViewData["Title"] = course.Title;
+    ViewData["Description"] = course.Summary;
+    ViewData["NoIndex"] = Model.IsPreview;
+}
+
+<main class="page" data-course="@course.Slug">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <a href="/khoa-hoc">Khóa học</a> / <span>@course.Title</span></nav>
+    </div>
+    <div class="container course-overview">
+        @if (Model.IsPreview)
+        {
+            <div class="draft-bar">Khóa này chưa đăng — chỉ người đăng nhập /cms mới xem được. <a href="/cms/khoa-hoc/sua/@course.Slug">Về trang sửa khóa</a></div>
+        }
+        <div class="card course-hero">
+            <span class="level">Cấp độ @course.Level</span>
+            <h1>@course.Title</h1>
+            <p class="lead-sm">@course.Summary</p>
+            <p class="muted">📚 @course.Lessons.Count bài học · ⏱ @course.TotalMinutes phút · 🎁 Miễn phí</p>
+            <div class="progress"><div class="progress-bar" data-progress-bar style="width:0%"></div></div>
+            <span class="muted" data-progress-text>Đã học 0/@course.Lessons.Count bài (0%)</span>
+            @if (course.Lessons.Count > 0)
+            {
+                @* JS đổi nút này thành "Học tiếp" và trỏ tới bài đầu tiên chưa học. *@
+                <div><a class="btn btn-primary" data-continue href="@course.LessonUrl(course.Lessons[0])">▶ Bắt đầu học</a></div>
+            }
+        </div>
+        <h2>Nội dung khóa học</h2>
+        <partial name="_LessonList" model="(course, (string?)null)" />
+        @if (Model.Others.Count > 0)
+        {
+            <h2>Các khóa học khác</h2>
+            <div class="grid grid-3">
+                @foreach (var other in Model.Others)
+                {
+                    <partial name="_CourseCard" model="other" />
+                }
+            </div>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script src="/assets/js/khoa-hoc.js" asp-append-version="true"></script>
+}

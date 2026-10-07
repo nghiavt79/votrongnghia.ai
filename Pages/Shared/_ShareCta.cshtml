@@ -1,0 +1,19 @@
+@*
+    Khối "Thấy hữu ích? Hãy chia sẻ" cuối bài viết và bài học. Trang miễn phí, nên cách
+    ủng hộ chính là chia sẻ. Model: chữ "bài viết" / "khóa học"; link chia sẻ là canonical.
+*@
+@model string
+@inject IConfiguration Configuration
+@{
+    var baseUrl = (Configuration["Site:BaseUrl"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}").TrimEnd('/');
+    var url = Uri.EscapeDataString(baseUrl + Context.Request.Path.Value);
+}
+<div class="card share-cta">
+    <h3>💛 Thấy hữu ích? Hãy chia sẻ cho người cần</h3>
+    <p>Mọi @Model trên trang đều <strong>miễn phí</strong>. Cách tốt nhất để ủng hộ mình là gửi cho bạn bè, đồng nghiệp hay người thân đang muốn học AI.</p>
+    <div class="chips">
+        <a class="chip" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=@url">📘 Chia sẻ Facebook</a>
+        <a class="chip" target="_blank" rel="noopener" href="https://zalo.me/share?url=@url">💬 Gửi qua Zalo</a>
+        <button class="chip" data-share>🔗 Sao chép link</button>
+    </div>
+</div>

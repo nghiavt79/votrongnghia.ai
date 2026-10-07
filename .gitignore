@@ -2,3 +2,17 @@ bin/
 obj/
 .vs/
 *.user
+
+# Dữ liệu sống trên máy chủ: sửa trong /cms. Bản gốc để dựng máy chủ mới nằm ở
+# Data/seed/ và CÓ trong git.
+Data/site.json
+Data/posts.json
+Data/courses.json
+Data/live.json
+Data/admin.json
+Data/keys/
+Data/backups/
+Data/*.tmp
+
+# Đơn đăng ký học: họ tên, email, số điện thoại của người học. Không bao giờ vào git.
+Data/registrations.json

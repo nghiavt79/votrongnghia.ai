@@ -1,0 +1,98 @@
+@page "/bai-viet/{slug}"
+@model VoTrongNghia.Pages.BaiViet.ChiTietModel
+@{
+    var post = Model.Post;
+    ViewData["Title"] = post.Title;
+    ViewData["Description"] = Model.Description;
+    ViewData["OgType"] = "article";
+    ViewData["NoIndex"] = Model.IsPreview;
+}
+
+@section Head {
+    @if (!Model.IsPreview)
+    {
+        <script type="application/ld+json">@Html.Raw(Model.JsonLd)</script>
+    }
+}
+
+<main class="page">
+    @if (Model.IsPreview)
+    {
+        <div class="container">
+            <div class="draft-bar">
+                Bản nháp — chỉ người đăng nhập /cms mới xem được trang này. Khách mở đường dẫn này sẽ gặp trang "không tìm thấy".
+                <a href="/cms/bai-viet/sua/@post.Slug">Về trang sửa bài</a>
+            </div>
+        </div>
+    }
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <a href="/bai-viet">Bài viết</a> / <span>@post.Title</span></nav>
+    </div>
+    <div class="container article-layout">
+        <article class="article">
+            <header class="article-head">
+                @if (post.Tags.Count > 0)
+                {
+                    <div class="tags">@foreach (var tag in post.Tags) { <a class="tag" href="/bai-viet?chuDe=@Uri.EscapeDataString(tag)">@tag</a> }</div>
+                }
+                <h1>@post.Title</h1>
+                @if (post.Summary.Length > 0)
+                {
+                    <p class="lead-sm">@post.Summary</p>
+                }
+                <div class="author">
+                    <img src="/@Model.Site.Avatar" alt="" />
+                    <div>
+                        <strong>@Model.Site.Name</strong>
+                        <span class="muted">📅 <time datetime="@post.PublishedAt?.ToString("yyyy-MM-dd")">@SiteTime.Day(post.PublishedAt)</time> · ⏱ @SiteTime.ReadMinutes(post.Body) phút đọc</span>
+                    </div>
+                </div>
+            </header>
+            <div class="prose">@Html.Raw(Model.Body.Html)</div>
+
+            <partial name="_ShareCta" model="@("bài viết")" />
+
+            <nav class="pager">
+                @if (Model.Newer is { } newer)
+                {
+                    <a class="card" href="@newer.PublicUrl"><small class="muted">← Bài mới hơn</small><strong>@newer.Title</strong></a>
+                }
+                else
+                {
+                    <span></span>
+                }
+                @if (Model.Older is { } older)
+                {
+                    <a class="card next" href="@older.PublicUrl"><small class="muted">Bài cũ hơn →</small><strong>@older.Title</strong></a>
+                }
+            </nav>
+        </article>
+        @if (Model.Body.Headings.Count >= 2)
+        {
+            <aside class="toc" id="toc">
+                <strong>Mục lục</strong>
+                <ul>
+                    @foreach (var heading in Model.Body.Headings)
+                    {
+                        <li class="lv@(heading.Level)"><a href="#@heading.Id">@heading.Text</a></li>
+                    }
+                </ul>
+            </aside>
+        }
+    </div>
+
+    @if (Model.Related.Count > 0)
+    {
+        <section class="section alt">
+            <div class="container">
+                <div class="section-head"><h2>Bài viết liên quan</h2></div>
+                <div class="grid grid-3">
+                    @foreach (var item in Model.Related)
+                    {
+                        <partial name="_PostCard" model="item" />
+                    }
+                </div>
+            </div>
+        </section>
+    }
+</main>

@@ -1,0 +1,72 @@
+@page "/khoa-hoc/{khoa}/{bai}"
+@model VoTrongNghia.Pages.KhoaHoc.BaiModel
+@{
+    var course = Model.Course;
+    var lesson = Model.Lesson;
+    ViewData["Title"] = $"{lesson.Title} - {course.Title}";
+    ViewData["Description"] = $"Bài {Model.Index + 1}: {lesson.Title} — khóa học miễn phí {course.Title}.";
+    ViewData["NoIndex"] = Model.IsPreview;
+}
+
+<main class="page" data-course="@course.Slug" data-lesson-key="@course.Slug/@lesson.Slug">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <a href="/khoa-hoc">Khóa học</a> /
+            <a href="@course.PublicUrl">@course.Title</a> / <span>Bài @(Model.Index + 1)</span></nav>
+    </div>
+    <div class="container lesson-layout">
+        <article class="article">
+            @if (Model.IsPreview)
+            {
+                <div class="draft-bar">Khóa này chưa đăng — chỉ người đăng nhập /cms mới xem được.</div>
+            }
+            <p class="muted">Bài @(Model.Index + 1)/@course.Lessons.Count · ⏱ @lesson.Minutes phút</p>
+            <h1>@lesson.Title</h1>
+            @if (lesson.Video.Length > 0)
+            {
+                <div class="video-embed">
+                    <iframe src="https://www.youtube-nocookie.com/embed/@lesson.Video" title="@lesson.Title"
+                            allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+                </div>
+            }
+            <div class="prose">@Html.Raw(Model.BodyHtml)</div>
+            <div class="lesson-actions"><button class="btn btn-ghost" id="markDone" type="button">Đánh dấu đã học</button></div>
+
+            <partial name="_ShareCta" model="@("khóa học")" />
+
+            <nav class="pager">
+                @if (Model.Previous is { } previous)
+                {
+                    <a class="card" href="@course.LessonUrl(previous)"><small class="muted">← Bài trước</small><strong>@previous.Title</strong></a>
+                }
+                else
+                {
+                    <span></span>
+                }
+                @if (Model.Next is { } next)
+                {
+                    <a class="card next" href="@course.LessonUrl(next)"><small class="muted">Bài tiếp theo →</small><strong>@next.Title</strong></a>
+                }
+                else if (Model.NextCourse is { } nextCourse)
+                {
+                    <a class="card next" href="@nextCourse.PublicUrl"><small class="muted">Khóa tiếp theo →</small><strong>Cấp độ @nextCourse.Level: @nextCourse.Title</strong></a>
+                }
+                else
+                {
+                    <a class="card next" href="/dang-ky"><small class="muted">🎉 Bạn đã học hết các khóa!</small><strong>Đăng ký lớp online cùng mình</strong></a>
+                }
+            </nav>
+        </article>
+        <aside class="sidebar card">
+            <a href="@course.PublicUrl" class="sidebar-title">
+                <span class="level">Cấp độ @course.Level</span><strong>@course.Title</strong>
+            </a>
+            <div class="progress"><div class="progress-bar" data-progress-bar style="width:0%"></div></div>
+            <span class="muted" data-progress-text>Đã học 0/@course.Lessons.Count bài (0%)</span>
+            <partial name="_LessonList" model="(course, lesson.Slug)" />
+        </aside>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="/assets/js/khoa-hoc.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,8 @@
+@* Thẻ một khóa học: trang chủ, trang tất cả khóa học, "Các khóa học khác". *@
+@model Course
+<a class="card course reveal" href="@Model.PublicUrl">
+    <span class="level">Cấp độ @Model.Level</span>
+    <h3>@Model.Title</h3>
+    <p>@Model.Summary</p>
+    <span class="muted">📚 @Model.Lessons.Count bài · ⏱ @Model.TotalMinutes phút</span>
+</a>

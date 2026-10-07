@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>VoTrongNghia</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Soạn bài viết / bài học bằng Markdown. BSD-2, không kéo thêm gì. Cùng bản với Dokma. -->
+    <PackageReference Include="Markdig" Version="1.4.0" />
+  </ItemGroup>
+
+  <!-- Script cập nhật dữ liệu AI Templates chạy tay trên máy dev, không vào bản publish. -->
+  <ItemGroup>
+    <Content Remove="scripts\**" />
+    <None Remove="scripts\**" />
+  </ItemGroup>
+
+  <!--
+    Nội dung sống của site KHÔNG đóng gói vào bản publish.
+
+    Bài viết, khóa học, lớp online, thông tin trang là thứ sửa trong /cms; đơn đăng ký
+    là dữ liệu cá nhân của người học. Nếu bản publish mang theo chúng thì mỗi lần copy
+    lên máy chủ là đè thẳng lên bài vừa sửa và xoá sạch đơn — bản publish luôn là ảnh
+    chụp cũ từ máy dev.
+
+    Loại ở đây chứ không phải ở .gitignore: `dotnet publish` đọc đĩa chứ không đọc git,
+    file không được git theo dõi vẫn bị đóng gói như thường.
+
+    Data\seed\ VẪN đi theo bản publish: máy chủ mới tinh chưa có Data\posts.json thì lần
+    khởi động đầu tự chép từ seed sang (ContentPaths.EnsureInitialized). Seed không bao
+    giờ đè lên file đã có.
+  -->
+  <ItemGroup>
+    <Content Update="Data\site.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\posts.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\courses.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\live.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\registrations.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\admin.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\keys\**" CopyToPublishDirectory="Never" />
+    <None Update="Data\keys\**" CopyToPublishDirectory="Never" />
+    <Content Update="Data\backups\**" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+@*
+    Danh sách bài của một khóa. Model: (khóa, slug bài đang mở hoặc null).
+    Dấu ✓ "đã học" do khoa-hoc.js thêm theo tiến độ trên máy người học (data-lesson).
+*@
+@model (Course Course, string? Current)
+<ol class="lesson-list">
+    @for (var i = 0; i < Model.Course.Lessons.Count; i++)
+    {
+        var lesson = Model.Course.Lessons[i];
+        <li>
+            <a href="@Model.Course.LessonUrl(lesson)" class="@(lesson.Slug == Model.Current ? "current" : "")" data-lesson="@Model.Course.Slug/@lesson.Slug">
+                <span class="num">@(i + 1)</span>
+                <span class="lesson-title">@lesson.Title</span>
+                <span class="muted">@lesson.Minutes phút</span>
+            </a>
+        </li>
+    }
+</ol>

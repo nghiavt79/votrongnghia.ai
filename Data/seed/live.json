@@ -1,0 +1,12 @@
+{
+  "requireCourse": "ai-cho-nguoi-moi",
+  "minHoursPerWeek": 3,
+  "commitments": [
+    "Tham gia đầy đủ các buổi học, đúng giờ",
+    "Làm bài tập thực hành sau mỗi buổi",
+    "Báo trước nếu vắng — vắng 2 buổi không báo sẽ nhường chỗ cho người khác",
+    "Chia sẻ lại kiến thức cho ít nhất 1 người khác (lan tỏa)"
+  ],
+  "pledge": "Tôi cam kết học nghiêm túc và lan tỏa kiến thức",
+  "sessions": []
+}

@@ -1,0 +1,172 @@
+@page "/dang-ky"
+@model VoTrongNghia.Pages.DangKyModel
+@{
+    ViewData["Title"] = "Đăng ký học online miễn phí";
+    ViewData["Description"] = "Đăng ký lớp hướng dẫn AI online miễn phí — dành cho người học nghiêm túc, cam kết theo đến cùng.";
+    var course = Model.RequiredCourse;
+    var live = Model.Live;
+    var stepNo = 0;
+
+    // Ô có lỗi thì in câu lỗi ngay dưới ô.
+    Microsoft.AspNetCore.Html.IHtmlContent Err(string field) =>
+        Model.ErrorFor(field) is { } message
+            ? new Microsoft.AspNetCore.Html.HtmlString($"<small class=\"field-error\">{System.Net.WebUtility.HtmlEncode(message)}</small>")
+            : Microsoft.AspNetCore.Html.HtmlString.Empty;
+}
+
+<main class="page">
+    <div class="container signup">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <a href="/#hoc-online">Học online</a> / <span>Đăng ký</span></nav>
+
+        @if (Model.DoneCode is not null)
+        {
+            <div class="card signup-done">
+                <h1 class="page-title">🎉 Cảm ơn @Model.DoneName!</h1>
+                <p>Đơn của bạn đã được gửi, mã đơn <strong>@Model.DoneCode</strong>.</p>
+                <p>Mình đọc từng đơn và sẽ phản hồi qua email <strong>@Model.DoneEmail</strong> hoặc Zalo trong vòng 3–5 ngày.</p>
+                <p class="muted">Trong lúc chờ, bạn có thể học tiếp các khóa miễn phí khác.</p>
+                <a class="btn btn-primary" href="/khoa-hoc">🎓 Học tiếp</a>
+            </div>
+        }
+        else
+        {
+            <div class="section-head">
+                <span class="pill">🎁 Miễn phí · Cần cam kết</span>
+                <h1 class="page-title" style="margin-top:16px">Đăng Ký Lớp Học Online</h1>
+                <p>Lớp hoàn toàn miễn phí nhưng số chỗ có hạn. Mình dành chỗ cho những bạn <strong>thực sự nghiêm túc</strong> — mỗi đơn đều được mình đọc và xét duyệt.</p>
+            </div>
+
+            <ol class="steps">
+                @if (course is not null)
+                {
+                    <li data-gate-step><span>@(++stepNo)</span>Hoàn thành bài đầu vào</li>
+                }
+                <li><span>@(++stepNo)</span>Điền thông tin &amp; mục tiêu</li>
+                <li><span>@(++stepNo)</span>Ký cam kết &amp; gửi đơn</li>
+            </ol>
+
+            @if (course is not null)
+            {
+                @*
+                    Bài đầu vào: form khoá sẵn, dang-ky.js đọc tiến độ học trên máy người học
+                    rồi mở khoá khi đã học xong khóa này. Danh sách bài để JS lọc ra bài còn thiếu.
+                *@
+                <div class="card gate" id="gate" data-course="@course.Slug" data-lessons="@string.Join('|', course.Lessons.Select(l => l.Slug))">
+                    <h2 data-gate-title>🔒 Bước 1: Hoàn thành bài đầu vào</h2>
+                    <div data-gate-todo>
+                        <p>Để chắc chắn bạn nghiêm túc, hãy học xong khóa miễn phí <strong>@course.Title</strong>
+                            (@course.Lessons.Count bài, khoảng @course.TotalMinutes phút) và bấm <em>"Đánh dấu đã học"</em>
+                            ở cuối mỗi bài. Form đăng ký sẽ tự mở khóa.</p>
+                        <p class="muted" data-gate-count>Các bài cần học:</p>
+                        <ul class="gate-list">
+                            @foreach (var lesson in course.Lessons)
+                            {
+                                <li data-gate-lesson="@lesson.Slug"><a href="@course.LessonUrl(lesson)">📖 @lesson.Title</a></li>
+                            }
+                        </ul>
+                        <a class="btn btn-primary" data-gate-start href="@course.LessonUrl(course.Lessons[0])">▶ Học ngay</a>
+                    </div>
+                    <p data-gate-done hidden>Tuyệt vời! Bạn đã học xong <strong>@course.Title</strong>. Mời bạn điền đơn bên dưới.</p>
+                </div>
+            }
+
+            <form class="card signup-form @(course is not null && Model.Errors.Count == 0 ? "locked" : "")" id="signupForm" method="post" novalidate>
+                @* Đã gửi lên máy chủ (có lỗi) thì không khoá lại: người này rõ ràng đã qua bước 1. *@
+                <fieldset @(course is not null && Model.Errors.Count == 0 ? "disabled" : "")>
+                    @if (Model.Errors.Count > 0)
+                    {
+                        <p class="form-error">⚠️ Đơn chưa gửi được — xem các dòng báo đỏ bên dưới.</p>
+                    }
+
+                    <h2>📝 Thông tin của bạn</h2>
+                    <div class="form-grid">
+                        <label>Họ và tên *<input asp-for="Input.Name" required autocomplete="name" maxlength="80" />@Err("Name")</label>
+                        <label>Email *<input asp-for="Input.Email" type="email" required autocomplete="email" maxlength="120" />@Err("Email")</label>
+                        <label>Số điện thoại / Zalo *<input asp-for="Input.Phone" type="tel" required autocomplete="tel" maxlength="15" />@Err("Phone")</label>
+                        <label>Nghề nghiệp hiện tại *<input asp-for="Input.Job" required maxlength="120" placeholder="vd. Nhân viên văn phòng, chủ shop online…" />@Err("Job")</label>
+                    </div>
+                    <label>Bạn đang dùng AI ở mức nào? *
+                        <select asp-for="Input.AiLevel" required>
+                            <option value="">— Chọn —</option>
+                            @foreach (var level in Registration.AiLevels)
+                            {
+                                <option value="@level" selected="@(Model.Input.AiLevel == level)">@level</option>
+                            }
+                        </select>
+                        @Err("AiLevel")
+                    </label>
+                    @if (Model.Sessions.Count > 0)
+                    {
+                        <label>Buổi muốn tham gia *
+                            <select asp-for="Input.SessionId" required>
+                                <option value="">— Chọn buổi —</option>
+                                @foreach (var session in Model.Sessions)
+                                {
+                                    <option value="@session.Id" selected="@(Model.Input.SessionId == session.Id)">@session.Date.ToString("dd/MM/yyyy") · @session.Time — @session.Title</option>
+                                }
+                            </select>
+                            @Err("SessionId")
+                        </label>
+                    }
+
+                    <h2>🎯 Mục tiêu</h2>
+                    <label>Vì sao bạn muốn học, và cụ thể bạn muốn giải quyết vấn đề gì? *
+                        <textarea asp-for="Input.Goal" rows="4" required minlength="@RegistrationStore.GoalMinLength" maxlength="2000"
+                                  placeholder="Càng cụ thể càng tốt — vd. Mình làm kế toán, mỗi tháng mất 2 ngày tổng hợp báo cáo, muốn dùng AI để rút xuống còn nửa ngày…"></textarea>
+                        <small class="counter" data-for="Input_Goal"></small>
+                        @Err("Goal")
+                    </label>
+                    <label>Sau khóa học, bạn muốn tự làm ra được gì? *
+                        <textarea asp-for="Input.Project" rows="3" required minlength="@RegistrationStore.ProjectMinLength" maxlength="1000"
+                                  placeholder="vd. Một công cụ tự động trả lời tin nhắn khách hàng"></textarea>
+                        <small class="counter" data-for="Input_Project"></small>
+                        @Err("Project")
+                    </label>
+                    <label>Mỗi tuần bạn dành được bao nhiêu giờ để tự học &amp; thực hành? *
+                        <select asp-for="Input.HoursPerWeek" required>
+                            <option value="0">— Chọn —</option>
+                            @foreach (var (value, label) in Registration.HourOptions)
+                            {
+                                <option value="@value" selected="@(Model.Input.HoursPerWeek == value)">@label</option>
+                            }
+                        </select>
+                        <small class="muted">Cần tối thiểu @live.MinHoursPerWeek giờ/tuần để theo kịp lớp.</small>
+                        @Err("HoursPerWeek")
+                    </label>
+
+                    @if (live.Commitments.Count > 0 || live.Pledge.Length > 0)
+                    {
+                        <h2>🤝 Cam kết</h2>
+                    }
+                    @if (live.Commitments.Count > 0)
+                    {
+                        <div class="commit-list">
+                            @for (var i = 0; i < live.Commitments.Count; i++)
+                            {
+                                <label class="check"><input type="checkbox" name="Input.Commitments" value="@i" required checked="@Model.Input.Commitments.Contains(i)" /> <span>@live.Commitments[i]</span></label>
+                            }
+                        </div>
+                        @Err("Commitments")
+                    }
+                    @if (live.Pledge.Length > 0)
+                    {
+                        <label>Gõ lại chính xác câu sau để xác nhận: <strong class="pledge">“@live.Pledge”</strong>
+                            <input asp-for="Input.Pledge" required autocomplete="off" placeholder="Gõ lại câu cam kết…" />
+                            @Err("Pledge")
+                        </label>
+                    }
+
+                    @* Ô bẫy: người thật không thấy, máy gửi rác điền vào là bị bỏ qua. *@
+                    <input asp-for="Input.Website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+                    <button class="btn btn-primary btn-lg" type="submit">✍️ Gửi đơn đăng ký</button>
+                    <p class="muted">Mình sẽ đọc từng đơn và phản hồi qua email / Zalo trong vòng 3–5 ngày. Thông tin của bạn chỉ dùng để liên hệ về lớp học.</p>
+                </fieldset>
+            </form>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script src="/assets/js/dang-ky.js" asp-append-version="true"></script>
+}

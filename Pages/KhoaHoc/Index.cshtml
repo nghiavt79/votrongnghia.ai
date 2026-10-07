@@ -1,0 +1,28 @@
+@page "/khoa-hoc"
+@model VoTrongNghia.Pages.KhoaHoc.IndexModel
+@{
+    ViewData["Title"] = "Khóa học AI miễn phí";
+    ViewData["Description"] = $"{Model.Courses.Count} khóa học AI miễn phí chia theo cấp độ, học từ con số 0 — không cần đăng ký.";
+}
+
+<main class="page">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <span>Khóa học</span></nav>
+        <div class="section-head">
+            <span class="pill">🎁 100% miễn phí · không cần đăng ký</span>
+            <h1 class="page-title" style="margin-top:16px">Khóa Học AI Miễn Phí</h1>
+            <p>Học theo thứ tự cấp độ. Bấm <em>"Đánh dấu đã học"</em> cuối mỗi bài để theo dõi tiến độ ngay trên máy của bạn.</p>
+        </div>
+        <div class="grid grid-4">
+            @foreach (var course in Model.Courses)
+            {
+                <partial name="_CourseCard" model="course" />
+            }
+        </div>
+        <div class="card live-empty">
+            <h3>🎥 Muốn được hướng dẫn trực tiếp?</h3>
+            <p>Học xong khóa cấp độ 1 là bạn đủ điều kiện đăng ký lớp online miễn phí cùng mình.</p>
+            <a class="btn btn-primary" href="/dang-ky">✍️ Đăng ký lớp online</a>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,118 @@
+@page "/cms/dang-ky/{ma}"
+@model VoTrongNghia.Pages.Admin.DangKy.ChiTietModel
+@{
+    var item = Model.Item;
+    ViewData["Title"] = item.Name;
+    ViewData["Subtitle"] = $"Đơn {item.Code} · gửi lúc {item.CreatedAt:HH:mm dd/MM/yyyy}";
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" asp-page="/Admin/DangKy/Index"><i class="bi bi-arrow-left me-1"></i>Về danh sách</a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-bullseye me-1"></i>Mục tiêu</h5></div>
+            <div class="card-body">
+                <p class="small text-body-secondary mb-1">Vì sao muốn học, muốn giải quyết vấn đề gì</p>
+                <div class="vn-answer mb-3">@item.Goal</div>
+                <p class="small text-body-secondary mb-1">Sau khóa học muốn tự làm ra được gì</p>
+                <div class="vn-answer">@item.Project</div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-person me-1"></i>Thông tin</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8"><a href="mailto:@item.Email">@item.Email</a> <button type="button" class="btn btn-sm btn-link p-0 ms-1" data-chep="@item.Email" title="Chép email"><i class="bi bi-copy"></i></button></dd>
+                    <dt class="col-sm-4">Số điện thoại / Zalo</dt>
+                    <dd class="col-sm-8"><a href="tel:@item.Phone">@item.Phone</a> · <a href="https://zalo.me/@item.Phone" target="_blank" rel="noopener">Mở Zalo</a></dd>
+                    <dt class="col-sm-4">Nghề nghiệp</dt>
+                    <dd class="col-sm-8">@item.Job</dd>
+                    <dt class="col-sm-4">Mức dùng AI</dt>
+                    <dd class="col-sm-8">@item.AiLevel</dd>
+                    <dt class="col-sm-4">Thời gian tự học</dt>
+                    <dd class="col-sm-8">@item.HoursLabel mỗi tuần</dd>
+                    <dt class="col-sm-4">Buổi đăng ký</dt>
+                    <dd class="col-sm-8">
+                        @(item.SessionLabel.Length > 0 ? item.SessionLabel : "Đăng ký lúc chưa có lịch")
+                        @if (Model.Session is { Capacity: > 0 } session)
+                        {
+                            <span class="badge @(Model.ApprovedInSession >= session.Capacity ? "text-bg-danger" : "text-bg-light") ms-1">
+                                Đã duyệt @Model.ApprovedInSession/@session.Capacity chỗ
+                            </span>
+                        }
+                        else if (item.SessionId.Length > 0 && Model.Session is null)
+                        {
+                            <span class="badge text-bg-light ms-1">Buổi này đã bị xoá khỏi lịch</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (Model.Others.Count > 0)
+        {
+            <div class="alert alert-info small">
+                <i class="bi bi-info-circle me-1"></i>Người này còn @Model.Others.Count đơn khác (cùng email hoặc số điện thoại):
+                @foreach (var other in Model.Others)
+                {
+                    <a class="ms-1" asp-page="/Admin/DangKy/ChiTiet" asp-route-ma="@other.Code">@other.Code (@other.StatusLabel)</a>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-check2-square me-1"></i>Quyết định</h5></div>
+            <form method="post" asp-route-ma="@item.Code">
+                <div class="card-body">
+                    @foreach (var (key, label, badge) in Registration.Statuses)
+                    {
+                        <div class="form-check mb-1">
+                            <input class="form-check-input" type="radio" name="Status" id="st-@key" value="@key" checked="@(Model.Status == key)" />
+                            <label class="form-check-label" for="st-@key"><span class="badge @badge">@label</span></label>
+                        </div>
+                    }
+                    <label class="form-label mt-3" asp-for="AdminNote">Ghi chú riêng</label>
+                    <textarea class="form-control" asp-for="AdminNote" rows="3" placeholder="Người học không thấy ghi chú này"></textarea>
+                </div>
+                <div class="card-footer d-grid gap-2">
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>
+                    <a class="btn btn-outline-secondary" href="@Model.MailTo()"><i class="bi bi-envelope me-1"></i>Soạn email báo kết quả</a>
+                    <div class="form-text">Soạn email theo trạng thái <strong>đã lưu</strong> (@item.StatusLabel). Site không tự gửi thư — bạn đọc lại, sửa chỗ <code>[…]</code> rồi gửi.</div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card shadow-sm border-danger-subtle">
+            <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá đơn</h6></div>
+            <div class="card-body">
+                <p class="small">Cho đơn rác, hoặc khi người học xin xoá thông tin. Muốn từ chối thì chọn "Không phù hợp" là đủ.</p>
+                <form method="post" asp-page-handler="Xoa" asp-route-ma="@item.Code" class="d-flex gap-2" autocomplete="off">
+                    <input class="form-control form-control-sm" name="confirm" placeholder="Gõ @item.Code" aria-label="Xác nhận" />
+                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn đơn này?">Xoá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

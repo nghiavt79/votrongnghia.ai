@@ -1,0 +1,146 @@
+@page "/cms/lop-online"
+@model VoTrongNghia.Pages.Admin.LopOnlineModel
+@{
+    ViewData["Title"] = "Lịch & điều kiện lớp online";
+    var upcoming = Model.Live.Upcoming(SiteTime.Today).ToList();
+    ViewData["Subtitle"] = $"{upcoming.Count} buổi sắp tới · {Model.Live.Sessions.Count - upcoming.Count} buổi đã qua";
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" href="/dang-ky" target="_blank" rel="noopener">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Xem trang đăng ký
+    </a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-calendar-event me-1"></i>Các buổi học</h5></div>
+            @if (Model.Live.Sessions.Count == 0)
+            {
+                <div class="card-body text-body-secondary">Chưa có buổi nào — trang chủ hiện "Sắp khai giảng" và người học vẫn đăng ký được (đơn không gắn buổi).</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var session in Model.Live.Sessions.OrderByDescending(item => item.Date))
+                    {
+                        var past = session.Date < SiteTime.Today;
+                        var (all, approved) = Model.Counts.GetValueOrDefault(session.Id);
+                        <li class="list-group-item d-flex align-items-center gap-2 @(past ? "opacity-50" : "")">
+                            <div class="text-center" style="min-width:56px">
+                                <div class="fw-bold fs-5">@session.Date.Day</div>
+                                <div class="small text-body-secondary">Th@(session.Date.Month)/@session.Date.Year</div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">@session.Title @(past ? "(đã qua)" : "")</div>
+                                <div class="small text-body-secondary">@session.Time · @session.Platform@(session.Capacity > 0 ? $" · {session.Capacity} chỗ" : "")</div>
+                                <a class="small" asp-page="/Admin/DangKy/Index" asp-route-buoi="@session.Id">@all đơn · @approved đã duyệt</a>
+                            </div>
+                            <a class="btn btn-sm btn-outline-secondary" asp-route-sua="@session.Id" title="Sửa"><i class="bi bi-pencil"></i></a>
+                            <form method="post" asp-page-handler="XoaBuoi">
+                                <input type="hidden" name="id" value="@session.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Xoá buổi “@session.Title”?" title="Xoá"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="card shadow-sm mb-3" id="buoi">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-@(Model.EditingId is null ? "plus-square" : "pencil") me-1"></i>@(Model.EditingId is null ? "Thêm buổi học" : "Sửa buổi học")</h5></div>
+            <form method="post" asp-page-handler="Buoi" asp-route-sua="@Model.EditingId" autocomplete="off">
+                <div class="card-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Session.Title">Chủ đề</label>
+                        <input class="form-control" asp-for="Session.Title" placeholder="vd. AI cho người mới bắt đầu" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Session.Date">Ngày</label>
+                        <input class="form-control" type="date" asp-for="Session.Date" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Session.Time">Giờ</label>
+                        <input class="form-control" asp-for="Session.Time" placeholder="20:00 – 21:30" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Session.Platform">Hình thức</label>
+                        <input class="form-control" asp-for="Session.Platform" list="nenTang" />
+                        <datalist id="nenTang"><option value="Google Meet"></option><option value="Zoom"></option><option value="Livestream Facebook"></option></datalist>
+                        <div class="form-text">Không dán link phòng học ở đây — link chỉ gửi riêng cho người được duyệt.</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Session.Capacity">Số chỗ</label>
+                        <input class="form-control" type="number" min="0" asp-for="Session.Capacity" />
+                        <div class="form-text">0 là không giới hạn. Chỉ để hiện và nhắc khi duyệt, không tự chặn đăng ký.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Session.Description">Mô tả ngắn</label>
+                        <input class="form-control" asp-for="Session.Description" placeholder="vd. Làm quen ChatGPT, Claude từ con số 0" />
+                    </div>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <button type="submit" class="btn btn-brand">@(Model.EditingId is null ? "Thêm buổi" : "Lưu buổi")</button>
+                    @if (Model.EditingId is not null)
+                    {
+                        <a class="btn btn-outline-secondary" asp-page="/Admin/LopOnline">Huỷ</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <form method="post" asp-page-handler="DieuKien" autocomplete="off">
+            <div class="card shadow-sm">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-shield-check me-1"></i>Điều kiện đăng ký</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Rules.RequireCourse">Bài đầu vào</label>
+                        <select class="form-select" asp-for="Rules.RequireCourse">
+                            <option value="">Không yêu cầu — ai cũng mở được form</option>
+                            @foreach (var course in Model.Courses)
+                            {
+                                <option value="@course.Slug">Cấp độ @course.Level: @course.Title (@course.Lessons.Count bài)</option>
+                            }
+                        </select>
+                        <div class="form-text">Người học phải đánh dấu xong hết bài của khóa này thì form mới mở. Tiến độ lưu trên máy người học — lọc người chỉ tò mò, không phải khoá chặt.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Rules.MinHoursPerWeek">Giờ tự học tối thiểu mỗi tuần</label>
+                        <input class="form-control" type="number" min="0" max="40" asp-for="Rules.MinHoursPerWeek" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Rules.Commitments">Cam kết (mỗi dòng một điều)</label>
+                        <textarea class="form-control" asp-for="Rules.Commitments" rows="5"></textarea>
+                        <div class="form-text">Người học phải tích đủ tất cả.</div>
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Rules.Pledge">Câu cam kết phải gõ lại</label>
+                        <input class="form-control" asp-for="Rules.Pledge" />
+                        <div class="form-text">Không phân biệt hoa thường và dấu chấm cuối câu. Để trống là bỏ bước này.</div>
+                    </div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu điều kiện</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

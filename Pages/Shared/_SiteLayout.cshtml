@@ -1,0 +1,140 @@
+@*
+    Khung cho mọi trang công khai: header, menu, footer, nút nổi góc phải.
+
+    Bản tĩnh cũ vẽ header/footer bằng JS (common.js); nay máy chủ dựng sẵn để Google và
+    người tắt JS đều đọc được, JS (assets/js/site.js) chỉ thêm phần bấm được.
+
+    ViewData nhận: Title, Description, OgType, NoIndex (bool), Canonical (đường dẫn, mặc
+    định là đường dẫn hiện tại, bỏ query).
+*@
+@inject SiteContent Content
+@inject IConfiguration Configuration
+@{
+    var site = await Content.Site.ReadAsync();
+    var baseUrl = (Configuration["Site:BaseUrl"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}").TrimEnd('/');
+    var canonical = baseUrl + (ViewData["Canonical"] as string ?? Context.Request.Path.Value);
+    var title = ViewData["Title"] as string;
+    var fullTitle = string.IsNullOrEmpty(title) ? $"{site.Name} - Học AI Thực Chiến" : $"{title} - {site.Name}";
+    var description = ViewData["Description"] as string ?? site.HeroDescription;
+
+    // [chữ, đích, có hiện không]. Mục nào chưa có nội dung thì ẩn (chưa có kênh → không có Videos).
+    var nav = new (string Text, string Href, bool Show)[]
+    {
+        ("Khóa học miễn phí", "/khoa-hoc", true),
+        ("Học online", "/#hoc-online", true),
+        ("AI Templates", "/ai-templates", true),
+        ("Công cụ AI", "/#cong-cu", site.Tools.Count > 0),
+        ("Videos", "/#videos", site.ShowVideos),
+        ("Bài viết", "/bai-viet", true),
+        ("Cộng đồng", "/#cong-dong", true),
+        ("Ủng hộ", "/#ung-ho", site.ShowDonate),
+        ("Liên hệ", "/#lien-he", site.Email.Length > 0),
+    };
+
+    var connect = new[] { (site.Youtube, "YouTube"), (site.Facebook, "Facebook"), (site.FacebookGroup, "Nhóm Facebook") }
+        .Where(item => item.Item1.Length > 0);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@fullTitle</title>
+    <meta name="description" content="@description" />
+    @if (ViewData["NoIndex"] is true)
+    {
+        <meta name="robots" content="noindex" />
+    }
+    <link rel="canonical" href="@canonical" />
+    <meta property="og:type" content="@(ViewData["OgType"] ?? "website")" />
+    <meta property="og:title" content="@(title ?? site.Name)" />
+    <meta property="og:description" content="@description" />
+    <meta property="og:url" content="@canonical" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="@site.Name" />
+    <link rel="icon" href="/@site.Avatar" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    @* Font tải không chặn hiển thị: chữ hiện ngay bằng font máy, Be Vietnam Pro thay vào khi tải xong. *@
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@@400;500;600;700;800&display=swap" /></noscript>
+    <link rel="stylesheet" href="/assets/css/style.css" asp-append-version="true" />
+    <script>
+        // Chạy trước khi vẽ trang: đặt giao diện tối (nếu có) để trang không nháy trắng,
+        // và gắn lớp "js" để hiệu ứng hiện dần chỉ áp dụng khi có JS.
+        document.documentElement.classList.add("js");
+        try {
+            var t = localStorage.getItem("theme");
+            if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches))
+                document.documentElement.dataset.theme = "dark";
+        } catch (e) {}
+    </script>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <header class="header">
+        <div class="container header-top">
+            <a href="/" class="brand"><img src="/@site.Avatar" alt="" /><span>@site.Name</span></a>
+            <div class="header-actions">
+                <button class="icon-btn" id="themeToggle" aria-label="Đổi giao diện sáng/tối">🌙</button>
+                @if (site.Youtube.Length > 0)
+                {
+                    <a class="btn btn-youtube" href="@site.Youtube" target="_blank" rel="noopener">▶ Đăng ký kênh</a>
+                }
+                <button class="icon-btn menu-btn" id="menuToggle" aria-label="Mở menu">☰</button>
+            </div>
+        </div>
+        <nav class="nav" id="nav">
+            <div class="container nav-inner">
+                @foreach (var item in nav.Where(item => item.Show))
+                {
+                    <a href="@item.Href">@item.Text</a>
+                }
+            </div>
+        </nav>
+    </header>
+
+    @RenderBody()
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-about">
+                <a href="/" class="brand"><img src="/@site.Avatar" alt="" /><span>@site.Name</span></a>
+                <p>Chia sẻ kiến thức AI và vibe code thực tế — <strong>hoàn toàn miễn phí</strong>, cho tất cả mọi người.</p>
+            </div>
+            <div>
+                <h4>Học miễn phí</h4>
+                <a href="/khoa-hoc">Khóa học AI</a>
+                <a href="/#hoc-online">Học online</a>
+                <a href="/bai-viet">Bài viết</a>
+                <a href="/ai-templates">AI Templates</a>
+            </div>
+            <div>
+                <h4>Kết nối</h4>
+                @foreach (var (url, text) in connect)
+                {
+                    <a href="@url" target="_blank" rel="noopener">@text</a>
+                }
+                <a href="/dang-ky">Đăng ký học online</a>
+                @if (site.Email.Length > 0)
+                {
+                    <a href="mailto:@site.Email">@site.Email</a>
+                }
+            </div>
+        </div>
+        <div class="container footer-bottom">© @SiteTime.Now.Year @site.Name · Nội dung miễn phí, hãy chia sẻ cho người cần ♥</div>
+    </footer>
+
+    @if (site.ShowDonate)
+    {
+        <a href="/#ung-ho" class="float-btn">☕ Ủng hộ mình 1 ly cafe</a>
+    }
+    else
+    {
+        <button class="float-btn" data-share>📣 Chia sẻ trang này</button>
+    }
+
+    <script src="/assets/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

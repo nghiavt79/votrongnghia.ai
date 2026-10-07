@@ -1,0 +1,75 @@
+@page "/cms/doi-mat-khau"
+@model VoTrongNghia.Pages.Admin.DoiMatKhauModel
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+    ViewData["Subtitle"] = "Tài khoản " + User.Identity!.Name;
+}
+
+<div class="row">
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-key me-1"></i>Đổi mật khẩu quản trị</h5>
+            </div>
+
+            <form method="post">
+                <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <div class="d-flex">
+                                <i class="bi bi-exclamation-octagon me-2 mt-1"></i>
+                                <div asp-validation-summary="All"></div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="CurrentPassword">Mật khẩu hiện tại</label>
+                        <input class="form-control" asp-for="CurrentPassword" type="password"
+                               autocomplete="current-password" autofocus />
+                        <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="NewPassword">Mật khẩu mới</label>
+                        <input class="form-control" asp-for="NewPassword" type="password"
+                               autocomplete="new-password" />
+                        <div class="form-text">
+                            Từ @VoTrongNghia.Pages.Admin.DoiMatKhauModel.MinimumLength ký tự trở lên. Đây là
+                            mật khẩu duy nhất canh cửa sửa nội dung cả site, nên đừng dùng lại mật khẩu
+                            đang dùng ở chỗ khác.
+                        </div>
+                        <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="ConfirmPassword">Nhập lại mật khẩu mới</label>
+                        <input class="form-control" asp-for="ConfirmPassword" type="password"
+                               autocomplete="new-password" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <div class="alert alert-secondary mb-0 small" role="alert">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Đổi xong, những máy khác đang mở sẵn trang quản trị sẽ bị đăng xuất và phải
+                        nhập mật khẩu mới.
+                    </div>
+                </div>
+
+                <div class="card-footer d-flex gap-2">
+                    <button type="submit" class="btn btn-brand">
+                        <i class="bi bi-key me-1"></i>Đổi mật khẩu
+                    </button>
+                    <a class="btn btn-outline-secondary" asp-page="/Admin/Index">Huỷ</a>
+                </div>
+            </form>
+        </div>
+
+        <p class="text-body-secondary small mt-3">
+            Quên mật khẩu thì không tự lấy lại được — mật khẩu chỉ lưu dạng băm, không ai đọc ngược
+            ra. Lúc đó phải đặt lại trên máy chủ bằng lệnh
+            <code>dotnet VoTrongNghia.dll --dat-mat-khau</code>.
+        </p>
+    </div>
+</div>

@@ -1,0 +1,124 @@
+{
+  "name": "Võ Trọng Nghĩa",
+  "title": "Lập trình viên 20 năm · Vibe coder · Người chia sẻ AI",
+  "badge": "20 năm lập trình · Vibe code từ những ngày đầu",
+  "heroLead": "Học AI Thực Chiến Cùng",
+  "heroDescription": "Kinh nghiệm thật từ một lập trình viên 20 năm đã đưa AI vào công việc hằng ngày — hướng dẫn dễ hiểu, áp dụng được ngay, dành cho cả người chưa từng biết đến công nghệ.",
+  "bio": "Mình là Võ Trọng Nghĩa, lập trình viên với 20 năm kinh nghiệm. Mình bắt đầu vibe code từ khi cộng đồng mới hình thành, rồi dần đưa AI vào công việc và thấy nó thực sự hữu ích. Mình hướng dẫn cho bạn bè, người thân và nhận được phản hồi rất tích cực — nên mình làm trang này để chia sẻ kiến thức AI cho tất cả mọi người, kể cả những người mình chưa từng gặp.",
+  "avatar": "assets/img/avatar.svg",
+  "email": "",
+  "youtube": "",
+  "facebook": "",
+  "facebookGroup": "",
+  "tiktok": "",
+  "linkedin": "",
+  "x": "",
+  "threads": "",
+  "bankName": "",
+  "bankNumber": "",
+  "bankOwner": "",
+  "paypal": "",
+  "donate": false,
+  "story": [
+    {
+      "icon": "💻",
+      "title": "20 năm lập trình",
+      "description": "Làm nghề lập trình từ những ngày đầu sự nghiệp."
+    },
+    {
+      "icon": "🚀",
+      "title": "Vibe code từ sớm",
+      "description": "Bắt đầu lập trình cùng AI khi cộng đồng mới hình thành."
+    },
+    {
+      "icon": "🛠️",
+      "title": "Áp dụng vào công việc",
+      "description": "Đưa AI vào công việc hằng ngày và thấy hiệu quả rõ rệt."
+    },
+    {
+      "icon": "🤝",
+      "title": "Hướng dẫn người thân",
+      "description": "Chỉ cho bạn bè, gia đình dùng AI — phản hồi rất tích cực."
+    },
+    {
+      "icon": "🌱",
+      "title": "Lan tỏa cho mọi người",
+      "description": "Xây dựng trang này để ai cũng có thể học và dùng AI."
+    }
+  ],
+  "tools": [
+    {
+      "name": "ChatGPT",
+      "description": "Trợ lý AI đa năng",
+      "icon": "💬",
+      "url": "https://chatgpt.com"
+    },
+    {
+      "name": "Claude",
+      "description": "Viết, phân tích, lập trình",
+      "icon": "✳️",
+      "url": "https://claude.ai"
+    },
+    {
+      "name": "Gemini",
+      "description": "AI của Google",
+      "icon": "✨",
+      "url": "https://gemini.google.com"
+    },
+    {
+      "name": "Perplexity",
+      "description": "Tìm kiếm thông minh",
+      "icon": "🔎",
+      "url": "https://perplexity.ai"
+    },
+    {
+      "name": "ElevenLabs",
+      "description": "Text to Speech & Voice Clone",
+      "icon": "🎙️",
+      "url": "https://elevenlabs.io"
+    },
+    {
+      "name": "Suno",
+      "description": "Tạo nhạc bằng AI",
+      "icon": "🎵",
+      "url": "https://suno.com"
+    },
+    {
+      "name": "HeyGen",
+      "description": "Avatar AI & video nói",
+      "icon": "🧑‍💼",
+      "url": "https://heygen.com"
+    },
+    {
+      "name": "Midjourney",
+      "description": "Tạo ảnh nghệ thuật",
+      "icon": "🎨",
+      "url": "https://midjourney.com"
+    },
+    {
+      "name": "CapCut",
+      "description": "Dựng video nhanh",
+      "icon": "🎬",
+      "url": "https://capcut.com"
+    },
+    {
+      "name": "Notion AI",
+      "description": "Ghi chú & quản lý công việc",
+      "icon": "📝",
+      "url": "https://notion.so"
+    },
+    {
+      "name": "Canva",
+      "description": "Thiết kế với Magic Studio",
+      "icon": "🖌️",
+      "url": "https://canva.com"
+    },
+    {
+      "name": "Gamma",
+      "description": "Tạo slide trong vài giây",
+      "icon": "📊",
+      "url": "https://gamma.app"
+    }
+  ],
+  "videos": []
+}

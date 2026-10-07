@@ -1,0 +1,382 @@
+/*
+  Trang đăng nhập quản trị.
+
+  Trang này đứng một mình (Layout = null) và cố tình KHÔNG nạp Bootstrap hay
+  AdminLTE: nó chỉ có một biểu mẫu hai ô, không đáng tải 600KB thư viện chỉ để
+  vẽ chỗ nhập. Mọi thứ cần thiết nằm hết trong file này.
+
+  Bảng màu lấy từ wwwroot/assets/css/style.css, để màn hình đầu tiên khách nhìn thấy đã
+  là votrongnghia.ai chứ không phải một form đăng nhập vô danh.
+*/
+
+:root {
+    --vn-brand: #2e1065;
+    --vn-brand-2: #6d28d9;
+    --vn-accent: #14b8a6;
+    --vn-accent-soft: #ccfbf1;
+    --vn-cream: #f8f8fc;
+    --vn-text: #16161d;
+    --vn-muted: #6b6b7b;
+    --vn-line: #e6e5ef;
+    --vn-danger: #a4302a;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--vn-text);
+    background: var(--vn-cream);
+    -webkit-font-smoothing: antialiased;
+}
+
+.lg-shell {
+    /* 100vh chứ không phải 100%: chuỗi height:100% phải nối liền từ html xuống,
+       chỉ cần một mắt xích đứt là cột thương hiệu co lại còn nửa màn hình. */
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+}
+
+/* ---------------- Cột thương hiệu ---------------- */
+
+.lg-brand {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 56px;
+    color: var(--vn-cream);
+    background:
+        radial-gradient(120% 90% at 15% 10%, rgba(185, 138, 91, 0.22), transparent 60%),
+        linear-gradient(160deg, var(--vn-brand) 0%, var(--vn-brand-2) 100%);
+    overflow: hidden;
+}
+
+.lg-brand::after {
+    content: "";
+    position: absolute;
+    right: -120px;
+    bottom: -140px;
+    width: 420px;
+    height: 420px;
+    border: 1px solid rgba(185, 138, 91, 0.22);
+    border-radius: 50%;
+}
+
+.lg-brand__mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    font-size: 13px;
+}
+
+.lg-brand__mark span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--vn-accent);
+    color: var(--vn-brand);
+    font-size: 15px;
+    letter-spacing: 0.02em;
+}
+
+.lg-brand__body {
+    position: relative;
+    z-index: 1;
+    max-width: 30rem;
+}
+
+.lg-brand__body h1 {
+    font-size: 34px;
+    line-height: 1.25;
+    margin: 0 0 14px;
+    font-weight: 700;
+}
+
+.lg-brand__body p {
+    margin: 0;
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.76);
+}
+
+.lg-brand__list {
+    list-style: none;
+    margin: 26px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    font-size: 14.5px;
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.lg-brand__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.lg-brand__list svg {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--vn-accent-soft);
+}
+
+.lg-brand__foot {
+    position: relative;
+    z-index: 1;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* ---------------- Cột biểu mẫu ---------------- */
+
+.lg-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #fff;
+}
+
+.lg-card {
+    width: 100%;
+    max-width: 24rem;
+}
+
+.lg-card > h2 {
+    font-size: 26px;
+    margin: 0 0 6px;
+    color: var(--vn-brand);
+}
+
+.lg-card__sub {
+    margin: 0 0 28px;
+    font-size: 14.5px;
+    color: var(--vn-muted);
+}
+
+.lg-field {
+    margin-bottom: 18px;
+}
+
+.lg-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 7px;
+}
+
+.lg-input-wrap {
+    position: relative;
+}
+
+.lg-input-wrap > svg {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 17px;
+    height: 17px;
+    color: var(--vn-muted);
+    pointer-events: none;
+}
+
+.lg-field input[type="text"],
+.lg-field input[type="password"] {
+    width: 100%;
+    height: 48px;
+    padding: 0 44px 0 40px;
+    font: inherit;
+    font-size: 15px;
+    color: var(--vn-text);
+    background: #fff;
+    border: 1.5px solid var(--vn-line);
+    border-radius: 9px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lg-field input:focus {
+    outline: none;
+    border-color: var(--vn-brand-2);
+    box-shadow: 0 0 0 3px rgba(29, 107, 54, 0.12);
+}
+
+.lg-eye {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--vn-muted);
+    cursor: pointer;
+}
+
+.lg-eye:hover {
+    background: var(--vn-cream);
+    color: var(--vn-text);
+}
+
+.lg-eye svg {
+    width: 18px;
+    height: 18px;
+}
+
+.lg-btn {
+    width: 100%;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 9px;
+    background: var(--vn-brand-2);
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.lg-btn:hover {
+    background: var(--vn-brand);
+}
+
+.lg-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.lg-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 14px;
+    margin-bottom: 20px;
+    border-radius: 9px;
+    background: #fbecea;
+    border: 1px solid #f0cdc9;
+    color: var(--vn-danger);
+    font-size: 14px;
+}
+
+.lg-alert svg {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+}
+
+.lg-alert ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.lg-alert ul:only-child {
+    padding-left: 0;
+    list-style: none;
+}
+
+.lg-note {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    border-radius: 9px;
+    background: #fdf6e6;
+    border: 1px solid #ecdcb2;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.lg-note code {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 6px;
+    background: rgba(46, 16, 101, 0.07);
+    border-radius: 5px;
+    font-size: 12.5px;
+}
+
+.lg-back {
+    display: inline-block;
+    margin-top: 26px;
+    font-size: 14px;
+    color: var(--vn-muted);
+    text-decoration: none;
+}
+
+.lg-back:hover {
+    color: var(--vn-brand);
+}
+
+/* Câu động viên nghề, nằm dưới cùng biểu mẫu. Vạch vàng bên trái để mắt biết đây
+   là lời nhắn chứ không phải một dòng hướng dẫn nữa của biểu mẫu. */
+.lg-quote {
+    margin: 30px 0 0;
+    padding-left: 14px;
+    border-left: 2px solid var(--vn-accent);
+    font-size: 14px;
+    line-height: 1.65;
+    font-style: italic;
+    color: var(--vn-muted);
+}
+
+.field-validation-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--vn-danger);
+}
+
+@media (max-width: 900px) {
+    .lg-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .lg-brand {
+        padding: 28px 24px;
+    }
+
+    .lg-brand__body h1 {
+        font-size: 24px;
+    }
+
+    .lg-brand__list,
+    .lg-brand__foot {
+        display: none;
+    }
+
+    .lg-brand__body p {
+        font-size: 14.5px;
+    }
+
+    .lg-panel {
+        padding: 32px 24px 48px;
+    }
+}

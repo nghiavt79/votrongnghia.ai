@@ -1,0 +1,128 @@
+@page "/cms/khoa-hoc/sua/{slug}"
+@model VoTrongNghia.Pages.Admin.KhoaHoc.SuaModel
+@{
+    var course = Model.Course;
+    ViewData["Title"] = course.Title;
+    ViewData["Subtitle"] = $"Cấp độ {course.Level} · {(course.Published ? "Đã đăng" : "Bản nháp")} · {course.PublicUrl}";
+}
+
+@section Actions {
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="@course.PublicUrl" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right me-1"></i>@(course.Published ? "Xem trên site" : "Xem bản nháp")
+        </a>
+        <a class="btn btn-outline-secondary" asp-page="/Admin/KhoaHoc/Index"><i class="bi bi-arrow-left me-1"></i>Về danh sách</a>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+@if (Model.IsRequired)
+{
+    <div class="alert alert-warning small">
+        <i class="bi bi-key me-1"></i>Khóa này là <strong>bài đầu vào</strong>: người học phải đánh dấu xong hết các bài ở đây mới mở được form đăng ký lớp online.
+        Thêm bài mới vào khóa này thì người đã học xong trước đó cũng phải học thêm bài mới.
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-list-ol me-1"></i>Bài học (@course.Lessons.Count)</h5>
+                <a class="btn btn-sm btn-brand ms-auto" asp-page="/Admin/KhoaHoc/Bai" asp-route-khoa="@course.Slug"><i class="bi bi-plus-lg me-1"></i>Thêm bài</a>
+            </div>
+            @if (course.Lessons.Count == 0)
+            {
+                <div class="card-body text-body-secondary">Chưa có bài nào.</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @for (var i = 0; i < course.Lessons.Count; i++)
+                    {
+                        var lesson = course.Lessons[i];
+                        <li class="list-group-item d-flex align-items-center gap-2">
+                            <span class="badge text-bg-light">@(i + 1)</span>
+                            <div class="flex-grow-1">
+                                <a class="fw-semibold text-decoration-none" asp-page="/Admin/KhoaHoc/Bai" asp-route-khoa="@course.Slug" asp-route-bai="@lesson.Slug">@lesson.Title</a>
+                                <div class="small text-body-secondary">
+                                    @lesson.Minutes phút · @lesson.Body.Length ký tự @(lesson.Video.Length > 0 ? "· có video" : "")
+                                    @if (lesson.Body.Trim().Length < 100) { <span class="text-danger">· còn quá ngắn</span> }
+                                </div>
+                            </div>
+                            <form method="post" asp-page-handler="DoiCho" asp-route-slug="@course.Slug" class="d-flex gap-1">
+                                <input type="hidden" name="bai" value="@lesson.Slug" />
+                                <button type="submit" name="huong" value="-1" class="btn btn-sm btn-outline-secondary" disabled="@(i == 0)" title="Lên"><i class="bi bi-arrow-up"></i></button>
+                                <button type="submit" name="huong" value="1" class="btn btn-sm btn-outline-secondary" disabled="@(i == course.Lessons.Count - 1)" title="Xuống"><i class="bi bi-arrow-down"></i></button>
+                            </form>
+                            <a class="btn btn-sm btn-outline-secondary" href="@course.LessonUrl(lesson)" target="_blank" rel="noopener" title="Xem trên site"><i class="bi bi-box-arrow-up-right"></i></a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <form method="post" asp-route-slug="@course.Slug" data-dirty-guard autocomplete="off">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-mortarboard me-1"></i>Thông tin khóa</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Title">Tên khóa</label>
+                        <input class="form-control" asp-for="Input.Title" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Slug">Đường dẫn</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">/khoa-hoc/</span>
+                            <input class="form-control" asp-for="Input.Slug" readonly="@course.Published" spellcheck="false" />
+                        </div>
+                        <div class="form-text">@(course.Published ? "Khóa đã đăng nên đường dẫn khoá lại." : "Sửa được cho tới khi đăng.")</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Level">Cấp độ</label>
+                        <input class="form-control" asp-for="Input.Level" type="number" min="1" max="20" />
+                        <div class="form-text">Vừa là nhãn "Cấp độ N", vừa là thứ tự hiện trên site.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Summary">Giới thiệu ngắn</label>
+                        <textarea class="form-control" asp-for="Input.Summary" rows="2"></textarea>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" asp-for="Input.Published" />
+                        <label class="form-check-label" asp-for="Input.Published">Đăng lên site</label>
+                    </div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="card shadow-sm border-danger-subtle">
+            <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá khóa</h6></div>
+            <div class="card-body">
+                <p class="small">Xoá là mất cả khóa lẫn mọi bài trong khóa. Muốn tạm gỡ thì tắt “Đăng lên site”.</p>
+                <form method="post" asp-page-handler="XoaKhoa" asp-route-slug="@course.Slug" class="d-flex gap-2" autocomplete="off">
+                    <input class="form-control form-control-sm" name="confirm" placeholder="Gõ @course.Slug" aria-label="Xác nhận" />
+                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn khóa này và mọi bài trong khóa?">Xoá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

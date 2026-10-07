@@ -1,0 +1,123 @@
+@page "/cms/khoa-hoc/{khoa}/bai/{bai?}"
+@model VoTrongNghia.Pages.Admin.KhoaHoc.BaiModel
+@{
+    var course = Model.Course;
+    ViewData["Title"] = Model.IsNew ? "Thêm bài học" : Model.Lesson!.Title;
+    ViewData["Subtitle"] = $"Khóa: {course.Title}" + (Model.IsNew ? " · bài mới vào cuối khóa" : $" · {course.LessonUrl(Model.Lesson!)}");
+}
+
+@section Actions {
+    <div class="d-flex gap-2">
+        @if (!Model.IsNew)
+        {
+            <a class="btn btn-outline-secondary" href="@course.LessonUrl(Model.Lesson!)" target="_blank" rel="noopener">
+                <i class="bi bi-box-arrow-up-right me-1"></i>Xem trên site
+            </a>
+        }
+        <a class="btn btn-outline-secondary" asp-page="/Admin/KhoaHoc/Sua" asp-route-slug="@course.Slug"><i class="bi bi-arrow-left me-1"></i>Về khóa học</a>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<form method="post" asp-route-khoa="@course.Slug" asp-route-bai="@Model.Lesson?.Slug" data-dirty-guard autocomplete="off">
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Title">Tên bài</label>
+                        <input class="form-control form-control-lg" asp-for="Input.Title" data-tieu-de />
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Input.Body">Nội dung (Markdown)</label>
+                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="22"></textarea>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-outline-secondary" asp-page-handler="XemTruoc" asp-route-khoa="@course.Slug" asp-route-bai="@Model.Lesson?.Slug">
+                        <i class="bi bi-eye me-1"></i>Xem trước nội dung
+                    </button>
+                </div>
+            </div>
+
+            @if (Model.PreviewHtml is not null)
+            {
+                <div class="card shadow-sm mb-3 border-info">
+                    <div class="card-header bg-info-subtle"><i class="bi bi-eye me-1"></i>Xem trước — chưa lưu</div>
+                    <div class="card-body vn-preview">@Html.Raw(Model.PreviewHtml)</div>
+                </div>
+            }
+
+            <partial name="_MarkdownHelp" />
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Slug">Đường dẫn</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">/khoa-hoc/@course.Slug/</span>
+                            @if (Model.SlugLocked)
+                            {
+                                <input class="form-control" asp-for="Input.Slug" readonly tabindex="-1" />
+                            }
+                            else
+                            {
+                                <input class="form-control" asp-for="Input.Slug" data-slug placeholder="tự điền theo tên" spellcheck="false" />
+                            }
+                        </div>
+                        @if (Model.SlugLocked)
+                        {
+                            <div class="form-text">Khóa đã đăng nên đường dẫn bài khoá lại.</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Minutes">Thời lượng (phút)</label>
+                        <input class="form-control" asp-for="Input.Minutes" type="number" min="1" max="300" />
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Input.Video">Video YouTube (không bắt buộc)</label>
+                        <input class="form-control" asp-for="Input.Video" placeholder="Dán link hoặc mã video" spellcheck="false" />
+                        <div class="form-text">Hiện ở đầu bài. Dán nguyên link cũng được, máy tự lấy mã.</div>
+                    </div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand btn-lg"><i class="bi bi-save me-1"></i>Lưu bài</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (!Model.IsNew)
+{
+    <div class="row g-3">
+        <div class="col-12 col-xl-8"></div>
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-danger-subtle">
+                <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá bài</h6></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Xoa" asp-route-khoa="@course.Slug" asp-route-bai="@Model.Lesson!.Slug">
+                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn bài “@Model.Lesson!.Title”?">Xoá bài này</button>
+                    </form>
+                    <div class="form-text">Người học đã đánh dấu bài này thì tiến độ của họ tự bỏ qua bài đã xoá.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,80 @@
+@page "/cms/khoa-hoc"
+@model VoTrongNghia.Pages.Admin.KhoaHoc.IndexModel
+@{
+    ViewData["Title"] = "Khóa học";
+    ViewData["Subtitle"] = $"{Model.Courses.Count(c => c.Published)} khóa đã đăng · {Model.Courses.Sum(c => c.Lessons.Count)} bài học";
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" href="/khoa-hoc" target="_blank" rel="noopener">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Xem trang khóa học
+    </a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-8">
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Cấp</th>
+                        <th scope="col">Khóa</th>
+                        <th scope="col">Bài</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var course in Model.Courses)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@course.Level</td>
+                            <td>
+                                <a class="fw-semibold text-decoration-none" asp-page="/Admin/KhoaHoc/Sua" asp-route-slug="@course.Slug">@course.Title</a>
+                                @if (course.Slug == Model.RequiredCourse)
+                                {
+                                    <span class="badge text-bg-warning ms-1" title="Phải học xong khóa này mới mở được form đăng ký lớp online">Bài đầu vào</span>
+                                }
+                                <div class="small text-body-secondary"><code>@course.PublicUrl</code></div>
+                            </td>
+                            <td class="small text-nowrap">@course.Lessons.Count bài · @course.TotalMinutes phút</td>
+                            <td>
+                                <span class="badge @(course.Published ? "text-bg-success" : "text-bg-secondary")">@(course.Published ? "Đã đăng" : "Nháp")</span>
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-sm btn-outline-secondary" asp-page="/Admin/KhoaHoc/Sua" asp-route-slug="@course.Slug" title="Sửa"><i class="bi bi-pencil"></i></a>
+                                <a class="btn btn-sm btn-outline-secondary" href="@course.PublicUrl" target="_blank" rel="noopener" title="Xem trên site"><i class="bi bi-box-arrow-up-right"></i></a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
+        <div class="card shadow-sm">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-plus-square me-1"></i>Thêm khóa học</h5></div>
+            <form method="post">
+                <div class="card-body">
+                    <label class="form-label" asp-for="NewTitle">Tên khóa</label>
+                    <input class="form-control" asp-for="NewTitle" placeholder="vd. Làm website với AI" />
+                    <span asp-validation-for="NewTitle" class="text-danger small"></span>
+                    <div class="form-text">Khóa mới là bản nháp, cấp độ kế tiếp. Đường dẫn tự lấy theo tên.</div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand">Tạo khóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,142 @@
+@page "/cms/bai-viet/sua/{slug?}"
+@model VoTrongNghia.Pages.Admin.BaiViet.SuaModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Viết bài mới" : Model.Post!.Title;
+    ViewData["Subtitle"] = Model.IsNew
+        ? "Lưu bản nháp trước, đăng khi đã xong"
+        : (Model.Post!.Published ? "Đã đăng · " : "Bản nháp · ") + Model.Post.PublicUrl;
+}
+
+@section Actions {
+    <div class="d-flex gap-2">
+        @if (!Model.IsNew)
+        {
+            <a class="btn btn-outline-secondary" href="@Model.Post!.PublicUrl" target="_blank" rel="noopener">
+                <i class="bi bi-box-arrow-up-right me-1"></i>@(Model.Post.Published ? "Xem trang thật" : "Xem bản nháp trên site")
+            </a>
+        }
+        <a class="btn btn-outline-secondary" asp-page="/Admin/BaiViet/Index"><i class="bi bi-arrow-left me-1"></i>Về danh sách</a>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<form method="post" asp-route-slug="@Model.Post?.Slug" data-dirty-guard autocomplete="off">
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Title">Tiêu đề</label>
+                        <input class="form-control form-control-lg" asp-for="Input.Title" data-tieu-de />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Slug">Đường dẫn</label>
+                        <div class="input-group">
+                            <span class="input-group-text small">/bai-viet/</span>
+                            @if (Model.SlugLocked)
+                            {
+                                <input class="form-control" asp-for="Input.Slug" readonly tabindex="-1" />
+                            }
+                            else
+                            {
+                                <input class="form-control" asp-for="Input.Slug" data-slug placeholder="tự điền theo tiêu đề" spellcheck="false" />
+                            }
+                        </div>
+                        <div class="form-text">
+                            @(Model.SlugLocked
+                                ? "Bài đã từng lên site nên đường dẫn khoá lại — link có thể đã được chia sẻ."
+                                : "Sửa được cho tới lần đầu đăng bài.")
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Summary">Tóm tắt</label>
+                        <textarea class="form-control" asp-for="Input.Summary" rows="2" data-counter="120-200"></textarea>
+                        <div class="form-text">Hiện dưới tiêu đề, ở thẻ bài và trên Google. 120–200 ký tự là vừa.</div>
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Input.Body">Thân bài (Markdown)</label>
+                        <textarea class="form-control font-monospace" asp-for="Input.Body" rows="24"></textarea>
+                        <div class="form-text">Đề mục <code>##</code> tự vào khung Mục lục bên phải bài (khi có từ 2 đề mục).</div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-outline-secondary" asp-page-handler="XemTruoc" asp-route-slug="@Model.Post?.Slug">
+                        <i class="bi bi-eye me-1"></i>Xem trước thân bài
+                    </button>
+                </div>
+            </div>
+
+            @if (Model.PreviewHtml is not null)
+            {
+                <div class="card shadow-sm mb-3 border-info">
+                    <div class="card-header bg-info-subtle"><i class="bi bi-eye me-1"></i>Xem trước — chưa lưu</div>
+                    <div class="card-body vn-preview">@Html.Raw(Model.PreviewHtml)</div>
+                </div>
+            }
+
+            <partial name="_MarkdownHelp" />
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-send me-1"></i>Đăng bài</h5></div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" asp-for="Input.Published" />
+                        <label class="form-check-label" asp-for="Input.Published">Đăng lên site</label>
+                    </div>
+                    <label class="form-label" asp-for="Input.Date">Ngày đăng</label>
+                    <input class="form-control" type="date" asp-for="Input.Date" />
+                    <div class="form-text">Bài mới nhất lên đầu trang chủ theo ngày này.</div>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand btn-lg"><i class="bi bi-save me-1"></i>Lưu</button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-tags me-1"></i>Chủ đề</h5></div>
+                <div class="card-body">
+                    <input class="form-control" asp-for="Input.Tags" list="chuDeCo" placeholder="Vibe code, Người mới" />
+                    <datalist id="chuDeCo">@foreach (var tag in Model.KnownTags) { <option value="@tag"></option> }</datalist>
+                    <div class="form-text">Cách nhau bằng dấu phẩy, tối đa 5. Dùng lại chủ đề đã có cho thống nhất:
+                        @string.Join(", ", Model.KnownTags)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (!Model.IsNew)
+{
+    var post = Model.Post!;
+    <div class="row g-3">
+        <div class="col-12 col-xl-8"></div>
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-danger-subtle">
+                <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá bài</h6></div>
+                <div class="card-body">
+                    <p class="small">Muốn tạm gỡ thì tắt “Đăng lên site” là đủ. Xoá là mất hẳn (còn trong bản sao lưu Data/backups/).</p>
+                    <form method="post" asp-page-handler="XoaBai" asp-route-slug="@post.Slug" class="d-flex gap-2" autocomplete="off">
+                        <input class="form-control form-control-sm" name="confirm" placeholder="Gõ @post.Slug" aria-label="Xác nhận" />
+                        <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn bài này?">Xoá</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

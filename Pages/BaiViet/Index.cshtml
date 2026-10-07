@@ -1,0 +1,56 @@
+@page "/bai-viet"
+@model VoTrongNghia.Pages.BaiViet.IndexModel
+@{
+    ViewData["Title"] = Model.Tag.Length > 0 ? $"Bài viết về {Model.Tag}" : "Tất cả bài viết";
+    ViewData["Description"] = $"{Model.Total} bài viết chia sẻ kiến thức AI và vibe code — miễn phí, đọc thoải mái.";
+    // Trang lọc theo chủ đề là bản con của danh sách: canonical về /bai-viet để Google giữ một địa chỉ.
+    ViewData["Canonical"] = "/bai-viet";
+}
+
+<main class="page">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <span>Bài viết</span></nav>
+        <div class="section-head">
+            <h1 class="page-title">Bài Viết</h1>
+            <p>@Model.Total bài viết chia sẻ kiến thức AI và vibe code — miễn phí, đọc thoải mái.</p>
+            <input type="search" id="postSearch" class="search" placeholder="🔍 Tìm bài viết…" aria-label="Tìm bài viết" />
+        </div>
+        @if (Model.Tags.Count > 1)
+        {
+            <nav class="filter-tags" aria-label="Lọc theo chủ đề">
+                <a class="chip @(Model.Tag.Length == 0 ? "active" : "")" href="/bai-viet">Tất cả</a>
+                @foreach (var tag in Model.Tags)
+                {
+                    <a class="chip @(tag == Model.Tag ? "active" : "")" href="/bai-viet?chuDe=@Uri.EscapeDataString(tag)">@tag</a>
+                }
+            </nav>
+        }
+        <div class="grid grid-3" id="allPosts">
+            @foreach (var post in Model.Posts)
+            {
+                <partial name="_PostCard" model="post" />
+            }
+        </div>
+        <p class="empty" id="postEmpty" @(Model.Posts.Count == 0 ? "" : "hidden")>Không tìm thấy bài viết phù hợp.</p>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        // Ô tìm kiếm lọc ngay trên các thẻ máy chủ đã dựng, không gọi lại máy chủ.
+        (function () {
+            const box = $("#postSearch");
+            const cards = $$("#allPosts .post");
+            box.addEventListener("input", () => {
+                const q = box.value.trim().toLowerCase();
+                let shown = 0;
+                cards.forEach((card) => {
+                    const ok = card.textContent.toLowerCase().includes(q);
+                    card.hidden = !ok;
+                    if (ok) shown++;
+                });
+                $("#postEmpty").hidden = shown > 0;
+            });
+        })();
+    </script>
+}

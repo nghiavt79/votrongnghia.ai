@@ -1,0 +1,80 @@
+@page "/cms/bai-viet"
+@model VoTrongNghia.Pages.Admin.BaiViet.IndexModel
+@{
+    ViewData["Title"] = "Bài viết";
+    var published = Model.Posts.Count(p => p.Published);
+    ViewData["Subtitle"] = $"{published} bài đã đăng · {Model.Posts.Count - published} bản nháp";
+}
+
+@section Actions {
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="/bai-viet" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Xem trang bài viết
+        </a>
+        <a class="btn btn-brand" asp-page="/Admin/BaiViet/Sua"><i class="bi bi-plus-lg me-1"></i>Viết bài mới</a>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (Model.Posts.Count == 0)
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5 text-body-secondary">
+            <i class="bi bi-newspaper fs-1 d-block mb-2 text-body-tertiary"></i>
+            Chưa có bài nào.
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th scope="col">Bài</th>
+                    <th scope="col">Chủ đề</th>
+                    <th scope="col">Ngày</th>
+                    <th scope="col">Trạng thái</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var post in Model.Posts)
+                {
+                    <tr>
+                        <td>
+                            <a class="fw-semibold text-decoration-none" asp-page="/Admin/BaiViet/Sua" asp-route-slug="@post.Slug">@post.Title</a>
+                            <div class="small text-body-secondary"><code>@post.PublicUrl</code> · @SiteTime.ReadMinutes(post.Body) phút đọc</div>
+                        </td>
+                        <td class="small">@string.Join(", ", post.Tags)</td>
+                        <td class="small text-nowrap">@SiteTime.Day(post.PublishedAt)</td>
+                        <td>
+                            @if (post.Published)
+                            {
+                                <span class="badge text-bg-success">Đã đăng</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Nháp</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="/Admin/BaiViet/Sua" asp-route-slug="@post.Slug" title="Sửa"><i class="bi bi-pencil"></i></a>
+                            <a class="btn btn-sm btn-outline-secondary" href="@post.PublicUrl" target="_blank" rel="noopener"
+                               title="@(post.Published ? "Mở trang thật" : "Xem trước bản nháp")"><i class="bi bi-box-arrow-up-right"></i></a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

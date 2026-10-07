@@ -1,0 +1,317 @@
+/*
+  Lớp thương hiệu đặt lên AdminLTE 4.
+
+  File này cố tình mỏng: bố cục, bảng, nút, thẻ đều là của AdminLTE và Bootstrap.
+  Chép từ /cms của Dokma, chỉ đổi bảng màu về đúng tím và xanh ngọc của site (lấy từ
+  wwwroot/assets/css/style.css), cộng vài chỗ AdminLTE không có sẵn: chữ lồng thương
+  hiệu, khung xem trước bài, ô trả lời dài của đơn đăng ký.
+*/
+
+:root {
+    --vn-brand: #7c3aed;
+    --vn-brand-d: #6d28d9;
+    --vn-brand-dd: #2e1065;
+    --vn-brand-l: #f3eefe;
+    --vn-accent: #14b8a6;
+    --vn-accent-d: #0f766e;
+    --vn-red: #e0322b;
+}
+
+/* ---------- Thanh bên ---------- */
+
+.vn-admin .app-sidebar {
+    background: linear-gradient(180deg, var(--vn-brand-dd) 0%, var(--vn-brand-d) 100%);
+}
+
+.vn-admin .sidebar-brand {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.vn-admin .brand-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+}
+
+.vn-admin .brand-text {
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.vn-monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--vn-brand-d);
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.vn-admin .sidebar-menu .nav-link {
+    color: rgba(255, 255, 255, 0.78);
+    border-radius: 8px;
+    margin: 2px 8px;
+}
+
+.vn-admin .sidebar-menu .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.vn-admin .sidebar-menu .nav-link.active {
+    background: #fff;
+    color: var(--vn-brand-d);
+    font-weight: 600;
+}
+
+.vn-admin .nav-header {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 14px 16px 4px;
+}
+
+/* ---------- Nút và điểm nhấn ---------- */
+
+.vn-admin .btn-primary,
+.vn-admin .btn-brand {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--vn-brand);
+    --bs-btn-border-color: var(--vn-brand);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--vn-brand-d);
+    --bs-btn-hover-border-color: var(--vn-brand-d);
+    --bs-btn-active-bg: var(--vn-brand-d);
+    --bs-btn-active-border-color: var(--vn-brand-d);
+    --bs-btn-disabled-bg: var(--vn-brand);
+    --bs-btn-disabled-border-color: var(--vn-brand);
+}
+
+.vn-admin a:not(.btn):not(.nav-link):not(.dropdown-item):not(.badge) {
+    color: var(--vn-brand-d);
+}
+
+.vn-admin .app-content-header h3 {
+    color: var(--vn-brand-dd);
+    font-weight: 700;
+}
+
+.vn-admin .form-control:focus,
+.vn-admin .form-select:focus,
+.vn-admin .form-check-input:focus {
+    border-color: var(--vn-brand);
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.2);
+}
+
+/* Placeholder của Bootstrap đậm gần bằng chữ thật: nhìn lướt tưởng ô đã có dữ liệu. */
+.vn-admin .form-control::placeholder {
+    color: var(--bs-tertiary-color);
+    opacity: 1;
+    font-style: italic;
+}
+
+.vn-admin .form-check-input:checked {
+    background-color: var(--vn-brand);
+    border-color: var(--vn-brand);
+}
+
+/* Ô chỉ đọc (đường dẫn của sản phẩm đã đăng): cho thấy ngay là không sửa được. */
+.vn-admin input[readonly] {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+
+/* ---------- Thẻ số liệu bảng điều khiển ---------- */
+
+.vn-stat {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+
+.vn-stat .card {
+    height: 100%;
+    border-left: 4px solid var(--vn-brand);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.vn-stat.is-warn .card {
+    border-left-color: #f0ad4e;
+}
+
+.vn-stat:hover .card {
+    box-shadow: 0 0.5rem 1.2rem rgba(46, 16, 101, 0.12);
+    transform: translateY(-2px);
+}
+
+.vn-stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--vn-brand-dd);
+}
+
+/* ---------- Bảng danh sách ---------- */
+
+.vn-thumb {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--bs-border-color);
+    background: #fff;
+    flex: 0 0 52px;
+}
+
+.vn-thumb-empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-tertiary-color);
+}
+
+.vn-row-hidden td {
+    opacity: 0.55;
+}
+
+.vn-save-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background: var(--bs-body-bg);
+    border-top: 1px solid var(--bs-border-color);
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ---------- Lưới ảnh sản phẩm ---------- */
+
+.vn-gallery {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.vn-gallery figure {
+    margin: 0;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+}
+
+.vn-gallery img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+}
+
+.vn-gallery figcaption {
+    padding: 6px;
+    display: flex;
+    justify-content: center;
+}
+
+.vn-gallery-cover {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+}
+
+.vn-gallery-src {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+/* ---------- Icon danh mục ---------- */
+
+.vn-icon-preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 50%;
+    background: var(--vn-brand-l);
+    color: var(--vn-brand);
+}
+
+.vn-icon-preview svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---------- Trang chủ ---------- */
+
+.vn-slide-thumb {
+    width: 100%;
+    aspect-ratio: 2.3 / 1;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--bs-border-color);
+}
+
+.vn-logo-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid var(--bs-border-color);
+    background: #fff;
+}
+
+/* Màu nền đúng như hai banner trên site, để thấy trước ảnh góc đặt lên sẽ ra sao. */
+.vn-swatch-j {
+    background: linear-gradient(135deg, #f6ead9, #e9d2b5);
+    color: #5d3f20;
+}
+
+.vn-swatch-w {
+    background: linear-gradient(135deg, #eaf6ee, #d4ecdc);
+    color: var(--vn-brand-d);
+}
+
+/* ---------- Xem trước bài viết ---------- */
+
+.vn-preview {
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 760px;
+}
+
+.vn-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+.vn-preview h2 {
+    font-size: 1.3rem;
+    margin-top: 1.4rem;
+}
+
+.vn-preview h3 {
+    font-size: 1.1rem;
+    margin-top: 1.2rem;
+}
+
+/* ---------- Xem trước bài và đơn đăng ký ---------- */
+.vn-preview pre { background: #15151f; color: #e8e8f0; padding: 12px; border-radius: 8px; }
+.vn-preview table { width: 100%; margin-bottom: 1rem; }
+.vn-preview th, .vn-preview td { border: 1px solid var(--bs-border-color); padding: 6px 8px; }
+.vn-answer { white-space: pre-wrap; background: var(--bs-tertiary-bg); border-radius: 8px; padding: 12px 14px; }

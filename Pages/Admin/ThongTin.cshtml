@@ -1,0 +1,157 @@
+@page "/cms/thong-tin"
+@model VoTrongNghia.Pages.Admin.ThongTinModel
+@{
+    ViewData["Title"] = "Thông tin trang";
+    ViewData["Subtitle"] = "Ô link nào để trống thì phần đó tự ẩn trên site";
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" href="/" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>Xem trang chủ</a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<form method="post" data-dirty-guard autocomplete="off">
+    <div class="row g-3">
+        <div class="col-12 col-xl-7">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-person-badge me-1"></i>Giới thiệu</h5></div>
+                <div class="card-body row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Input.Name">Tên</label>
+                        <input class="form-control" asp-for="Input.Name" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" asp-for="Input.Avatar">Ảnh đại diện</label>
+                        <input class="form-control" asp-for="Input.Avatar" spellcheck="false" />
+                        <div class="form-text">Đường dẫn trong wwwroot, ví dụ <code>assets/img/nghia.jpg</code>. Ảnh vuông.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Input.Title">Chức danh</label>
+                        <input class="form-control" asp-for="Input.Title" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Input.Badge">Nhãn nhỏ đầu trang</label>
+                        <input class="form-control" asp-for="Input.Badge" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Input.HeroLead">Dòng đầu tiêu đề lớn</label>
+                        <input class="form-control" asp-for="Input.HeroLead" />
+                        <div class="form-text">Dòng thứ hai là tên, tô màu.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Input.HeroDescription">Câu mô tả dưới tiêu đề</label>
+                        <textarea class="form-control" asp-for="Input.HeroDescription" rows="2" data-counter="120-200"></textarea>
+                        <div class="form-text">Cũng là mô tả trang chủ trên Google.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="Input.Bio">Đoạn giới thiệu</label>
+                        <textarea class="form-control" asp-for="Input.Bio" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-signpost-split me-1"></i>Hành trình của mình</h5></div>
+                <div class="card-body">
+                    @for (var i = 0; i < Model.Input.Story.Count; i++)
+                    {
+                        <div class="row g-2 mb-2">
+                            <div class="col-2"><input class="form-control text-center" asp-for="Input.Story[i].Icon" placeholder="🚀" aria-label="Icon" /></div>
+                            <div class="col-4"><input class="form-control" asp-for="Input.Story[i].Title" placeholder="Mốc" aria-label="Mốc" /></div>
+                            <div class="col-6"><input class="form-control" asp-for="Input.Story[i].Description" placeholder="Mô tả ngắn" aria-label="Mô tả" /></div>
+                        </div>
+                    }
+                    <div class="form-text">Xoá trắng ô "Mốc" để bỏ một dòng. Dòng trống cuối bảng để thêm mốc mới.</div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-stars me-1"></i>Công cụ AI tôi sử dụng</h5></div>
+                <div class="card-body">
+                    @for (var i = 0; i < Model.Input.Tools.Count; i++)
+                    {
+                        <div class="row g-2 mb-2">
+                            <div class="col-2 col-md-1"><input class="form-control text-center px-1" asp-for="Input.Tools[i].Icon" placeholder="💬" aria-label="Icon" /></div>
+                            <div class="col-10 col-md-3"><input class="form-control" asp-for="Input.Tools[i].Name" placeholder="Tên" aria-label="Tên" /></div>
+                            <div class="col-6 col-md-4"><input class="form-control" asp-for="Input.Tools[i].Description" placeholder="Dùng để làm gì" aria-label="Mô tả" /></div>
+                            <div class="col-6 col-md-4"><input class="form-control" asp-for="Input.Tools[i].Url" placeholder="https://" aria-label="Link" spellcheck="false" /></div>
+                        </div>
+                    }
+                    <div class="form-text">Xoá trắng ô "Tên" để bỏ một công cụ. Không còn công cụ nào thì mục này ẩn khỏi trang chủ.</div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-youtube me-1"></i>Video</h5></div>
+                <div class="card-body">
+                    @for (var i = 0; i < Model.Input.Videos.Count; i++)
+                    {
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-7"><input class="form-control" asp-for="Input.Videos[i].Title" placeholder="Tên video" aria-label="Tên video" /></div>
+                            <div class="col-md-5"><input class="form-control" asp-for="Input.Videos[i].YoutubeId" placeholder="Link hoặc mã YouTube" aria-label="Mã YouTube" spellcheck="false" /></div>
+                        </div>
+                    }
+                    <div class="form-text">Mục Video chỉ hiện khi đã điền link kênh YouTube và có ít nhất một video.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-5">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-link-45deg me-1"></i>Liên hệ &amp; mạng xã hội</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Email">Email liên hệ</label>
+                        <input class="form-control" type="email" asp-for="Input.Email" />
+                        <div class="form-text">Hiện công khai ở mục Liên hệ và chân trang.</div>
+                    </div>
+                    @foreach (var (field, label) in new[] { ("Youtube", "Kênh YouTube"), ("Facebook", "Facebook cá nhân"), ("FacebookGroup", "Nhóm Facebook"), ("Tiktok", "TikTok"), ("Linkedin", "LinkedIn"), ("X", "X (Twitter)"), ("Threads", "Threads") })
+                    {
+                        var value = (string)typeof(SiteInfo).GetProperty(field)!.GetValue(Model.Input)!;
+                        <div class="mb-2">
+                            <label class="form-label small mb-1" for="Input_@field">@label</label>
+                            <input class="form-control form-control-sm" id="Input_@field" name="Input.@field" value="@value" placeholder="https://" spellcheck="false" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-cup-hot me-1"></i>Ủng hộ</h5></div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" asp-for="Input.Donate" />
+                        <label class="form-check-label" asp-for="Input.Donate">Hiện mục "Ủng hộ một ly cafe"</label>
+                        <div class="form-text">Tắt thì nút nổi góc phải là "Chia sẻ trang này" — hợp với tinh thần miễn phí, lan tỏa.</div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6"><label class="form-label small" asp-for="Input.BankName">Ngân hàng</label><input class="form-control form-control-sm" asp-for="Input.BankName" /></div>
+                        <div class="col-6"><label class="form-label small" asp-for="Input.BankNumber">Số tài khoản</label><input class="form-control form-control-sm" asp-for="Input.BankNumber" /></div>
+                        <div class="col-12"><label class="form-label small" asp-for="Input.BankOwner">Chủ tài khoản</label><input class="form-control form-control-sm" asp-for="Input.BankOwner" /></div>
+                        <div class="col-12"><label class="form-label small" asp-for="Input.Paypal">Link PayPal</label><input class="form-control form-control-sm" asp-for="Input.Paypal" placeholder="https://paypal.me/…" /></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm vn-save-bar">
+                <div class="card-body d-grid">
+                    <button type="submit" class="btn btn-brand btn-lg"><i class="bi bi-save me-1"></i>Lưu thông tin trang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

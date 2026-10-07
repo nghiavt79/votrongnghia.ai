@@ -1,0 +1,19 @@
+@page "/khong-tim-thay"
+@{
+    // Trang dựng lại cho mọi phản hồi 404 không có thân (UseStatusCodePagesWithReExecute
+    // trong Program.cs). Mã 404 giữ nguyên nên Google không coi là trang thật.
+    ViewData["Title"] = "Không tìm thấy trang";
+    ViewData["NoIndex"] = true;
+}
+
+<main class="page">
+    <div class="container narrow-text not-found">
+        <h1>Không tìm thấy trang</h1>
+        <p class="muted">Trang có thể đã bị gỡ, hoặc đường dẫn gõ chưa đúng.</p>
+        <div class="chips" style="justify-content:center">
+            <a class="btn btn-primary" href="/">Về trang chủ</a>
+            <a class="btn btn-ghost" href="/bai-viet">Xem bài viết</a>
+            <a class="btn btn-ghost" href="/khoa-hoc">Khóa học miễn phí</a>
+        </div>
+    </div>
+</main>

@@ -2,10 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "site",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5500"],
-      "port": 5500
+      "name": "votrongnghia",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "D:/2026/votrongnghia.ai/VoTrongNghia.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5090
     }
   ]
 }
