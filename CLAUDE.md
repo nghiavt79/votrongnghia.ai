@@ -52,6 +52,12 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
 11. **Máy chủ và repo trôi khỏi nhau** khi sửa trong `/cms`. Tải bản sao lưu ở `/cms/tong-quan`
     rồi chép vào `Data/seed/` khi muốn seed mới phản ánh nội dung thật.
 
+## Repo
+
+- GitHub: https://github.com/nghiavt79/votrongnghia.ai (private), nhánh `main`.
+- Dữ liệu sống trên máy chủ (`Data/*.json` ngoài `seed/`, `admin.json`, `registrations.json`,
+  `Data/keys/`, `wwwroot/uploads/`) không bao giờ vào git — xem `.gitignore`.
+
 ## Quy ước
 
 - Nội dung site xưng "mình" – "bạn". Comment và tài liệu tiếng Việt, giải thích *vì sao*.
