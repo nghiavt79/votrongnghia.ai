@@ -1,0 +1,108 @@
+@page "/cms/thong-ke"
+@model VoTrongNghia.Pages.Admin.ThongKeModel
+@{
+    ViewData["Title"] = "Thống kê học";
+    ViewData["Subtitle"] = Model.Month.Length > 0 ? $"Tháng {Model.Month[5..]}/{Model.Month[..4]}" : "Từ khi bắt đầu đếm";
+    static string Percent(double value) => $"{Math.Round(value * 100)}%";
+}
+
+@section Actions {
+    @if (Model.Months.Count > 0)
+    {
+        <form method="get">
+            <select class="form-select" name="thang" data-tu-gui aria-label="Chọn tháng">
+                <option value="">Toàn bộ</option>
+                @foreach (var month in Model.Months)
+                {
+                    <option value="@month" selected="@(month == Model.Month)">Tháng @month[5..]/@month[..4]</option>
+                }
+            </select>
+        </form>
+    }
+}
+
+<div class="alert alert-light border small">
+    <i class="bi bi-incognito me-1"></i>Số liệu <strong>ẩn danh và xấp xỉ</strong>: mỗi trình duyệt được đếm một lần cho mỗi bài
+    (người học trên hai máy đếm thành hai). Không lưu IP, không biết ai học — đúng như trang
+    <a href="/chinh-sach-du-lieu" target="_blank" rel="noopener">chính sách dữ liệu</a>. Dùng để thấy xu hướng và bài nào cần sửa.
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="small-box text-bg-primary"><div class="inner"><h3>@Model.TotalOpens</h3><p>Lượt mở bài</p></div><i class="small-box-icon bi bi-book"></i></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="small-box text-bg-success"><div class="inner"><h3>@Model.TotalCompletions</h3><p>Lượt học xong bài</p></div><i class="small-box-icon bi bi-check2-circle"></i></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="small-box text-bg-info"><div class="inner"><h3>@Model.Funnels.Sum(f => f.Started)</h3><p>Lượt bắt đầu một khóa</p></div><i class="small-box-icon bi bi-play-circle"></i></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="text-decoration-none" asp-page="/Admin/DangKy/Index">
+            <div class="small-box text-bg-warning"><div class="inner"><h3>@Model.RegistrationsInPeriod</h3><p>Đơn lớp online cùng kỳ</p></div><i class="small-box-icon bi bi-person-plus"></i></div>
+        </a>
+    </div>
+</div>
+
+@if (Model.TotalOpens == 0)
+{
+    <div class="card shadow-sm"><div class="card-body text-body-secondary">
+        <i class="bi bi-hourglass me-1"></i>Chưa có lượt học nào được đếm@(Model.Month.Length > 0 ? " trong tháng này" : "").
+        Số liệu bắt đầu có khi người học mở bài trên trang thật (cần bật JavaScript). Số mới nhất hiện ngay, không phải chờ.
+    </div></div>
+}
+
+@foreach (var funnel in Model.Funnels)
+{
+    var drop = funnel.BiggestDrop;
+    <div class="card shadow-sm mb-3">
+        <div class="card-header d-flex flex-wrap align-items-center gap-2">
+            <h5 class="card-title mb-0">Cấp độ @funnel.Course.Level: @funnel.Course.Title</h5>
+            <span class="ms-auto small text-body-secondary">
+                @funnel.Started bắt đầu → @funnel.Finished học xong bài cuối
+                @if (funnel.Started > 0) { <strong>(@Percent((double)funnel.Finished / funnel.Started))</strong> }
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Bài</th>
+                    <th class="text-end">Mở bài</th>
+                    <th style="width:30%">Còn lại so với bài 1</th>
+                    <th class="text-end">Học xong</th>
+                    <th class="text-end">Tỉ lệ học xong</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var row in funnel.Rows)
+                {
+                    var isDrop = drop is not null && row.Number == drop.Number;
+                    <tr class="@(isDrop ? "table-danger" : "")">
+                        <td>
+                            <a class="text-decoration-none" href="@row.Url" target="_blank" rel="noopener">@row.Number. @row.Lesson.Title</a>
+                            @if (isDrop)
+                            {
+                                <div class="small text-danger"><i class="bi bi-arrow-down-circle me-1"></i>Nhiều người dừng trước bài này nhất — xem lại bài trước có khó hay dài quá không</div>
+                            }
+                            @if (!row.Lesson.HasFramework)
+                            {
+                                <div class="small text-warning">Bài chưa có mục tiêu / bài tập</div>
+                            }
+                        </td>
+                        <td class="text-end">@row.Opens</td>
+                        <td>
+                            <div class="progress" role="progressbar" aria-label="Còn lại" style="height:8px">
+                                <div class="progress-bar" style="width:@Percent(funnel.Retention(row))"></div>
+                            </div>
+                            <span class="small text-body-secondary">@Percent(funnel.Retention(row))</span>
+                        </td>
+                        <td class="text-end">@row.Completions</td>
+                        <td class="text-end">@(row.Opens > 0 ? Percent(row.CompletionRate) : "–")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

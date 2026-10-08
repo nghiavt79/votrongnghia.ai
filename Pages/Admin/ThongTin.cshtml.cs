@@ -56,10 +56,28 @@ public class ThongTinModel : PageModel
             .Select(item => new ToolLink { Name = Clean(item.Name), Description = Clean(item.Description), Icon = Clean(item.Icon), Url = Clean(item.Url) }).ToList();
         Input.Videos = Input.Videos.Where(item => item.YoutubeId.Trim().Length > 0)
             .Select(item => new VideoLink { Title = Clean(item.Title), YoutubeId = YoutubeIdOf(Clean(item.YoutubeId)) }).ToList();
+        Input.Audiences = Input.Audiences.Where(item => item.Title.Trim().Length > 0)
+            .Select(item => new Audience { Icon = Clean(item.Icon), Title = Clean(item.Title), Description = Clean(item.Description), Link = Clean(item.Link) }).ToList();
+        Input.Cases = Input.Cases.Where(item => item.Title.Trim().Length > 0)
+            .Select(item => new CaseStudy { Title = Clean(item.Title), Description = Clean(item.Description), Result = Clean(item.Result), Link = Clean(item.Link) }).ToList();
+        Input.Testimonials = Input.Testimonials.Where(item => item.Quote.Trim().Length > 0)
+            .Select(item => new Testimonial { Name = Clean(item.Name), Role = Clean(item.Role), Quote = Clean(item.Quote) }).ToList();
 
         if (Input.Name.Length == 0)
         {
             ModelState.AddModelError("Input.Name", "Nhập tên hiện trên trang.");
+        }
+
+        // Link "bắt đầu từ đây" và "đọc chi tiết" là trang trong site (/khoa-hoc/…, /bai-viet/…) hoặc link https.
+        if (Input.Audiences.Select(item => item.Link).Concat(Input.Cases.Select(item => item.Link))
+            .Any(link => link.Length > 0 && !link.StartsWith('/') && !link.StartsWith("https://", StringComparison.OrdinalIgnoreCase)))
+        {
+            ModelState.AddModelError(string.Empty, "Link ở \"Dành cho ai\" / \"Mình dùng AI để làm…\" phải là đường dẫn trong site (bắt đầu bằng /) hoặc https://");
+        }
+
+        if (Input.Testimonials.Any(item => item.Name.Length == 0))
+        {
+            ModelState.AddModelError(string.Empty, "Cảm nhận học viên cần có tên người nói (tên thật, đã xin phép).");
         }
 
         if (Input.Avatar.Length == 0 || !System.IO.File.Exists(Path.Combine(_environment.WebRootPath, Input.Avatar)))
@@ -149,6 +167,9 @@ public class ThongTinModel : PageModel
             site.Paypal = input.Paypal.Trim();
             site.Donate = input.Donate;
             site.Story = input.Story;
+            site.Audiences = input.Audiences;
+            site.Cases = input.Cases;
+            site.Testimonials = input.Testimonials;
             site.Tools = input.Tools;
             site.Videos = input.Videos;
             return true;
@@ -199,6 +220,9 @@ public class ThongTinModel : PageModel
         for (var i = 0; i < BlankRows; i++)
         {
             Input.Story.Add(new StoryStep());
+            Input.Audiences.Add(new Audience());
+            Input.Cases.Add(new CaseStudy());
+            Input.Testimonials.Add(new Testimonial());
             Input.Tools.Add(new ToolLink());
             Input.Videos.Add(new VideoLink());
         }

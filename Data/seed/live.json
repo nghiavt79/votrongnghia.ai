@@ -8,5 +8,21 @@
     "Chia sẻ lại kiến thức cho ít nhất 1 người khác (lan tỏa)"
   ],
   "pledge": "Tôi cam kết học nghiêm túc và lan tỏa kiến thức",
-  "sessions": []
+  "sessions": [],
+  "forWho": [
+    "Người đi làm muốn dùng AI cho việc thật hằng ngày — email, báo cáo, bán hàng, soạn bài",
+    "Đã học xong khóa cấp độ 1 miễn phí trên trang",
+    "Dành được ít nhất 3 giờ mỗi tuần để thực hành",
+    "Sẵn sàng làm bài tập và chia sẻ lại cho người khác"
+  ],
+  "notForWho": [
+    "Muốn học lập trình bài bản hoặc cần chứng chỉ",
+    "Chỉ muốn xem cho biết, không có thời gian thực hành",
+    "Tìm cách kiếm tiền nhanh bằng AI"
+  ],
+  "outcomes": [
+    "Tự viết được prompt cho việc thật của bạn, dùng được ngay",
+    "Làm xong một sản phẩm nhỏ cho công việc: bộ prompt, mẫu email, hay một quy trình tự động",
+    "Biết chọn công cụ AI phù hợp và tự học tiếp được"
+  ]
 }

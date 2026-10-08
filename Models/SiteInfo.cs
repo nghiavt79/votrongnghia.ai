@@ -56,6 +56,21 @@ public sealed class SiteInfo
     /// </summary>
     public bool Donate { get; set; }
 
+    /// <summary>"Trang này dành cho ai" — ngay dưới đầu trang chủ, để người mới vào biết ngay có hợp mình không.</summary>
+    public List<Audience> Audiences { get; set; } = [];
+
+    /// <summary>
+    /// "Mình dùng AI để làm…" — việc thật đã làm, kết quả đo được. Tạo niềm tin hơn mọi lời giới
+    /// thiệu. Chỉ ghi việc thật.
+    /// </summary>
+    public List<CaseStudy> Cases { get; set; } = [];
+
+    /// <summary>
+    /// Cảm nhận học viên. Chỉ đăng lời thật của người thật, đã xin phép — không bao giờ viết mẫu.
+    /// Trống thì mục này không hiện.
+    /// </summary>
+    public List<Testimonial> Testimonials { get; set; } = [];
+
     public List<StoryStep> Story { get; set; } = [];
     public List<ToolLink> Tools { get; set; } = [];
     public List<VideoLink> Videos { get; set; } = [];
@@ -109,6 +124,41 @@ public sealed class SiteInfo
 
         return all.Where(item => item.Item4.Length > 0);
     }
+}
+
+/// <summary>Một nhóm người học trong "Trang này dành cho ai".</summary>
+public sealed class Audience
+{
+    public string Icon { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>Nên bắt đầu từ đâu (khóa hoặc bài viết), đường dẫn trong site. Không bắt buộc.</summary>
+    public string Link { get; set; } = string.Empty;
+}
+
+/// <summary>Một việc thật đã làm bằng AI.</summary>
+public sealed class CaseStudy
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>Kết quả đo được, ngắn: "Từ 2 ngày còn 2 giờ".</summary>
+    public string Result { get; set; } = string.Empty;
+
+    /// <summary>Bài viết kể chi tiết, không bắt buộc.</summary>
+    public string Link { get; set; } = string.Empty;
+}
+
+/// <summary>Một lời cảm nhận của học viên thật.</summary>
+public sealed class Testimonial
+{
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>Nghề / vai trò: "Giáo viên tiểu học, Đà Nẵng".</summary>
+    public string Role { get; set; } = string.Empty;
+
+    public string Quote { get; set; } = string.Empty;
 }
 
 /// <summary>Một mốc trong "Hành trình của mình".</summary>

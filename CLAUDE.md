@@ -18,6 +18,8 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
 | `Pages/Shared/_SiteLayout.cshtml` | Header, menu, footer, nút nổi — máy chủ dựng. `wwwroot/assets/js/site.js` chỉ thêm phần bấm được |
 | `Pages/Admin/` | `/cms` (đăng nhập / tạo tài khoản lần đầu), `/cms/tong-quan`, `/cms/dang-ky`, `/cms/lop-online`, `/cms/bai-viet`, `/cms/khoa-hoc`, `/cms/thong-tin`, `/cms/email`, `/cms/doi-mat-khau` |
 | `Services/EmailSender.cs`, `EmailQueue.cs`, `EmailTemplates.cs` | Gửi email qua Gmail (SMTP 587 + mật khẩu ứng dụng). Thư xác nhận và báo đơn mới đi qua hàng đợi chạy nền; thư báo kết quả và thư tự soạn ở `/cms/dang-ky/{mã}` gửi ngay. Mỗi lần gửi ghi vào `Registration.Emails` |
+| `Pages/ChinhSachDuLieu.cshtml` | `/chinh-sach-du-lieu`: chỉ ghi đúng những gì site **đang làm**. Thời hạn giữ đơn lấy từ `RegistrationStore.RetentionMonths` (12); `/cms/dang-ky` có nút ẩn danh hoá đơn quá hạn |
+| `Services/LessonStatsStore.cs`, `Pages/Admin/ThongKe.cshtml` | Thống kê ẩn danh (`POST /api/tien-do` từ `khoa-hoc.js`, mỗi bài một lần mỗi trình duyệt), đếm trong bộ nhớ, ghi `Data/thong-ke.json` 5 phút một lần, không sao lưu. `/cms/thong-ke` vẽ phễu từng khóa |
 | `Data/email.json` | Cấu hình Gmail, mật khẩu ứng dụng mã hoá bằng Data Protection (khoá trong `Data/keys`). Ngoài git, ngoài bản publish, không có seed |
 | `Data/seed/*.json` | Dữ liệu gốc, có trong git và trong bản publish. Máy chủ chưa có file sống thì lần khởi động đầu tự chép sang |
 | `Data/site.json`, `posts.json`, `courses.json`, `live.json` | Dữ liệu sống, sửa trong `/cms`. Ngoài git, ngoài bản publish |
@@ -56,7 +58,13 @@ Bản đầu là site tĩnh HTML/JS — xem commit đầu tiên của repo nếu
     (GPS), thu nhỏ; ảnh bìa cắt 1200×630, ảnh đại diện cắt vuông 512. Tên mới mỗi lần nên ảnh được
     cache 30 ngày. Xoá ảnh còn nằm trong thân bài thì bị chặn — gỡ dòng `![…](…)` trước. Trang có tải
     ảnh khai `[RequestSizeLimit(64MB)]`, khớp `maxAllowedContentLength` trong `web.config`.
-11. **Máy chủ và repo trôi khỏi nhau** khi sửa trong `/cms`. Tải bản sao lưu ở `/cms/tong-quan`
+11. **`/chinh-sach-du-lieu` phải khớp với code.** Trang hứa: không IP, không cookie theo dõi, không
+    Google Analytics, giữ đơn 12 tháng. Thêm công cụ đo lường, thu thêm dữ liệu (tài khoản học viên…)
+    thì sửa trang này **trước**, và đổi ngày cập nhật đầu trang.
+12. **Seed đổi không tự vào máy đang chạy.** Máy chủ chỉ chép seed khi chưa có file sống; sửa
+    `Data/seed/` xong thì dữ liệu đang chạy vẫn là bản cũ — sửa qua `/cms`, hoặc chép tay khi chắc
+    file sống chưa ai sửa.
+13. **Máy chủ và repo trôi khỏi nhau** khi sửa trong `/cms`. Tải bản sao lưu ở `/cms/tong-quan`
     rồi chép vào `Data/seed/` khi muốn seed mới phản ánh nội dung thật.
 
 ## Repo

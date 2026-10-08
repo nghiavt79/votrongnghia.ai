@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-08 — Đợt 1 trước ra mắt: định vị, khung bài học, chính sách dữ liệu, thống kê ẩn danh
+
+Theo bản rà soát "điểm cần hoàn thiện trước khi ra mắt". Nội dung nháp (đối tượng, tiêu chí lớp, khung
+10 bài) viết theo hướng người đi làm chưa rành công nghệ — sửa hết được trong /cms.
+
+- **Tiêu chí lớp online** (`/cms/lop-online`): "Lớp dành cho ai", "Lớp chưa hợp nếu bạn", "Học xong bạn
+  sẽ" — hiện ở trang đăng ký và trang chủ. Trang đăng ký thêm **lịch các buổi kèm số chỗ còn lại**
+  (tính theo đơn đã duyệt; hết chỗ thì mời đăng ký chờ đợt sau).
+- **"Trang này dành cho ai"** ngay dưới đầu trang chủ: 4 nhóm, mỗi nhóm một link "Bắt đầu từ đây".
+- **"Mình dùng AI để làm…"** (việc thật + kết quả đo được) và **"Học viên nói gì"** — sửa ở
+  `/cms/thong-tin`, trống thì ẩn. Seed để trống: chỉ đăng chuyện thật, cảm nhận thật đã xin phép.
+- **Khung bài học**: mỗi bài có "Học xong bạn làm được" (đầu bài), "Bài tập thực hành" (khung riêng,
+  ngay trên nút đánh dấu đã học), "Bước tiếp theo". Nháp cho cả 10 bài, ví dụ theo nghề (văn phòng,
+  chủ shop, giáo viên); mục "Bài tập" cũ trong thân bài chuyển ra khung riêng. `/cms` nhắc bài thiếu khung.
+- **`/chinh-sach-du-lieu`**: thu gì, dùng làm gì, ai xem, giữ bao lâu, dịch vụ bên ngoài, quyền xoá.
+  Link ở chân trang và form đăng ký. Cam kết giữ đơn **12 tháng** có cách thực hiện: `/cms/dang-ky`
+  báo đơn quá hạn và nút **ẩn danh hoá** (xoá tên, email, điện thoại, câu trả lời; giữ số liệu).
+- **Thống kê ẩn danh** (GĐ1 của `docs/ke-hoach-hoc-vien.md`): `POST /api/tien-do`, mỗi bài trên mỗi
+  trình duyệt đếm một lần "mở" và "học xong". Không cookie, không IP, bỏ qua bot. Đếm trong bộ nhớ,
+  ghi `Data/thong-ke.json` 5 phút một lần (không sao lưu — `JsonFileStore` thêm `keepBackups`).
+  `/cms/thong-ke`: phễu từng khóa theo tháng, tô đỏ **bài người học dừng trước nhiều nhất**; bảng điều
+  khiển có dòng tóm tắt tháng này.
+
 ## 2026-10-08 — Tên miền chính: votrongnghia.vn
 
 - `Site:BaseUrl` = `https://votrongnghia.vn`: canonical, `og:url`, `og:image`, sitemap, robots.txt, link

@@ -62,6 +62,7 @@
                                 <div class="small text-body-secondary">
                                     @lesson.Minutes phút · @lesson.Body.Length ký tự @(lesson.Video.Length > 0 ? "· có video" : "")
                                     @if (lesson.Body.Trim().Length < 100) { <span class="text-danger">· còn quá ngắn</span> }
+                                    @if (!lesson.HasFramework) { <span class="text-warning">· thiếu mục tiêu / bài tập</span> }
                                 </div>
                             </div>
                             <form method="post" asp-page-handler="DoiCho" asp-route-slug="@course.Slug" class="d-flex gap-1">

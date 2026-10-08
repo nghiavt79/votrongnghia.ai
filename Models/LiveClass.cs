@@ -25,6 +25,18 @@ public sealed class LiveClass
     /// <summary>Câu người học phải tự gõ lại để xác nhận.</summary>
     public string Pledge { get; set; } = string.Empty;
 
+    /// <summary>"Lớp dành cho ai" — mỗi mục một dòng, hiện ở trang đăng ký và trang chủ.</summary>
+    public List<string> ForWho { get; set; } = [];
+
+    /// <summary>
+    /// "Lớp không dành cho ai". Nói thẳng điều này lọc người không hợp trước khi họ mất công
+    /// làm bài đầu vào và viết đơn — đỡ cho cả hai bên.
+    /// </summary>
+    public List<string> NotForWho { get; set; } = [];
+
+    /// <summary>"Học xong bạn đạt được gì" — kết quả cụ thể, làm ra được thứ gì.</summary>
+    public List<string> Outcomes { get; set; } = [];
+
     public List<LiveSession> Sessions { get; set; } = [];
 
     /// <summary>Buổi chưa qua, sớm nhất trước. Buổi đã qua ngày tự ẩn khỏi site.</summary>

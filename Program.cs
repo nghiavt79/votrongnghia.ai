@@ -31,6 +31,8 @@ builder.Services.AddSingleton<ImageService>();
 builder.Services.AddSingleton<EmailSender>();
 builder.Services.AddSingleton<EmailQueue>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<EmailQueue>());
+builder.Services.AddSingleton<LessonStatsStore>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<LessonStatsStore>());
 
 // Khoá ký cookie đăng nhập và mã chống giả form lưu ra Data/keys. Không lưu thì trên IIS
 // (app pool không nạp hồ sơ người dùng) khoá chỉ sống trong bộ nhớ: mỗi lần app pool khởi
@@ -103,6 +105,13 @@ builder.Services.AddRateLimiter(options =>
             : RateLimitPartition.GetFixedWindowLimiter(
                 context.Connection.RemoteIpAddress?.ToString() ?? "khong-ro",
                 _ => new FixedWindowRateLimiterOptions { PermitLimit = 8, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+
+    // Thống kê ẩn danh: mỗi trình duyệt gửi tối đa 2 sự kiện mỗi bài, cả khóa vài chục lượt.
+    // Ngưỡng rộng cho người học thật, chặn một máy bơm số liệu giả.
+    options.AddPolicy("tien-do", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "khong-ro",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
 
     options.OnRejected = async (context, cancellationToken) =>
     {
@@ -190,6 +199,52 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+// Thống kê ẩn danh (khoa-hoc.js gửi): { "khoa": "...", "bai": "...", "suKien": "mo" | "xong" }.
+// Không cookie, không IP, không lưu gì cho biết ai đã học. Chỉ nhận JSON (form của site khác không
+// gửi được kiểu này mà không qua CORS), giới hạn 1KB, giới hạn theo IP, chỉ đếm bài có thật.
+app.MapPost("/api/tien-do", async (HttpContext context, SiteContent content, LessonStatsStore stats) =>
+    {
+        if (!context.Request.HasJsonContentType())
+        {
+            // Kèm thân JSON: phản hồi lỗi không có thân sẽ bị UseStatusCodePages thay bằng trang 404.
+            return Results.Json(new { loi = "Chỉ nhận JSON." }, statusCode: StatusCodes.Status415UnsupportedMediaType);
+        }
+
+        // Máy quét / bot tự gọi API thì không đếm, trả như thường để nó không đổi cách.
+        if (context.Request.Headers.UserAgent.ToString().Contains("bot", StringComparison.OrdinalIgnoreCase))
+        {
+            return Results.NoContent();
+        }
+
+        ProgressEvent? request;
+
+        try
+        {
+            request = await context.Request.ReadFromJsonAsync<ProgressEvent>(context.RequestAborted);
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            request = null;
+        }
+
+        if (request is null || request.SuKien is not (LessonStatsStore.EventOpen or LessonStatsStore.EventComplete))
+        {
+            return Results.BadRequest(new { loi = "Dữ liệu không đúng." });
+        }
+
+        var course = (await content.PublishedCoursesAsync(context.RequestAborted)).FirstOrDefault(item => item.Slug == request.Khoa);
+
+        if (course is null || course.Lessons.All(lesson => lesson.Slug != request.Bai))
+        {
+            return Results.BadRequest(new { loi = "Không có bài này." });
+        }
+
+        stats.Record($"{course.Slug}/{request.Bai}", request.SuKien);
+        return Results.NoContent();
+    })
+    .RequireRateLimiting("tien-do")
+    .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1024));
+
 // robots.txt: cho index hết, trừ trang quản trị. Khai luôn sitemap.
 app.MapGet("/robots.txt", (IConfiguration configuration) =>
     Results.Text(
@@ -210,7 +265,8 @@ app.MapGet("/sitemap.xml", async (SiteContent content, IConfiguration configurat
     {
         ($"{baseUrl}/", null),
         ($"{baseUrl}/dang-ky", null),
-        ($"{baseUrl}/ai-templates", null)
+        ($"{baseUrl}/ai-templates", null),
+        ($"{baseUrl}/chinh-sach-du-lieu", null)
     };
 
     if (posts.Count > 0)
@@ -325,3 +381,6 @@ static string ReadSecret(string prompt)
         }
     }
 }
+
+// Sự kiện thống kê ẩn danh từ khoa-hoc.js.
+sealed record ProgressEvent(string? Khoa, string? Bai, string? SuKien);

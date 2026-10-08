@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tài liệu", "Tài liệu"
 		CHANGELOG.md = CHANGELOG.md
 		README.md = README.md
 		docs\DEPLOY.md = docs\DEPLOY.md
+		docs\ke-hoach-hoc-vien.md = docs\ke-hoach-hoc-vien.md
 		scripts\kiem-tra-site.ps1 = scripts\kiem-tra-site.ps1
 		scripts\update-ai-templates.py = scripts\update-ai-templates.py
 	EndProjectSection

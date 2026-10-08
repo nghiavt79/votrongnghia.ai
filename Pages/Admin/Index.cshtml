@@ -64,6 +64,17 @@
     </div>
 </div>
 
+<div class="alert alert-light border d-flex flex-wrap align-items-center gap-2 mb-3">
+    <i class="bi bi-bar-chart-line"></i>
+    <span>Tháng này: <strong>@Model.StartedThisMonth</strong> lượt bắt đầu một khóa@(Model.GateCourseTitle.Length > 0 ? "" : ".")
+        @if (Model.GateCourseTitle.Length > 0)
+        {
+            <span>· <strong>@Model.GateFinishedThisMonth</strong> lượt học xong khóa đầu vào "@Model.GateCourseTitle".</span>
+        }
+    </span>
+    <a class="ms-auto small" asp-page="/Admin/ThongKe">Xem thống kê học →</a>
+</div>
+
 <div class="row g-3">
     <div class="col-12 col-xl-7">
         <div class="card shadow-sm">

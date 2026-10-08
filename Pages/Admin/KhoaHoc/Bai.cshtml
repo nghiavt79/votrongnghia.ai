@@ -42,9 +42,23 @@
                         <label class="form-label" asp-for="Input.Title">Tên bài</label>
                         <input class="form-control form-control-lg" asp-for="Input.Title" data-tieu-de />
                     </div>
-                    <div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Outcomes">🎯 Học xong bài này bạn làm được</label>
+                        <textarea class="form-control" asp-for="Input.Outcomes" rows="3" placeholder="Mỗi dòng một kết quả cụ thể, ví dụ: Viết được email xin lỗi khách trong 2 phút"></textarea>
+                        <div class="form-text">Hiện đầu bài. 2–4 kết quả <strong>làm được</strong>, không phải "hiểu về…".</div>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label" asp-for="Input.Body">Nội dung (Markdown)</label>
                         <textarea class="form-control font-monospace" asp-for="Input.Body" rows="22" id="thanBai"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Exercise">🛠️ Bài tập thực hành (Markdown)</label>
+                        <textarea class="form-control font-monospace" asp-for="Input.Exercise" rows="6" placeholder="Việc cụ thể người học tự làm, với ví dụ đời thường. Prompt mẫu đặt trong khối ``` để có nút Sao chép."></textarea>
+                        <div class="form-text">Hiện trong khung riêng cuối bài, ngay trên nút "Đánh dấu đã học".</div>
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Input.NextStep">➡️ Bước tiếp theo</label>
+                        <input class="form-control" asp-for="Input.NextStep" placeholder="Một câu nối sang bài sau, ví dụ: Bài sau mình sẽ dùng chính email này để…" />
                     </div>
                 </div>
                 <div class="card-footer">

@@ -39,10 +39,35 @@
     }
   };
 
+  // Thống kê ẩn danh: báo máy chủ "có người mở bài này" / "có người học xong bài này", mỗi bài
+  // trên mỗi trình duyệt chỉ một lần (nhớ đã báo trong localStorage). Không gửi gì định danh.
+  // Trình duyệt chặn localStorage thì không gửi — không nhớ được là đã báo, gửi là đếm trùng.
+  const STATS_KEY = "stats-sent";
+  const sendStat = (key, kind) => {
+    try {
+      const sent = JSON.parse(localStorage.getItem(STATS_KEY)) || {};
+      if (sent[`${kind}:${key}`]) return;
+      sent[`${kind}:${key}`] = 1;
+      localStorage.setItem(STATS_KEY, JSON.stringify(sent));
+    } catch (e) {
+      return;
+    }
+    const [khoa, bai] = key.split("/");
+    fetch("/api/tien-do", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ khoa, bai, suKien: kind }),
+      keepalive: true,
+    }).catch(() => {});
+  };
+
+  if (currentKey) sendStat(currentKey, "mo");
+
   $("#markDone")?.addEventListener("click", () => {
     const progress = readProgress();
     if (progress[currentKey]) delete progress[currentKey]; else progress[currentKey] = true;
     writeProgress(progress);
+    if (progress[currentKey]) sendStat(currentKey, "xong");
     render();
   });
 

@@ -17,6 +17,7 @@ public class IndexModel : PageModel
     public IReadOnlyList<Post> Posts { get; private set; } = [];
     public int PostCount { get; private set; }
     public IReadOnlyList<Course> Courses { get; private set; } = [];
+    public LiveClass Live { get; private set; } = new();
     public IReadOnlyList<LiveSession> Sessions { get; private set; } = [];
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
@@ -28,6 +29,7 @@ public class IndexModel : PageModel
         Posts = posts.Take(6).ToList();
 
         Courses = await _content.PublishedCoursesAsync(cancellationToken);
-        Sessions = (await _content.Live.ReadAsync(cancellationToken)).Upcoming(SiteTime.Today).ToList();
+        Live = await _content.Live.ReadAsync(cancellationToken);
+        Sessions = Live.Upcoming(SiteTime.Today).ToList();
     }
 }

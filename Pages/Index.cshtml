@@ -33,6 +33,33 @@
         </div>
     </section>
 
+    @if (site.Audiences.Count > 0)
+    {
+        @* Ngay dưới đầu trang: người mới vào biết ngay trang có dành cho mình không, và bắt đầu từ đâu. *@
+        <section class="section" id="danh-cho-ai">
+            <div class="container">
+                <div class="section-head reveal">
+                    <h2>Trang Này Dành Cho Ai?</h2>
+                    <p>Không cần biết lập trình hay rành công nghệ — chỉ cần bạn muốn làm việc nhẹ nhàng hơn nhờ AI.</p>
+                </div>
+                <div class="grid grid-@Math.Min(site.Audiences.Count, 4) audiences">
+                    @foreach (var audience in site.Audiences)
+                    {
+                        <div class="card audience reveal">
+                            <span class="tool-icon">@audience.Icon</span>
+                            <h3>@audience.Title</h3>
+                            <p>@audience.Description</p>
+                            @if (audience.Link.Length > 0)
+                            {
+                                <a class="audience-link" href="@audience.Link">Bắt đầu từ đây →</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
     <section class="section" id="gioi-thieu">
         <div class="container">
             <div class="card about reveal">
@@ -62,6 +89,35 @@
             </div>
         </div>
     </section>
+
+    @if (site.Cases.Count > 0)
+    {
+        <section class="section alt" id="viec-that">
+            <div class="container">
+                <div class="section-head reveal">
+                    <h2>Mình Dùng AI Để Làm…</h2>
+                    <p>Những việc thật mình đã làm bằng AI — để bạn thấy nó áp dụng được ngay, không chỉ là lý thuyết.</p>
+                </div>
+                <div class="grid grid-3">
+                    @foreach (var item in site.Cases)
+                    {
+                        <div class="card case reveal">
+                            @if (item.Result.Length > 0)
+                            {
+                                <span class="case-result">@item.Result</span>
+                            }
+                            <h3>@item.Title</h3>
+                            <p>@item.Description</p>
+                            @if (item.Link.Length > 0)
+                            {
+                                <a class="audience-link" href="@item.Link">Xem mình làm thế nào →</a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
 
     @if (site.Tools.Count > 0)
     {
@@ -145,6 +201,8 @@
                 <div class="card reveal"><span class="tool-icon">💛</span><h3>Miễn phí, cần cam kết</h3><p>Không thu phí — đổi lại bạn cam kết học nghiêm túc và lan tỏa cho người khác.</p></div>
             </div>
 
+            <partial name="_LiveCriteria" model="Model.Live" />
+
             @if (Model.Sessions.Count > 0)
             {
                 <h3 class="live-head">📅 Lịch sắp tới</h3>
@@ -199,6 +257,26 @@
                 {
                     <div class="center"><a class="btn btn-ghost" href="/bai-viet">Xem tất cả bài viết →</a></div>
                 }
+            </div>
+        </section>
+    }
+
+    @if (site.Testimonials.Count > 0)
+    {
+        <section class="section" id="cam-nhan">
+            <div class="container">
+                <div class="section-head reveal">
+                    <h2>Học Viên Nói Gì</h2>
+                </div>
+                <div class="grid grid-3">
+                    @foreach (var item in site.Testimonials)
+                    {
+                        <figure class="card testimonial reveal">
+                            <blockquote>“@item.Quote”</blockquote>
+                            <figcaption><strong>@item.Name</strong>@if (item.Role.Length > 0) {<span> · @item.Role</span>}</figcaption>
+                        </figure>
+                    }
+                </div>
             </div>
         </section>
     }

@@ -36,6 +36,28 @@
                 <p>Lớp hoàn toàn miễn phí nhưng số chỗ có hạn. Mình dành chỗ cho những bạn <strong>thực sự nghiêm túc</strong> — mỗi đơn đều được mình đọc và xét duyệt.</p>
             </div>
 
+            <partial name="_LiveCriteria" model="live" />
+
+            @if (Model.Sessions.Count > 0)
+            {
+                <div class="card session-table">
+                    <h2>📅 Lịch các buổi sắp tới</h2>
+                    <ul>
+                        @foreach (var session in Model.Sessions)
+                        {
+                            var left = Model.SeatsLeft(session);
+                            <li>
+                                <strong>@session.Date.ToString("dd/MM/yyyy")</strong> · @session.Time · @session.Platform — @session.Title
+                                @if (left is { } seats)
+                                {
+                                    <span class="seat @(seats == 0 ? "seat-full" : seats <= 3 ? "seat-low" : "")">@(seats == 0 ? "Đã đủ chỗ — đăng ký để chờ đợt sau" : $"Còn {seats}/{session.Capacity} chỗ")</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
             <ol class="steps">
                 @if (course is not null)
                 {
@@ -160,7 +182,7 @@
                     <input asp-for="Input.Website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
                     <button class="btn btn-primary btn-lg" type="submit">✍️ Gửi đơn đăng ký</button>
-                    <p class="muted">Mình sẽ đọc từng đơn và phản hồi qua email / Zalo trong vòng 3–5 ngày. Thông tin của bạn chỉ dùng để liên hệ về lớp học.</p>
+                    <p class="muted">Mình sẽ đọc từng đơn và phản hồi qua email / Zalo trong vòng 3–5 ngày. Thông tin của bạn chỉ dùng để liên hệ về lớp học — xem <a href="/chinh-sach-du-lieu" target="_blank" rel="noopener">chính sách dữ liệu</a>.</p>
                 </fieldset>
             </form>
         }

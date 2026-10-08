@@ -11,21 +11,40 @@
         "title": "AI là gì và làm được gì cho bạn?",
         "minutes": 5,
         "video": "",
-        "body": "## AI là gì?\n\nAI (trí tuệ nhân tạo) là các chương trình máy tính có thể **hiểu ngôn ngữ, trả lời câu hỏi, viết, tóm tắt, dịch và sáng tạo** — gần giống như trò chuyện với một người trợ lý.\n\nCác công cụ phổ biến: **ChatGPT**, **Claude**, **Gemini**.\n\n## AI giúp được gì cho bạn?\n\n- ✍️ Viết email, bài đăng, kịch bản video\n- 📄 Tóm tắt tài liệu dài trong vài giây\n- 💡 Lên ý tưởng, lập kế hoạch\n- 🌐 Dịch thuật tự nhiên\n- 🧮 Giải thích các khái niệm khó\n\n## AI không phải là gì?\n\nAI **có thể sai**. Nó đôi khi \"bịa\" thông tin nghe rất thuyết phục. Vì vậy:\n\n> Luôn kiểm tra lại các thông tin quan trọng như số liệu, ngày tháng, trích dẫn.\n\n## Bài tập\n\nNghĩ ra **3 việc lặp đi lặp lại** trong công việc của bạn mà AI có thể giúp. Ghi lại — chúng ta sẽ dùng ở bài sau."
+        "body": "## AI là gì?\n\nAI (trí tuệ nhân tạo) là các chương trình máy tính có thể **hiểu ngôn ngữ, trả lời câu hỏi, viết, tóm tắt, dịch và sáng tạo** — gần giống như trò chuyện với một người trợ lý.\n\nCác công cụ phổ biến: **ChatGPT**, **Claude**, **Gemini**.\n\n## AI giúp được gì cho bạn?\n\n- ✍️ Viết email, bài đăng, kịch bản video\n- 📄 Tóm tắt tài liệu dài trong vài giây\n- 💡 Lên ý tưởng, lập kế hoạch\n- 🌐 Dịch thuật tự nhiên\n- 🧮 Giải thích các khái niệm khó\n\n## AI không phải là gì?\n\nAI **có thể sai**. Nó đôi khi \"bịa\" thông tin nghe rất thuyết phục. Vì vậy:\n\n> Luôn kiểm tra lại các thông tin quan trọng như số liệu, ngày tháng, trích dẫn.",
+        "outcomes": [
+          "Giải thích được AI là gì bằng lời của chính bạn",
+          "Kể ra 3 việc trong công việc của bạn mà AI làm giúp được",
+          "Biết lúc nào phải kiểm tra lại câu trả lời của AI"
+        ],
+        "exercise": "Mở ghi chú trên điện thoại, viết ra **3 việc lặp đi lặp lại** tốn thời gian nhất trong tuần của bạn. Ví dụ:\n\n- **Nhân viên văn phòng**: trả lời email khách hỏi giá, viết biên bản họp\n- **Chủ shop**: viết mô tả sản phẩm, trả lời tin nhắn hỏi size\n- **Giáo viên**: soạn câu hỏi ôn tập, viết nhận xét học sinh\n\nGiữ danh sách này — ở bài 3 bạn sẽ nhờ AI làm thử từng việc.",
+        "nextStep": "Bài sau bạn tạo tài khoản AI miễn phí đầu tiên — chỉ mất 5 phút."
       },
       {
         "slug": "tao-tai-khoan",
         "title": "Tạo tài khoản và làm quen giao diện",
         "minutes": 6,
         "video": "",
-        "body": "## Chọn công cụ để bắt đầu\n\nBạn chỉ cần **một** công cụ để bắt đầu. Cả ba đều có bản miễn phí:\n\n| Công cụ | Địa chỉ |\n|---|---|\n| Claude | [claude.ai](https://claude.ai) |\n| ChatGPT | [chatgpt.com](https://chatgpt.com) |\n| Gemini | [gemini.google.com](https://gemini.google.com) |\n\n## Các bước tạo tài khoản\n\n1. Truy cập trang web của công cụ\n2. Chọn **Đăng ký** và đăng nhập bằng tài khoản Google hoặc email\n3. Xác minh email (nếu được yêu cầu)\n\n## Làm quen giao diện\n\n- **Ô nhập tin nhắn**: nơi bạn gõ câu hỏi\n- **Lịch sử trò chuyện**: các cuộc trò chuyện cũ ở thanh bên\n- **Nút đính kèm**: tải lên ảnh, tài liệu PDF\n- **Cuộc trò chuyện mới**: bắt đầu chủ đề khác\n\n> Mẹo: mỗi chủ đề nên mở một cuộc trò chuyện mới để AI không bị \"lẫn\" ngữ cảnh."
+        "body": "## Chọn công cụ để bắt đầu\n\nBạn chỉ cần **một** công cụ để bắt đầu. Cả ba đều có bản miễn phí:\n\n| Công cụ | Địa chỉ |\n|---|---|\n| Claude | [claude.ai](https://claude.ai) |\n| ChatGPT | [chatgpt.com](https://chatgpt.com) |\n| Gemini | [gemini.google.com](https://gemini.google.com) |\n\n## Các bước tạo tài khoản\n\n1. Truy cập trang web của công cụ\n2. Chọn **Đăng ký** và đăng nhập bằng tài khoản Google hoặc email\n3. Xác minh email (nếu được yêu cầu)\n\n## Làm quen giao diện\n\n- **Ô nhập tin nhắn**: nơi bạn gõ câu hỏi\n- **Lịch sử trò chuyện**: các cuộc trò chuyện cũ ở thanh bên\n- **Nút đính kèm**: tải lên ảnh, tài liệu PDF\n- **Cuộc trò chuyện mới**: bắt đầu chủ đề khác\n\n> Mẹo: mỗi chủ đề nên mở một cuộc trò chuyện mới để AI không bị \"lẫn\" ngữ cảnh.",
+        "outcomes": [
+          "Có tài khoản miễn phí ở ít nhất một công cụ AI",
+          "Biết mở cuộc trò chuyện mới, tìm lại cuộc trò chuyện cũ, đính kèm tài liệu"
+        ],
+        "exercise": "1. Tạo tài khoản ở **một** công cụ — phân vân thì chọn Claude hoặc ChatGPT.\n2. Gõ thử (thay chỗ trong ngoặc bằng nghề của bạn):\n\n```\nChào bạn, mình là [nghề của bạn]. Mình mới dùng AI lần đầu. Hãy gợi ý 3 việc bạn có thể giúp mình ngay hôm nay.\n```\n\n3. Bấm **Cuộc trò chuyện mới**, rồi mở lại cuộc trò chuyện vừa rồi ở thanh bên — để chắc bạn biết tìm lại.\n4. Cài ứng dụng trên điện thoại (cùng tài khoản) để hỏi AI mọi lúc, kể cả khi không ngồi máy tính.",
+        "nextStep": "Bài sau là cuộc trò chuyện thật đầu tiên: nhờ AI làm 3 việc bạn đã ghi ở bài 1."
       },
       {
         "slug": "cuoc-tro-chuyen-dau-tien",
         "title": "Cuộc trò chuyện đầu tiên với AI",
         "minutes": 7,
         "video": "",
-        "body": "## Thử ngay câu hỏi đầu tiên\n\nHãy gõ vào ô chat:\n\n```\nGiải thích AI là gì cho một người 60 tuổi chưa từng dùng máy tính, trong 5 câu.\n```\n\nBạn sẽ thấy AI điều chỉnh cách nói theo đúng yêu cầu.\n\n## Hỏi tiếp để có câu trả lời tốt hơn\n\nĐiểm mạnh của AI là bạn có thể **trò chuyện qua lại**:\n\n- \"Ngắn gọn hơn nữa\"\n- \"Cho thêm ví dụ thực tế\"\n- \"Viết lại với giọng vui vẻ hơn\"\n\n## Bài tập\n\nLấy 3 việc bạn ghi lại ở bài 1, nhờ AI giúp từng việc. Ví dụ:\n\n```\nViết email gửi khách hàng thông báo đơn hàng giao chậm 2 ngày, giọng lịch sự, xin lỗi chân thành.\n```\n\n🎉 Chúc mừng — bạn đã hoàn thành cấp độ 1!"
+        "body": "## Thử ngay câu hỏi đầu tiên\n\nHãy gõ vào ô chat:\n\n```\nGiải thích AI là gì cho một người 60 tuổi chưa từng dùng máy tính, trong 5 câu.\n```\n\nBạn sẽ thấy AI điều chỉnh cách nói theo đúng yêu cầu.\n\n## Hỏi tiếp để có câu trả lời tốt hơn\n\nĐiểm mạnh của AI là bạn có thể **trò chuyện qua lại**:\n\n- \"Ngắn gọn hơn nữa\"\n- \"Cho thêm ví dụ thực tế\"\n- \"Viết lại với giọng vui vẻ hơn\"",
+        "outcomes": [
+          "Nhờ AI làm xong một việc thật trong công việc của bạn",
+          "Biết hỏi tiếp để chỉnh câu trả lời, thay vì nhận luôn bản đầu tiên"
+        ],
+        "exercise": "Lấy 3 việc bạn ghi ở bài 1, nhờ AI làm **từng việc**. Với mỗi việc, hỏi tiếp **ít nhất 2 lần** để chỉnh. Ví dụ:\n\n```\nViết email gửi khách hàng thông báo đơn hàng giao chậm 2 ngày, giọng lịch sự, xin lỗi chân thành.\n```\n\nRồi thử tiếp: *\"Ngắn lại còn 3 câu\"*, *\"Thêm lời tặng mã giảm giá 10% cho đơn sau\"*.\n\nGhi lại việc nào AI làm tốt ngay, việc nào phải sửa nhiều — đó chính là chỗ khóa \"Viết prompt hiệu quả\" sẽ giúp bạn.",
+        "nextStep": "🎉 Xong cấp độ 1! Khóa tiếp theo dạy bạn viết prompt để AI làm đúng ngay từ lần đầu."
       }
     ],
     "updatedAt": "2026-10-07T09:00:00+07:00"
@@ -42,21 +61,39 @@
         "title": "Cấu trúc một prompt tốt",
         "minutes": 6,
         "video": "",
-        "body": "## Prompt là gì?\n\nPrompt là **câu lệnh bạn gửi cho AI**. Prompt càng rõ, kết quả càng tốt.\n\n## 4 thành phần của một prompt tốt\n\n1. **Vai trò** — AI nên đóng vai ai?\n2. **Nhiệm vụ** — cần làm gì?\n3. **Bối cảnh** — thông tin nền, đối tượng\n4. **Định dạng** — kết quả trình bày ra sao?\n\n## Ví dụ\n\n❌ Prompt yếu:\n\n```\nViết bài về cà phê.\n```\n\n✅ Prompt tốt:\n\n```\nBạn là copywriter cho một quán cà phê nhỏ ở Đà Lạt.\nViết bài đăng Facebook giới thiệu món cà phê trứng mới.\nĐối tượng: khách du lịch trẻ 20-30 tuổi.\nĐộ dài khoảng 100 chữ, giọng thân thiện, có 3 emoji và lời kêu gọi ghé quán.\n```"
+        "body": "## Prompt là gì?\n\nPrompt là **câu lệnh bạn gửi cho AI**. Prompt càng rõ, kết quả càng tốt.\n\n## 4 thành phần của một prompt tốt\n\n1. **Vai trò** — AI nên đóng vai ai?\n2. **Nhiệm vụ** — cần làm gì?\n3. **Bối cảnh** — thông tin nền, đối tượng\n4. **Định dạng** — kết quả trình bày ra sao?\n\n## Ví dụ\n\n❌ Prompt yếu:\n\n```\nViết bài về cà phê.\n```\n\n✅ Prompt tốt:\n\n```\nBạn là copywriter cho một quán cà phê nhỏ ở Đà Lạt.\nViết bài đăng Facebook giới thiệu món cà phê trứng mới.\nĐối tượng: khách du lịch trẻ 20-30 tuổi.\nĐộ dài khoảng 100 chữ, giọng thân thiện, có 3 emoji và lời kêu gọi ghé quán.\n```",
+        "outcomes": [
+          "Viết được prompt đủ 4 phần: vai trò, nhiệm vụ, bối cảnh, định dạng",
+          "Biến một câu hỏi mơ hồ thành prompt cho kết quả dùng được ngay"
+        ],
+        "exercise": "Chọn một việc thật bạn hay làm và viết prompt đủ 4 phần theo mẫu (thay các chỗ trong ngoặc):\n\n```\nBạn là [vai trò — ví dụ: nhân viên chăm sóc khách hàng của shop quần áo].\nHãy [nhiệm vụ — ví dụ: trả lời tin nhắn khách muốn đổi size].\nBối cảnh: [ví dụ: khách mua áo size M, muốn đổi sang L, đã nhận hàng 3 ngày].\nĐịnh dạng: [ví dụ: 3–4 câu, giọng thân thiện, xưng \"shop\" – \"bạn\"].\n```\n\nGửi cho AI, rồi hỏi lại đúng việc đó bằng một câu ngắn kiểu *\"trả lời khách đổi size\"*. So hai kết quả: bản nào dùng được ngay?",
+        "nextStep": "Bài sau: 5 công thức prompt có sẵn, để bạn khỏi phải nghĩ từ đầu mỗi lần."
       },
       {
         "slug": "5-cong-thuc",
         "title": "5 công thức prompt dùng mỗi ngày",
         "minutes": 8,
         "video": "",
-        "body": "## 1. Công thức \"Đóng vai\"\n\n```\nBạn là [chuyên gia]. Hãy [nhiệm vụ] cho [đối tượng].\n```\n\n## 2. Công thức \"Từng bước\"\n\n```\nHãy suy nghĩ từng bước và giải thích [vấn đề].\n```\n\n## 3. Công thức \"Có ví dụ mẫu\"\n\n```\nViết 5 tiêu đề theo phong cách giống các ví dụ sau:\n- [ví dụ 1]\n- [ví dụ 2]\n```\n\n## 4. Công thức \"Hỏi ngược lại\"\n\n```\nTôi muốn [mục tiêu]. Trước khi trả lời, hãy hỏi tôi những câu cần thiết để hiểu rõ yêu cầu.\n```\n\n## 5. Công thức \"Định dạng đầu ra\"\n\n```\nTrình bày kết quả dưới dạng bảng gồm các cột: [cột 1], [cột 2], [cột 3].\n```\n\n> Lưu các công thức này vào ghi chú để dùng lại mỗi ngày."
+        "body": "## 1. Công thức \"Đóng vai\"\n\n```\nBạn là [chuyên gia]. Hãy [nhiệm vụ] cho [đối tượng].\n```\n\n## 2. Công thức \"Từng bước\"\n\n```\nHãy suy nghĩ từng bước và giải thích [vấn đề].\n```\n\n## 3. Công thức \"Có ví dụ mẫu\"\n\n```\nViết 5 tiêu đề theo phong cách giống các ví dụ sau:\n- [ví dụ 1]\n- [ví dụ 2]\n```\n\n## 4. Công thức \"Hỏi ngược lại\"\n\n```\nTôi muốn [mục tiêu]. Trước khi trả lời, hãy hỏi tôi những câu cần thiết để hiểu rõ yêu cầu.\n```\n\n## 5. Công thức \"Định dạng đầu ra\"\n\n```\nTrình bày kết quả dưới dạng bảng gồm các cột: [cột 1], [cột 2], [cột 3].\n```\n\n> Lưu các công thức này vào ghi chú để dùng lại mỗi ngày.",
+        "outcomes": [
+          "Dùng được 5 công thức prompt cho việc hằng ngày",
+          "Có sẵn một ghi chú \"prompt hay dùng\" của riêng bạn"
+        ],
+        "exercise": "Tạo một ghi chú tên **\"Prompt hay dùng\"** (Google Keep, Notes, hay nhắn Zalo cho chính mình đều được). Với mỗi công thức, viết **một prompt cho việc thật của bạn** rồi lưu lại. Ví dụ với công thức \"Hỏi ngược lại\":\n\n```\nTôi muốn lên kế hoạch bài đăng Facebook cho shop trong tháng tới. Trước khi trả lời, hãy hỏi tôi những câu cần thiết để hiểu rõ yêu cầu.\n```\n\nThử ít nhất 2 công thức với AI và đánh dấu công thức nào hợp với công việc của bạn nhất.",
+        "nextStep": "Bài sau: những lỗi prompt hay gặp — và cách sửa nhanh khi AI trả lời chưa đúng ý."
       },
       {
         "slug": "loi-thuong-gap",
         "title": "Những lỗi prompt thường gặp",
         "minutes": 5,
         "video": "",
-        "body": "## Lỗi 1: Quá chung chung\n\n\"Viết hay hơn\" — hay hơn như thế nào? Hãy nói rõ: ngắn hơn, trang trọng hơn, nhiều số liệu hơn…\n\n## Lỗi 2: Thiếu bối cảnh\n\nAI không biết bạn là ai, khách hàng là ai. Hãy cung cấp thông tin nền.\n\n## Lỗi 3: Nhồi quá nhiều yêu cầu một lúc\n\nChia nhỏ việc lớn thành nhiều bước, làm từng bước một.\n\n## Lỗi 4: Tin tuyệt đối vào kết quả\n\nLuôn kiểm tra lại số liệu và thông tin quan trọng.\n\n## Bài tập\n\nLấy một prompt bạn từng dùng, áp dụng **4 thành phần** ở bài 1 để viết lại, rồi so sánh kết quả."
+        "body": "## Lỗi 1: Quá chung chung\n\n\"Viết hay hơn\" — hay hơn như thế nào? Hãy nói rõ: ngắn hơn, trang trọng hơn, nhiều số liệu hơn…\n\n## Lỗi 2: Thiếu bối cảnh\n\nAI không biết bạn là ai, khách hàng là ai. Hãy cung cấp thông tin nền.\n\n## Lỗi 3: Nhồi quá nhiều yêu cầu một lúc\n\nChia nhỏ việc lớn thành nhiều bước, làm từng bước một.\n\n## Lỗi 4: Tin tuyệt đối vào kết quả\n\nLuôn kiểm tra lại số liệu và thông tin quan trọng.",
+        "outcomes": [
+          "Nhận ra 4 lỗi khiến AI trả lời lệch ý",
+          "Sửa một prompt cũ để có kết quả tốt hơn rõ rệt"
+        ],
+        "exercise": "Lấy một prompt bạn từng dùng mà kết quả chưa ưng. Xem nó mắc lỗi nào trong 4 lỗi trên, rồi viết lại theo **4 thành phần** ở bài 1. Gửi cả hai bản cho AI và so sánh.\n\nVí dụ: *\"Viết caption bán hàng\"* → *\"Bạn là người bán đồ handmade. Viết 3 caption Instagram cho móc khóa len hình mèo giá 45.000đ, khách là học sinh – sinh viên, mỗi caption dưới 30 chữ, có 2 emoji.\"*",
+        "nextStep": "🎉 Xong cấp độ 2! Khóa tiếp theo dạy AI viết đúng giọng văn của riêng bạn."
       }
     ],
     "updatedAt": "2026-10-07T09:00:00+07:00"
@@ -73,14 +110,26 @@
         "title": "Thu thập mẫu văn phong",
         "minutes": 6,
         "video": "",
-        "body": "## Vì sao AI viết \"không giống bạn\"?\n\nMặc định, AI viết theo phong cách trung tính. Để AI viết giống bạn, nó cần **ví dụ thật** từ bạn.\n\n## Thu thập gì?\n\n- 5–10 bài đăng bạn thấy \"đúng chất\" mình nhất\n- Một vài email bạn từng viết\n- Các câu cửa miệng, từ ngữ hay dùng\n\n## Mẹo\n\nChọn những bài có **độ tương tác tốt** hoặc bạn thấy tự hào nhất. Gom tất cả vào một file văn bản."
+        "body": "## Vì sao AI viết \"không giống bạn\"?\n\nMặc định, AI viết theo phong cách trung tính. Để AI viết giống bạn, nó cần **ví dụ thật** từ bạn.\n\n## Thu thập gì?\n\n- 5–10 bài đăng bạn thấy \"đúng chất\" mình nhất\n- Một vài email bạn từng viết\n- Các câu cửa miệng, từ ngữ hay dùng\n\n## Mẹo\n\nChọn những bài có **độ tương tác tốt** hoặc bạn thấy tự hào nhất. Gom tất cả vào một file văn bản.",
+        "outcomes": [
+          "Có một file mẫu văn phong gồm 5–10 bài viết thật của bạn",
+          "Biết chọn mẫu nào để AI học đúng giọng bạn nhất"
+        ],
+        "exercise": "Tạo một file (Google Docs hay Word) tên **\"Giọng văn của tôi\"** và dán vào:\n\n- 5 bài đăng mạng xã hội bạn thấy \"đúng chất\" mình nhất\n- 2–3 email hoặc tin nhắn công việc bạn từng viết\n- 5–10 từ, câu cửa miệng bạn hay dùng (\"nha\", \"tụi mình\", \"chốt đơn\"…)\n\nXoá thông tin riêng tư (số điện thoại, tên khách) trước khi dùng ở bài sau.",
+        "nextStep": "Bài sau bạn dùng chính file này để AI viết ra bản hướng dẫn giọng văn của bạn."
       },
       {
         "slug": "tao-huong-dan-giong-van",
         "title": "Tạo bản hướng dẫn giọng văn",
         "minutes": 7,
         "video": "",
-        "body": "## Nhờ AI phân tích giọng văn\n\nDán các mẫu đã thu thập và dùng prompt:\n\n```\nDưới đây là các bài viết của tôi. Hãy phân tích giọng văn: cách xưng hô, độ dài câu,\ntừ ngữ hay dùng, cách mở bài và kết bài. Sau đó viết thành một \"bản hướng dẫn giọng văn\"\nđể tôi dùng lại cho các lần sau.\n```\n\n## Dùng lại bản hướng dẫn\n\n- **Claude**: lưu vào *Project* hoặc phần hướng dẫn cá nhân\n- **ChatGPT**: lưu vào *Custom Instructions* hoặc tạo một GPT riêng\n\n## Kiểm tra\n\nNhờ AI viết một bài mới theo bản hướng dẫn, rồi tự hỏi: \"Người theo dõi mình có nhận ra đây không phải mình viết không?\" Điều chỉnh cho đến khi hài lòng."
+        "body": "## Nhờ AI phân tích giọng văn\n\nDán các mẫu đã thu thập và dùng prompt:\n\n```\nDưới đây là các bài viết của tôi. Hãy phân tích giọng văn: cách xưng hô, độ dài câu,\ntừ ngữ hay dùng, cách mở bài và kết bài. Sau đó viết thành một \"bản hướng dẫn giọng văn\"\nđể tôi dùng lại cho các lần sau.\n```\n\n## Dùng lại bản hướng dẫn\n\n- **Claude**: lưu vào *Project* hoặc phần hướng dẫn cá nhân\n- **ChatGPT**: lưu vào *Custom Instructions* hoặc tạo một GPT riêng\n\n## Kiểm tra\n\nNhờ AI viết một bài mới theo bản hướng dẫn, rồi tự hỏi: \"Người theo dõi mình có nhận ra đây không phải mình viết không?\" Điều chỉnh cho đến khi hài lòng.",
+        "outcomes": [
+          "Có bản hướng dẫn giọng văn do AI phân tích từ bài thật của bạn",
+          "Lưu bản hướng dẫn để mọi lần nhờ AI viết đều đúng giọng"
+        ],
+        "exercise": "1. Dán file mẫu ở bài trước cùng prompt phân tích ở trên.\n2. Lưu bản hướng dẫn AI viết ra vào **Project** (Claude) hoặc **Custom Instructions** (ChatGPT).\n3. Nhờ AI viết **một bài đăng mới** về chủ đề bạn sắp đăng. Đưa một người quen đọc mà không nói ai viết — họ có nhận ra không phải bạn không?\n4. Chỗ nào chưa giống thì nói thẳng với AI (*\"mình không bao giờ dùng từ 'tuyệt vời'\"*) và cập nhật bản hướng dẫn.",
+        "nextStep": "🎉 Xong cấp độ 3! Khóa cuối: để AI tự làm những việc lặp lại thay bạn."
       }
     ],
     "updatedAt": "2026-10-07T09:00:00+07:00"
@@ -97,14 +146,26 @@
         "title": "Việc nào nên tự động hóa?",
         "minutes": 5,
         "video": "",
-        "body": "## Tự động hóa là gì?\n\nLà để máy **tự làm những việc lặp lại** thay bạn — ví dụ: tóm tắt email mỗi sáng, đăng bài theo lịch, tổng hợp báo cáo.\n\n## Việc nào nên tự động hóa?\n\nMột việc đáng tự động hóa khi:\n\n1. **Lặp lại thường xuyên** (hằng ngày, hằng tuần)\n2. **Có quy trình rõ ràng**\n3. **Tốn thời gian** nhưng không cần sáng tạo nhiều\n\n## Bài tập\n\nLiệt kê công việc trong 1 tuần của bạn và đánh dấu những việc thỏa cả 3 tiêu chí trên."
+        "body": "## Tự động hóa là gì?\n\nLà để máy **tự làm những việc lặp lại** thay bạn — ví dụ: tóm tắt email mỗi sáng, đăng bài theo lịch, tổng hợp báo cáo.\n\n## Việc nào nên tự động hóa?\n\nMột việc đáng tự động hóa khi:\n\n1. **Lặp lại thường xuyên** (hằng ngày, hằng tuần)\n2. **Có quy trình rõ ràng**\n3. **Tốn thời gian** nhưng không cần sáng tạo nhiều",
+        "outcomes": [
+          "Chọn ra 1–2 việc đáng tự động hóa nhất trong tuần của bạn",
+          "Ước được mỗi tuần tiết kiệm bao nhiêu giờ"
+        ],
+        "exercise": "Liệt kê các việc bạn làm trong **một tuần**, ghi bên cạnh mỗi việc: làm mấy lần mỗi tuần, mỗi lần mất bao lâu. Đánh dấu việc thỏa **cả 3 tiêu chí** ở trên.\n\nVí dụ: *\"Tổng hợp doanh thu từ 3 sàn — mỗi thứ Hai — 1,5 giờ\"* → lặp lại, có quy trình, tốn thời gian → nên tự động hóa.\n\nChọn **một việc** tiết kiệm được nhiều giờ nhất để làm ở bài sau.",
+        "nextStep": "Bài sau: kết nối AI với Gmail, Drive, Lịch để làm chính việc bạn vừa chọn."
       },
       {
         "slug": "ket-noi-ung-dung",
         "title": "Kết nối AI với ứng dụng của bạn",
         "minutes": 9,
         "video": "",
-        "body": "## Kết nối AI với dữ liệu thật\n\nCác trợ lý AI hiện nay có thể kết nối trực tiếp với Gmail, Google Drive, Calendar, Notion… thông qua **Connectors** hoặc **MCP**.\n\n## Ví dụ quy trình\n\n- \"Đọc 20 email mới nhất và liệt kê những việc tôi cần trả lời hôm nay\"\n- \"Tìm trong Drive tài liệu báo giá tháng trước và tóm tắt\"\n- \"Xem lịch tuần này và gợi ý thời gian trống để họp\"\n\n## Lưu ý an toàn\n\n> Chỉ cấp quyền cho những ứng dụng thực sự cần, và xem lại trước khi AI gửi email hay sửa dữ liệu thay bạn.\n\n🎉 Chúc mừng bạn đã hoàn thành toàn bộ khóa học!"
+        "body": "## Kết nối AI với dữ liệu thật\n\nCác trợ lý AI hiện nay có thể kết nối trực tiếp với Gmail, Google Drive, Calendar, Notion… thông qua **Connectors** hoặc **MCP**.\n\n## Ví dụ quy trình\n\n- \"Đọc 20 email mới nhất và liệt kê những việc tôi cần trả lời hôm nay\"\n- \"Tìm trong Drive tài liệu báo giá tháng trước và tóm tắt\"\n- \"Xem lịch tuần này và gợi ý thời gian trống để họp\"\n\n## Lưu ý an toàn\n\n> Chỉ cấp quyền cho những ứng dụng thực sự cần, và xem lại trước khi AI gửi email hay sửa dữ liệu thay bạn.",
+        "outcomes": [
+          "Kết nối được AI với ít nhất một ứng dụng bạn dùng hằng ngày",
+          "Biết cấp quyền vừa đủ và kiểm tra lại trước khi để AI làm thay"
+        ],
+        "exercise": "1. Trong Claude hoặc ChatGPT, mở phần **Connectors / Ứng dụng** và kết nối **một** ứng dụng — Gmail hoặc Google Drive là dễ nhất.\n2. Thử một yêu cầu **chỉ đọc**, ví dụ:\n\n```\nĐọc 20 email mới nhất và liệt kê những việc tôi cần trả lời hôm nay, xếp theo mức độ gấp.\n```\n\n3. Áp dụng cho việc bạn chọn ở bài trước. Ghi lại: làm tay mất bao lâu, có AI mất bao lâu.\n\nKhi đã quen mới cho AI soạn nháp — vẫn **chưa gửi**: bạn đọc lại rồi tự bấm gửi.",
+        "nextStep": "🎉 Chúc mừng bạn đã học hết các khóa! Muốn được hướng dẫn trực tiếp, hãy đăng ký lớp online cùng mình."
       }
     ],
     "updatedAt": "2026-10-07T09:00:00+07:00"

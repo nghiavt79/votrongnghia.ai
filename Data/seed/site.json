@@ -120,5 +120,33 @@
       "url": "https://gamma.app"
     }
   ],
-  "videos": []
+  "videos": [],
+  "audiences": [
+    {
+      "icon": "🌱",
+      "title": "Người mới hoàn toàn",
+      "description": "Chưa từng dùng AI, không rành công nghệ — bắt đầu từ con số 0, từng bước một.",
+      "link": "/khoa-hoc/ai-cho-nguoi-moi"
+    },
+    {
+      "icon": "💼",
+      "title": "Nhân viên văn phòng",
+      "description": "Viết email, báo cáo, tóm tắt tài liệu nhanh gấp nhiều lần, về nhà sớm hơn.",
+      "link": "/khoa-hoc/viet-prompt-hieu-qua"
+    },
+    {
+      "icon": "🛍️",
+      "title": "Chủ shop, kinh doanh nhỏ",
+      "description": "Viết bài bán hàng, trả lời khách, lên kế hoạch nội dung — đúng giọng của bạn.",
+      "link": "/khoa-hoc/ai-viet-giong-ban"
+    },
+    {
+      "icon": "🛠️",
+      "title": "Người muốn tự làm công cụ",
+      "description": "Không biết code vẫn tự làm được trang web, công cụ nhỏ bằng vibe code.",
+      "link": "/bai-viet/huong-dan-vibe-code-cho-nguoi-moi"
+    }
+  ],
+  "cases": [],
+  "testimonials": []
 }

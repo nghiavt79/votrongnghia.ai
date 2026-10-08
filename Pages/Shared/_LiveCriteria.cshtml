@@ -1,0 +1,31 @@
+@*
+    Khối "Lớp dành cho ai / không dành cho ai / học xong đạt gì", sửa ở /cms/lop-online.
+    Dùng ở trang đăng ký và mục Học online của trang chủ. Danh sách nào trống thì cột đó ẩn,
+    cả ba trống thì không hiện gì.
+*@
+@model LiveClass
+@{
+    var columns = new[]
+    {
+        ("✅", "Lớp dành cho bạn nếu", Model.ForWho, "criteria-yes"),
+        ("⛔", "Lớp chưa hợp nếu bạn", Model.NotForWho, "criteria-no"),
+        ("🎯", "Học xong bạn sẽ", Model.Outcomes, "criteria-goal"),
+    }.Where(column => column.Item3.Count > 0).ToList();
+}
+@if (columns.Count > 0)
+{
+    <div class="grid grid-@columns.Count live-criteria">
+        @foreach (var (icon, title, items, css) in columns)
+        {
+            <div class="card reveal @css">
+                <h3>@icon @title</h3>
+                <ul>
+                    @foreach (var item in items)
+                    {
+                        <li>@item</li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}

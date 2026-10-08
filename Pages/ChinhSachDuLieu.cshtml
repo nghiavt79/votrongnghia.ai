@@ -1,0 +1,77 @@
+@page "/chinh-sach-du-lieu"
+@inject SiteContent SiteData
+@{
+    // Trang chỉ ghi đúng những gì site đang thật sự làm. Thêm tính năng thu dữ liệu mới (tài khoản
+    // học viên, công cụ đo lường…) thì phải sửa trang này cùng lúc, và đổi ngày cập nhật bên dưới.
+    // Thời hạn giữ đơn lấy từ RegistrationStore.RetentionMonths để hai bên không lệch nhau.
+    ViewData["Title"] = "Chính sách dữ liệu";
+    ViewData["Description"] = "Trang thu thập những dữ liệu gì, để làm gì, giữ bao lâu, và cách bạn yêu cầu xoá.";
+    var site = await SiteData.Site.ReadAsync();
+    const string updated = "08/10/2026";
+}
+
+<main class="page">
+    <div class="container">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <span>Chính sách dữ liệu</span></nav>
+    </div>
+    <div class="container">
+        <article class="article policy">
+            <h1>Chính sách dữ liệu</h1>
+            <p class="muted">Cập nhật lần cuối: @updated</p>
+
+            <div class="prose">
+                <p>Trang này miễn phí và không bán gì cả, nên mình chỉ thu đúng những gì cần để dạy và liên lạc với bạn. Dưới đây là toàn bộ — viết bằng lời thường, không có chữ nhỏ.</p>
+
+                <h2>1. Khi bạn chỉ đọc bài và học các khóa miễn phí</h2>
+                <ul>
+                    <li><strong>Không cần tài khoản</strong>, không hỏi tên hay email.</li>
+                    <li><strong>Tiến độ học</strong> (bài nào đã đánh dấu học xong) và lựa chọn giao diện sáng / tối được lưu <strong>ngay trên trình duyệt của bạn</strong>. Máy chủ của trang không biết đó là của ai. Xoá dữ liệu trình duyệt là mất tiến độ.</li>
+                    <li>Trang đếm <strong>ẩn danh</strong> số lượt mở bài và học xong từng bài, để biết bài nào khó, bài nào nhiều người bỏ dở mà sửa cho dễ hơn. Không lưu địa chỉ IP, không lưu bất cứ thứ gì cho biết ai đã học.</li>
+                    <li>Trang <strong>không dùng</strong> cookie quảng cáo, không gắn công cụ theo dõi của Facebook hay Google Analytics.</li>
+                </ul>
+
+                <h2>2. Khi bạn đăng ký lớp học online</h2>
+                <p>Form đăng ký hỏi: họ tên, email, số điện thoại / Zalo, nghề nghiệp, mức bạn đang dùng AI, mục tiêu học, việc bạn muốn làm ra, số giờ tự học mỗi tuần, buổi muốn tham gia, và bản cam kết của bạn.</p>
+                <ul>
+                    <li><strong>Dùng để làm gì:</strong> xét duyệt đơn, liên lạc với bạn về lớp học (báo kết quả, gửi lịch và link vào lớp). Không dùng cho việc gì khác.</li>
+                    <li><strong>Ai được xem:</strong> chỉ mình — người quản lý trang. Mình <strong>không bán, không cho, không chia sẻ</strong> thông tin của bạn với ai.</li>
+                    <li><strong>Lưu ở đâu:</strong> trên máy chủ của trang, không công khai ở bất cứ đâu.</li>
+                    <li><strong>Email:</strong> thư xác nhận và thư báo kết quả được gửi qua Gmail, nên đi qua máy chủ của Google như mọi thư Gmail khác.</li>
+                    <li><strong>Giữ bao lâu:</strong> tối đa <strong>@RegistrationStore.RetentionMonths tháng</strong> kể từ lần cuối đơn được cập nhật. Sau đó họ tên, email, số điện thoại và câu trả lời của bạn bị xoá; chỉ còn lại con số thống kê (ví dụ "đợt tháng 10 có 30 đơn") không cho biết ai là ai.</li>
+                </ul>
+
+                <h2>3. Dịch vụ bên ngoài trang có dùng</h2>
+                <ul>
+                    <li><strong>Google Fonts</strong>: tải phông chữ, trình duyệt của bạn kết nối tới máy chủ Google để lấy phông.</li>
+                    <li><strong>YouTube</strong> (nếu bài có video): dùng chế độ <em>youtube-nocookie</em> — chỉ tải khi bạn bấm phát.</li>
+                    <li><strong>Trang AI Templates</strong>: tải nội dung xem trước từ GitHub và thư viện hiển thị từ jsDelivr.</li>
+                    <li><strong>Nút chia sẻ Facebook / Zalo</strong>: chỉ mở Facebook hay Zalo khi bạn bấm.</li>
+                </ul>
+
+                <h2>4. Quyền của bạn</h2>
+                <p>Bạn có quyền hỏi mình đang giữ thông tin gì của bạn, yêu cầu sửa, hoặc <strong>yêu cầu xoá hẳn</strong> — kể cả khi chưa hết @RegistrationStore.RetentionMonths tháng. Mình xử lý trong vòng 7 ngày và báo lại cho bạn.</p>
+                <p>Liên hệ:
+                    @if (site.Email.Length > 0)
+                    {
+                        <span>email <a href="mailto:@site.Email">@site.Email</a></span>
+                    }
+                    @if (site.Email.Length > 0 && site.Zalo.Length > 0)
+                    {
+                        <span> hoặc </span>
+                    }
+                    @if (site.Zalo.Length > 0)
+                    {
+                        <a href="@site.Zalo" target="_blank" rel="noopener">nhắn Zalo</a>
+                    }
+                    @if (site.Email.Length == 0 && site.Zalo.Length == 0)
+                    {
+                        <span>trả lời thư xác nhận mà bạn nhận được khi đăng ký.</span>
+                    }
+                </p>
+
+                <h2>5. Khi chính sách thay đổi</h2>
+                <p>Nếu sau này trang thu thêm dữ liệu (ví dụ tài khoản học viên), mình sẽ cập nhật trang này <strong>trước</strong> khi bắt đầu, và ghi rõ ngày cập nhật ở đầu trang.</p>
+            </div>
+        </article>
+    </div>
+</main>

@@ -51,13 +51,20 @@ public sealed class JsonFileStore<T> where T : class, new()
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public JsonFileStore(string path, string seedPath, string backupsDirectory, ILogger logger)
+    /// <summary>
+    /// Có đẩy bản cũ vào Data/backups mỗi lần ghi không. Tắt cho file ghi định kỳ, ít giá trị khi
+    /// mất (thống kê): ghi 5 phút một lần mà sao lưu là 20 bản giữ lại chỉ còn phủ được 100 phút.
+    /// </summary>
+    private readonly bool _keepBackups;
+
+    public JsonFileStore(string path, string seedPath, string backupsDirectory, ILogger logger, bool keepBackups = true)
     {
         _path = path;
         _seedPath = seedPath;
         _backupsDirectory = backupsDirectory;
         _backupPrefix = Path.GetFileNameWithoutExtension(path);
         _logger = logger;
+        _keepBackups = keepBackups;
     }
 
     /// <summary>
@@ -160,7 +167,12 @@ public sealed class JsonFileStore<T> where T : class, new()
             await JsonSerializer.SerializeAsync(stream, value, WriteOptions, cancellationToken);
         }
 
-        if (File.Exists(_path))
+        if (File.Exists(_path) && !_keepBackups)
+        {
+            // Vẫn ghi nguyên tử, chỉ không giữ bản cũ.
+            File.Replace(temporary, _path, null);
+        }
+        else if (File.Exists(_path))
         {
             Directory.CreateDirectory(_backupsDirectory);
 

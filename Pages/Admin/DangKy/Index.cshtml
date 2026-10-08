@@ -11,6 +11,17 @@
     </a>
 }
 
+@if (Model.ExpiredCount > 0)
+{
+    <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2">
+        <span><i class="bi bi-shield-lock me-1"></i>Có <strong>@Model.ExpiredCount đơn</strong> quá @RegistrationStore.RetentionMonths tháng —
+            trang <a href="/chinh-sach-du-lieu" target="_blank" rel="noopener">chính sách dữ liệu</a> cam kết không giữ thông tin cá nhân lâu hơn.</span>
+        <form method="post" asp-page-handler="AnDanh" class="ms-auto">
+            <button type="submit" class="btn btn-sm btn-warning" data-confirm="Xoá họ tên, email, điện thoại, câu trả lời của @Model.ExpiredCount đơn cũ? Số liệu đếm vẫn giữ.">Ẩn danh hoá ngay</button>
+        </form>
+    </div>
+}
+
 @if (!string.IsNullOrEmpty(Model.Message))
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">

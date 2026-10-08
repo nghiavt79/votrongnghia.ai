@@ -143,6 +143,24 @@
                         <input class="form-control" asp-for="Rules.Pledge" />
                         <div class="form-text">Không phân biệt hoa thường và dấu chấm cuối câu. Để trống là bỏ bước này.</div>
                     </div>
+                    <hr />
+                    <p class="small text-body-secondary mb-2">
+                        <i class="bi bi-megaphone me-1"></i>Ba ô dưới hiện ở trang đăng ký và trang chủ. Nói rõ lớp dành cho ai và
+                        <strong>không</strong> dành cho ai giúp người không hợp tự lọc ra trước khi mất công làm đơn. Mỗi dòng một ý, trống thì ẩn.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Rules.ForWho">Lớp dành cho ai</label>
+                        <textarea class="form-control" asp-for="Rules.ForWho" rows="4"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Rules.NotForWho">Lớp không dành cho ai</label>
+                        <textarea class="form-control" asp-for="Rules.NotForWho" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label" asp-for="Rules.Outcomes">Học xong bạn đạt được gì</label>
+                        <textarea class="form-control" asp-for="Rules.Outcomes" rows="4"></textarea>
+                        <div class="form-text">Viết kết quả cụ thể, làm ra được thứ gì — "tự viết được prompt soạn email trong 5 phút", không phải "hiểu về AI".</div>
+                    </div>
                 </div>
                 <div class="card-footer d-grid">
                     <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu điều kiện</button>

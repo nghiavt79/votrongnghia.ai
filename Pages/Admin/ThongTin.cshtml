@@ -88,6 +88,57 @@
             </div>
 
             <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-people me-1"></i>Trang này dành cho ai</h5></div>
+                <div class="card-body">
+                    <p class="small text-body-secondary">Hiện ngay dưới đầu trang chủ: người mới vào thấy ngay mình có thuộc nhóm nào không, và nên bắt đầu từ đâu.</p>
+                    @for (var i = 0; i < Model.Input.Audiences.Count; i++)
+                    {
+                        <div class="row g-2 mb-2 pb-2 border-bottom">
+                            <div class="col-2 col-md-1"><input class="form-control text-center px-1" asp-for="Input.Audiences[i].Icon" placeholder="👩‍💼" aria-label="Icon" /></div>
+                            <div class="col-10 col-md-4"><input class="form-control" asp-for="Input.Audiences[i].Title" placeholder="Nhóm người học" aria-label="Nhóm" /></div>
+                            <div class="col-12 col-md-7"><input class="form-control" asp-for="Input.Audiences[i].Link" placeholder="Bắt đầu từ: /khoa-hoc/… hoặc /bai-viet/… (không bắt buộc)" aria-label="Link bắt đầu" spellcheck="false" /></div>
+                            <div class="col-12"><input class="form-control" asp-for="Input.Audiences[i].Description" placeholder="AI giúp họ được gì — một câu" aria-label="Mô tả" /></div>
+                        </div>
+                    }
+                    <div class="form-text">Xoá trắng ô "Nhóm người học" để bỏ một dòng. 3–4 nhóm là vừa.</div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-lightning-charge me-1"></i>Mình dùng AI để làm…</h5></div>
+                <div class="card-body">
+                    <p class="small text-body-secondary">Việc <strong>thật</strong> bạn đã làm bằng AI, kèm kết quả đo được. Tạo niềm tin hơn mọi lời giới thiệu. Trống thì mục này ẩn.</p>
+                    @for (var i = 0; i < Model.Input.Cases.Count; i++)
+                    {
+                        <div class="row g-2 mb-2 pb-2 border-bottom">
+                            <div class="col-md-7"><input class="form-control" asp-for="Input.Cases[i].Title" placeholder="Việc đã làm, ví dụ: Tự động tổng hợp báo cáo tuần" aria-label="Việc" /></div>
+                            <div class="col-md-5"><input class="form-control" asp-for="Input.Cases[i].Result" placeholder="Kết quả: từ 3 giờ còn 15 phút" aria-label="Kết quả" /></div>
+                            <div class="col-md-7"><input class="form-control" asp-for="Input.Cases[i].Description" placeholder="Làm thế nào, dùng công cụ gì — 1–2 câu" aria-label="Mô tả" /></div>
+                            <div class="col-md-5"><input class="form-control" asp-for="Input.Cases[i].Link" placeholder="Bài viết chi tiết: /bai-viet/… (không bắt buộc)" aria-label="Link" spellcheck="false" /></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-chat-quote me-1"></i>Cảm nhận học viên</h5></div>
+                <div class="card-body">
+                    <div class="alert alert-warning small py-2">
+                        Chỉ đăng lời <strong>thật</strong> của người thật, và đã xin phép họ dùng tên. Chưa có học viên thì để trống — mục này tự ẩn.
+                    </div>
+                    @for (var i = 0; i < Model.Input.Testimonials.Count; i++)
+                    {
+                        <div class="row g-2 mb-2 pb-2 border-bottom">
+                            <div class="col-md-5"><input class="form-control" asp-for="Input.Testimonials[i].Name" placeholder="Tên (đã xin phép)" aria-label="Tên" /></div>
+                            <div class="col-md-7"><input class="form-control" asp-for="Input.Testimonials[i].Role" placeholder="Nghề, nơi sống" aria-label="Vai trò" /></div>
+                            <div class="col-12"><textarea class="form-control" asp-for="Input.Testimonials[i].Quote" rows="2" placeholder="Lời cảm nhận" aria-label="Cảm nhận"></textarea></div>
+                        </div>
+                    }
+                    <div class="form-text">Xoá trắng ô cảm nhận để bỏ một dòng.</div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
                 <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-stars me-1"></i>Công cụ AI tôi sử dụng</h5></div>
                 <div class="card-body">
                     @for (var i = 0; i < Model.Input.Tools.Count; i++)

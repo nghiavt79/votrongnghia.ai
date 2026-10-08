@@ -45,7 +45,20 @@ public class LopOnlineModel : PageModel
         public string Commitments { get; set; } = string.Empty;
 
         public string Pledge { get; set; } = string.Empty;
+
+        /// <summary>Mỗi dòng một ý.</summary>
+        public string ForWho { get; set; } = string.Empty;
+        public string NotForWho { get; set; } = string.Empty;
+        public string Outcomes { get; set; } = string.Empty;
     }
+
+    /// <summary>Tách ô nhiều dòng thành danh sách: bỏ dòng trống, bỏ gạch đầu dòng gõ thừa.</summary>
+    private static List<string> Lines(string text, int max = 10) =>
+        text.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(line => line.TrimStart('-', '*', '•', ' '))
+            .Where(line => line.Length > 0)
+            .Take(max)
+            .ToList();
 
     public sealed class SessionInput
     {
@@ -93,9 +106,7 @@ public class LopOnlineModel : PageModel
         await LoadAsync(cancellationToken);
         ModelState.Clear();
 
-        var commitments = Rules.Commitments.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Take(10)
-            .ToList();
+        var commitments = Lines(Rules.Commitments);
 
         if (Rules.RequireCourse.Length > 0 && Courses.All(course => course.Slug != Rules.RequireCourse))
         {
@@ -118,6 +129,9 @@ public class LopOnlineModel : PageModel
             live.MinHoursPerWeek = Rules.MinHoursPerWeek;
             live.Commitments = commitments;
             live.Pledge = Rules.Pledge.Trim();
+            live.ForWho = Lines(Rules.ForWho);
+            live.NotForWho = Lines(Rules.NotForWho);
+            live.Outcomes = Lines(Rules.Outcomes);
             return true;
         }, cancellationToken);
 
@@ -229,7 +243,10 @@ public class LopOnlineModel : PageModel
             RequireCourse = Live.RequireCourse,
             MinHoursPerWeek = Live.MinHoursPerWeek,
             Commitments = string.Join('\n', Live.Commitments),
-            Pledge = Live.Pledge
+            Pledge = Live.Pledge,
+            ForWho = string.Join('\n', Live.ForWho),
+            NotForWho = string.Join('\n', Live.NotForWho),
+            Outcomes = string.Join('\n', Live.Outcomes)
         };
     }
 }

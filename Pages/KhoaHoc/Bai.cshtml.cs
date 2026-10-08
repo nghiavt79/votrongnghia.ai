@@ -19,6 +19,7 @@ public class BaiModel : PageModel
     public Lesson Lesson { get; private set; } = new();
     public int Index { get; private set; }
     public string BodyHtml { get; private set; } = string.Empty;
+    public string ExerciseHtml { get; private set; } = string.Empty;
     public Lesson? Previous { get; private set; }
     public Lesson? Next { get; private set; }
 
@@ -56,6 +57,7 @@ public class BaiModel : PageModel
         Index = index;
         IsPreview = !course.Published;
         BodyHtml = MarkdownRenderer.ToHtml(lesson.Body);
+        ExerciseHtml = lesson.Exercise.Length > 0 ? MarkdownRenderer.ToHtml(lesson.Exercise) : string.Empty;
         Previous = index > 0 ? course.Lessons[index - 1] : null;
         Next = index < course.Lessons.Count - 1 ? course.Lessons[index + 1] : null;
 

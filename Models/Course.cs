@@ -42,8 +42,26 @@ public sealed class Lesson
     /// <summary>Mã video YouTube hiện ở đầu bài, không bắt buộc.</summary>
     public string Video { get; set; } = string.Empty;
 
+    /// <summary>
+    /// "Học xong bài này bạn làm được" — 2–4 kết quả cụ thể, hiện đầu bài. Người học biết ngay bài
+    /// này đáng đọc không, và tự kiểm được mình đã học xong chưa.
+    /// </summary>
+    public List<string> Outcomes { get; set; } = [];
+
     /// <summary>Nội dung bài, Markdown.</summary>
     public string Body { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Bài tập thực hành (Markdown), hiện trong khung riêng cuối bài, ngay trên nút "Đánh dấu đã
+    /// học" — làm xong bài tập rồi mới đánh dấu.
+    /// </summary>
+    public string Exercise { get; set; } = string.Empty;
+
+    /// <summary>"Bước tiếp theo" — một câu nối sang bài sau hoặc việc nên làm tiếp. Không bắt buộc.</summary>
+    public string NextStep { get; set; } = string.Empty;
+
+    /// <summary>Đủ khung bài học: có kết quả cần đạt và bài tập.</summary>
+    public bool HasFramework => Outcomes.Count > 0 && Exercise.Trim().Length > 0;
 
     /// <summary>Ảnh đã tải lên để chèn vào bài (<c>uploads/khoa-hoc/…</c>), để lấy lại mã chèn và để dọn khi xoá.</summary>
     public List<string> Images { get; set; } = [];

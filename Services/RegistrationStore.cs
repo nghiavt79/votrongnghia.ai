@@ -268,6 +268,58 @@ public sealed partial class RegistrationStore
             return true;
         }, cancellationToken);
 
+    /// <summary>
+    /// Thời hạn giữ thông tin cá nhân trong đơn, tính từ lần cập nhật cuối (hoặc ngày gửi). Khớp
+    /// với cam kết trên trang /chinh-sach-du-lieu — đổi một bên thì đổi cả bên kia.
+    /// </summary>
+    public const int RetentionMonths = 12;
+
+    public static bool IsExpired(Registration item) =>
+        item.Name != AnonymizedName && (item.UpdatedAt ?? item.CreatedAt) < SiteTime.Now.AddMonths(-RetentionMonths);
+
+    public const string AnonymizedName = "(đã ẩn danh)";
+
+    /// <summary>
+    /// Ẩn danh hoá các đơn quá hạn giữ: xoá họ tên, email, điện thoại, nghề, câu trả lời, ghi chú,
+    /// địa chỉ nhận trong lịch sử email. Giữ mã đơn, ngày, buổi, trạng thái, mức AI, số giờ — đủ
+    /// để đếm số liệu các đợt cũ mà không còn biết ai là ai. Trả về số đơn đã ẩn danh.
+    /// </summary>
+    public async Task<int> AnonymizeExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        var count = 0;
+
+        await Registrations.UpdateAsync(list =>
+        {
+            foreach (var item in list.Where(IsExpired))
+            {
+                item.Name = AnonymizedName;
+                item.Email = string.Empty;
+                item.Phone = string.Empty;
+                item.Job = string.Empty;
+                item.Goal = string.Empty;
+                item.Project = string.Empty;
+                item.AdminNote = string.Empty;
+
+                foreach (var mail in item.Emails)
+                {
+                    mail.To = string.Empty;
+                    mail.Subject = string.Empty;
+                }
+
+                count++;
+            }
+
+            return count > 0;
+        }, cancellationToken);
+
+        if (count > 0)
+        {
+            _logger.LogInformation("Đã ẩn danh hoá {Count} đơn quá {Months} tháng", count, RetentionMonths);
+        }
+
+        return count;
+    }
+
     public async Task<int> CountNewAsync(CancellationToken cancellationToken = default) =>
         (await Registrations.ReadAsync(cancellationToken)).Count(item => item.Status == Registration.StatusNew);
 

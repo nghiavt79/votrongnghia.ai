@@ -12,9 +12,11 @@ public class IndexModel : PageModel
     private readonly RegistrationStore _registrations;
     private readonly ContentPaths _paths;
     private readonly EmailSender _email;
+    private readonly LessonStatsStore _stats;
 
-    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths, EmailSender email)
+    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths, EmailSender email, LessonStatsStore stats)
     {
+        _stats = stats;
         _content = content;
         _registrations = registrations;
         _paths = paths;
@@ -33,6 +35,11 @@ public class IndexModel : PageModel
     public int PublishedCourses { get; private set; }
     public int LessonCount { get; private set; }
     public IReadOnlyList<LiveSession> Upcoming { get; private set; } = [];
+
+    /// <summary>Tháng này (thống kê ẩn danh): lượt bắt đầu một khóa, lượt học xong khóa đầu vào.</summary>
+    public int StartedThisMonth { get; private set; }
+    public int GateFinishedThisMonth { get; private set; }
+    public string GateCourseTitle { get; private set; } = string.Empty;
 
     /// <summary>Một việc còn thiếu: câu mô tả, trang /cms để làm, có bắt buộc trước khi mở đăng ký không.</summary>
     public sealed record Todo(string Text, string Page, bool Important);
@@ -58,6 +65,18 @@ public class IndexModel : PageModel
 
         var site = await _content.Site.ReadAsync(cancellationToken);
         var live = await _content.Live.ReadAsync(cancellationToken);
+
+        var month = (await _stats.ReadAsync(cancellationToken)).Months.GetValueOrDefault(LessonStatsStore.MonthKey(SiteTime.Now)) ?? [];
+        int Count(Course course, Lesson lesson, bool completions) =>
+            month.GetValueOrDefault($"{course.Slug}/{lesson.Slug}") is { } counter ? (completions ? counter.Completions : counter.Opens) : 0;
+
+        StartedThisMonth = courses.Where(course => course.Lessons.Count > 0).Sum(course => Count(course, course.Lessons[0], false));
+
+        if (courses.FirstOrDefault(course => course.Slug == live.RequireCourse && course.Lessons.Count > 0) is { } gate)
+        {
+            GateCourseTitle = gate.Title;
+            GateFinishedThisMonth = Count(gate, gate.Lessons[^1], true);
+        }
         Upcoming = live.Upcoming(SiteTime.Today).ToList();
 
         // Việc cần làm, máy tự đọc từ dữ liệu. Làm xong thì dòng đó tự biến mất.
@@ -102,6 +121,20 @@ public class IndexModel : PageModel
         if (Upcoming.Count == 0)
         {
             todos.Add(new("Chưa có lịch buổi học nào sắp tới: trang chủ đang hiện \"Sắp khai giảng\".", "/Admin/LopOnline", false));
+        }
+
+        var expired = registrations.Count(RegistrationStore.IsExpired);
+
+        if (expired > 0)
+        {
+            todos.Add(new($"{expired} đơn đăng ký quá {RegistrationStore.RetentionMonths} tháng — chính sách dữ liệu cam kết ẩn danh hoá.", "/Admin/DangKy/Index", true));
+        }
+
+        var unframed = courses.Sum(course => course.Lessons.Count(lesson => !lesson.HasFramework));
+
+        if (unframed > 0)
+        {
+            todos.Add(new($"{unframed} bài học chưa có \"Học xong làm được gì\" hoặc bài tập thực hành.", "/Admin/KhoaHoc/Index", false));
         }
 
         if (DraftPosts > 0)

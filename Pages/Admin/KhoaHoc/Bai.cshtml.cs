@@ -49,7 +49,20 @@ public partial class BaiModel : PageModel
         public string Video { get; set; } = string.Empty;
 
         public string Body { get; set; } = string.Empty;
+
+        /// <summary>Mỗi dòng một kết quả.</summary>
+        public string Outcomes { get; set; } = string.Empty;
+
+        public string Exercise { get; set; } = string.Empty;
+        public string NextStep { get; set; } = string.Empty;
     }
+
+    private static List<string> Lines(string text) =>
+        text.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(line => line.TrimStart('-', '*', '•', ' '))
+            .Where(line => line.Length > 0)
+            .Take(6)
+            .ToList();
 
     [GeneratedRegex(@"(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})")]
     private static partial Regex YoutubeLink();
@@ -80,7 +93,8 @@ public partial class BaiModel : PageModel
         }
 
         ModelState.Clear();
-        PreviewHtml = MarkdownRenderer.ToHtml(Input.Body);
+        PreviewHtml = MarkdownRenderer.ToHtml(Input.Body) +
+                      (Input.Exercise.Trim().Length > 0 ? "<hr><h3>🛠️ Bài tập thực hành</h3>" + MarkdownRenderer.ToHtml(Input.Exercise) : string.Empty);
         return Page();
     }
 
@@ -163,6 +177,9 @@ public partial class BaiModel : PageModel
             lesson.Minutes = Input.Minutes;
             lesson.Video = video;
             lesson.Body = Input.Body.Replace("\r\n", "\n").Trim();
+            lesson.Outcomes = Lines(Input.Outcomes);
+            lesson.Exercise = Input.Exercise.Replace("\r\n", "\n").Trim();
+            lesson.NextStep = Input.NextStep.Trim();
 
             if (originalSlug is null)
             {
@@ -299,7 +316,11 @@ public partial class BaiModel : PageModel
         }, cancellationToken);
 
     private void FillInput(Lesson lesson) =>
-        Input = new LessonInput { Title = lesson.Title, Slug = lesson.Slug, Minutes = lesson.Minutes, Video = lesson.Video, Body = lesson.Body };
+        Input = new LessonInput
+        {
+            Title = lesson.Title, Slug = lesson.Slug, Minutes = lesson.Minutes, Video = lesson.Video, Body = lesson.Body,
+            Outcomes = string.Join('\n', lesson.Outcomes), Exercise = lesson.Exercise, NextStep = lesson.NextStep
+        };
 
     private async Task<bool> LoadAsync(string khoa, string? bai, CancellationToken cancellationToken)
     {

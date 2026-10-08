@@ -21,6 +21,13 @@
             }
             <p class="muted">Bài @(Model.Index + 1)/@course.Lessons.Count · ⏱ @lesson.Minutes phút</p>
             <h1>@lesson.Title</h1>
+            @if (lesson.Outcomes.Count > 0)
+            {
+                <div class="lesson-box lesson-outcomes">
+                    <strong>🎯 Học xong bài này bạn làm được</strong>
+                    <ul>@foreach (var outcome in lesson.Outcomes) { <li>@outcome</li> }</ul>
+                </div>
+            }
             @if (lesson.Video.Length > 0)
             {
                 <div class="video-embed">
@@ -29,7 +36,19 @@
                 </div>
             }
             <div class="prose">@Html.Raw(Model.BodyHtml)</div>
+            @if (Model.ExerciseHtml.Length > 0)
+            {
+                @* Bài tập nằm ngay trên nút "Đánh dấu đã học": làm xong bài tập rồi mới đánh dấu. *@
+                <div class="lesson-box lesson-exercise" id="bai-tap">
+                    <strong>🛠️ Bài tập thực hành</strong>
+                    <div class="prose">@Html.Raw(Model.ExerciseHtml)</div>
+                </div>
+            }
             <div class="lesson-actions"><button class="btn btn-ghost" id="markDone" type="button">Đánh dấu đã học</button></div>
+            @if (lesson.NextStep.Length > 0)
+            {
+                <p class="lesson-next">➡️ <strong>Bước tiếp theo:</strong> @lesson.NextStep</p>
+            }
 
             <partial name="_ShareCta" model="@("khóa học")" />
 

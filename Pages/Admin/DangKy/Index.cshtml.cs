@@ -31,17 +31,30 @@ public class IndexModel : PageModel
     [TempData]
     public string? Message { get; set; }
 
+    /// <summary>Số đơn quá hạn giữ thông tin cá nhân (xem trang /chinh-sach-du-lieu).</summary>
+    public int ExpiredCount { get; private set; }
+
     public async Task OnGetAsync(string? trangThai, string? buoi, CancellationToken cancellationToken)
     {
         var all = await _registrations.Registrations.ReadAsync(cancellationToken);
         var live = await _content.Live.ReadAsync(cancellationToken);
 
+        ExpiredCount = all.Count(RegistrationStore.IsExpired);
         Total = all.Count;
         CountByStatus = all.GroupBy(item => item.Status).ToDictionary(group => group.Key, group => group.Count());
         Sessions = live.Sessions.OrderByDescending(session => session.Date).ToList();
         Status = Registration.Statuses.Any(item => item.Key == trangThai) ? trangThai! : string.Empty;
         Session = buoi ?? string.Empty;
         Items = Filter(all, Status, Session).ToList();
+    }
+
+    /// <summary>Thực hiện cam kết giữ dữ liệu: ẩn danh hoá các đơn quá hạn.</summary>
+    public async Task<IActionResult> OnPostAnDanhAsync(CancellationToken cancellationToken)
+    {
+        var count = await _registrations.AnonymizeExpiredAsync(cancellationToken);
+        _logger.LogInformation("{User} ẩn danh hoá {Count} đơn quá hạn", User.Identity?.Name, count);
+        Message = count > 0 ? $"Đã ẩn danh hoá {count} đơn quá {RegistrationStore.RetentionMonths} tháng." : "Không có đơn nào quá hạn.";
+        return RedirectToPage();
     }
 
     /// <summary>

@@ -44,6 +44,7 @@
     <Content Update="Data\registrations.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\admin.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\email.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\thong-ke.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <None Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <Content Update="Data\backups\**" CopyToPublishDirectory="Never" />

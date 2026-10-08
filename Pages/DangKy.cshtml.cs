@@ -46,6 +46,13 @@ public class DangKyModel : PageModel
     [TempData]
     public string? DoneEmail { get; set; }
 
+    /// <summary>Số đơn đã duyệt của từng buổi, để hiện "còn mấy chỗ". Chỉ là số đếm, không lộ ai.</summary>
+    public IReadOnlyDictionary<string, int> ApprovedBySession { get; private set; } = new Dictionary<string, int>();
+
+    /// <summary>Số chỗ còn lại của một buổi; null khi buổi không giới hạn chỗ.</summary>
+    public int? SeatsLeft(LiveSession session) =>
+        session.Capacity > 0 ? Math.Max(0, session.Capacity - ApprovedBySession.GetValueOrDefault(session.Id)) : null;
+
     public string? ErrorFor(string field) => Errors.FirstOrDefault(error => error.Field == field)?.Message;
 
     public async Task OnGetAsync(string? buoi, CancellationToken cancellationToken)
@@ -78,6 +85,10 @@ public class DangKyModel : PageModel
     {
         Live = await _content.Live.ReadAsync(cancellationToken);
         Sessions = Live.Upcoming(SiteTime.Today).ToList();
+        ApprovedBySession = (await _registrations.Registrations.ReadAsync(cancellationToken))
+            .Where(item => item.Status == Registration.StatusApproved && item.SessionId.Length > 0)
+            .GroupBy(item => item.SessionId)
+            .ToDictionary(group => group.Key, group => group.Count());
 
         if (Live.RequireCourse.Length > 0)
         {
