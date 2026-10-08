@@ -337,6 +337,15 @@
                     {
                         <div class="card reveal">
                             <h3>🏦 Chuyển khoản ngân hàng</h3>
+                            @if (VietQr.Payload(site) is not null)
+                            {
+                                @* Ảnh dựng trên máy chủ từ chính thông tin bên dưới — xem Services/VietQr.cs. *@
+                                <figure class="donate-qr">
+                                    <img src="/ung-ho/qr.svg" width="200" height="200" alt="Mã QR chuyển khoản @site.BankName @site.BankNumber" />
+                                    <figcaption>Mở app ngân hàng → <strong>Quét QR</strong>. App hiện tên <strong>@site.BankOwner</strong> là đúng người nhận.</figcaption>
+                                    <a class="copy" href="/ung-ho/qr.png?tai=1" download>⬇ Tải ảnh QR</a>
+                                </figure>
+                            }
                             <dl class="bank">
                                 <dt>Ngân hàng</dt><dd>@site.BankName</dd>
                                 <dt>Số tài khoản</dt><dd>@site.BankNumber <button class="copy" id="copyAcc" data-number="@site.BankNumber.Replace(" ", "")">Sao chép</button></dd>

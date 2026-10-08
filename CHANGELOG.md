@@ -1,5 +1,68 @@
 # Changelog
 
+## 2026-10-08 — Mã QR chuyển khoản cho mục Ủng hộ
+
+- Bật mục **Ủng hộ một ly cafe** (Vietcombank, đã ghi cả vào `Data/seed/site.json`).
+- **Mã VietQR** (chuẩn NAPAS / EMVCo) dựng ngay trên máy chủ từ ngân hàng + số tài khoản ở
+  `/cms/thong-tin` (`Services/VietQr.cs`, thư viện QRCoder — MIT). Không gọi dịch vụ ngoài, không mở
+  thêm CSP. Quét bằng app ngân hàng là ra sẵn số tài khoản, app tự hiện tên chủ tài khoản; nội dung
+  chuyển khoản điền sẵn "Ung ho votrongnghia", không ghi số tiền.
+- `/ung-ho/qr.svg` (hiện trong thẻ chuyển khoản ở trang chủ), `/ung-ho/qr.png?tai=1` (nút "Tải ảnh QR"
+  để gửi qua Zalo / Facebook). Tắt mục Ủng hộ hoặc không nhận ra ngân hàng thì không có QR (404).
+- `/cms/thong-tin` xem trước mã và báo khi chưa nhận ra tên ngân hàng (nhận 18 ngân hàng phổ biến).
+- Chỉ có một cách ủng hộ (chuyển khoản hoặc PayPal) thì thẻ nằm giữa, không lệch trái.
+
+## 2026-10-08 — AI Templates xếp theo việc cần làm
+
+Góp ý của khách: bố cục cũ trùng với nhiều trang khác (gần như chép aitmpl.com — thanh bên theo loại
+kỹ thuật + lưới thẻ) và khó dùng với người chưa biết Skill / Agent / MCP khác nhau thế nào.
+
+- Mở trang là câu hỏi **"Bạn muốn AI giúp việc gì?"** + ô tìm lớn + 3 bước dùng mẫu.
+- **8 nhóm việc** (Văn phòng & tài liệu, Kinh doanh & marketing, Thiết kế & sáng tạo, Nghiên cứu & dữ
+  liệu, Lập trình & làm web, Bảo mật & kiểm thử, Tự động hóa & vận hành, Tùy chỉnh Claude Code), gom từ
+  104 danh mục gốc — sửa ở `TPL_GROUPS` trong `assets/js/ai-templates-vi.js`.
+- **"Bắt đầu từ đây"**: 8 mẫu chọn sẵn cho việc văn phòng (Word, Excel, slide, PDF, email…), mỗi mẫu
+  một câu "dùng khi nào" (`TPL_STARTERS`). Chỉ hiện khi chưa lọc gì.
+- Loại kỹ thuật lùi xuống làm **bộ lọc phụ** dạng chip, kèm hộp "Nên chọn loại nào?" giải thích bằng
+  lời thường (`TPL_TYPE_HELP`); bảng chi tiết của mẫu cũng có một câu giải thích loại. Chủ đề chi tiết
+  chỉ hiện khi đã chọn nhóm việc.
+- Danh sách **dạng hàng** thay cho tường thẻ; tìm kiếm chạy trên toàn thư viện, mẫu có từ khoá trong
+  tên lên trước; gõ có dấu ("hợp đồng") khớp nguyên cụm, gõ không dấu khớp đầu chữ.
+- Link cũ (`?type=…&cat=…&item=…`) vẫn mở đúng; link mới `?viec=…&loai=…&chude=…&item=loai/duong-dan`.
+- `scripts/update-ai-templates.py` báo danh mục mới chưa xếp nhóm và mẫu chọn sẵn đã bị gỡ.
+
+## 2026-10-08 — Tài khoản học viên, đăng nhập bằng link email (GĐ2)
+
+Giai đoạn 2 của `docs/ke-hoach-hoc-vien.md`, đã chốt: không làm điểm danh / bài tập (GĐ3); tài khoản
+**chỉ tạo khi duyệt đơn** (phương án A); link phòng học **có** hiện ở trang học viên.
+
+- **Duyệt đơn là có tài khoản**: chọn "Đã duyệt" ở `/cms/dang-ky/{mã}` tạo học viên theo email (email
+  đã có tài khoản thì gắn thêm đơn). Thư báo duyệt thêm phần "trang học viên" kèm **link đăng nhập
+  dùng một lần, hạn 7 ngày**. Đơn đã duyệt từ trước: nút "Tạo tài khoản" ở `/cms/hoc-vien`.
+- **Đăng nhập không mật khẩu**: `/hoc-vien/dang-nhap` nhập email → link hạn 30 phút. Luôn trả cùng một
+  câu dù email có tài khoản hay không. Link chỉ lưu băm SHA-256, dùng một lần; mở link chỉ hiện nút
+  "Vào trang học viên" (máy quét thư mở trước link không tiêu mất mã). Giới hạn 10 lần / 15 phút mỗi
+  IP, 3 link / 15 phút mỗi email.
+- **Cookie học viên `vn.hocvien`** (60 ngày, tự gia hạn), scheme riêng: cookie học viên không mở
+  được `/cms`, cookie quản trị không mở được `/hoc-vien`. Khoá / ẩn danh hoá đổi dấu bảo mật → mọi
+  phiên đang mở bị đăng xuất ngay.
+- **Tiến độ trên máy chủ**: học viên đánh dấu bài là ghi lên tài khoản (`/api/hoc-vien/tien-do`, JSON
+  + mã chống giả riêng). Lần đầu đăng nhập trên một trình duyệt, bài đã học trước đó được **gộp lên**
+  tài khoản; sau đó máy chủ là gốc, học trên máy nào cũng cùng tiến độ. Người học tự do không đổi gì.
+- **`/hoc-vien`**: buổi học đã được duyệt kèm nút "Vào phòng học" (link phòng học chỉ hiện ở đây và
+  trong thư duyệt), tiến độ từng khóa, đăng xuất, **tự xoá tài khoản**. Header hiện tên học viên khi đã
+  đăng nhập; chân trang có link "Trang học viên".
+- **`/cms/hoc-vien`**: danh sách với % từng khóa, lần học gần nhất, lọc "không học quá 7 ngày", thêm tay
+  học viên. Chi tiết: dòng thời gian từng bài, các đơn, lịch sử thư, ghi chú, trạng thái (đang học /
+  tạm dừng / hoàn thành / khoá), gửi link đăng nhập qua email hoặc **tạo link để gửi tay qua Zalo**,
+  soạn thư nhắc (điền sẵn bài kế tiếp), xoá tài khoản.
+- Bảng điều khiển: dòng "Học viên: X đang học · Y không học quá 7 ngày", việc cần làm khi có người
+  lâu không học hoặc tài khoản quá hạn giữ.
+- **`/chinh-sach-du-lieu`** thêm mục 3 "Khi bạn là học viên lớp online": thu gì, cookie, giữ 12 tháng
+  kể từ lần hoạt động cuối rồi ẩn danh hoá (nút ở `/cms/hoc-vien`), tự xoá.
+- Dữ liệu mới `Data/hoc-vien.json`, `Data/dang-nhap.json`: loại khỏi git và bản publish. `robots.txt`
+  chặn `/hoc-vien`; `scripts/kiem-tra-site.ps1` kiểm thêm trang học viên.
+
 ## 2026-10-08 — Đợt 1 trước ra mắt: định vị, khung bài học, chính sách dữ liệu, thống kê ẩn danh
 
 Theo bản rà soát "điểm cần hoàn thiện trước khi ra mắt". Nội dung nháp (đối tượng, tiêu chí lớp, khung

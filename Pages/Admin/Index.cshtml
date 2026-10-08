@@ -75,6 +75,17 @@
     <a class="ms-auto small" asp-page="/Admin/ThongKe">Xem thống kê học →</a>
 </div>
 
+<div class="alert alert-light border d-flex flex-wrap align-items-center gap-2 mb-3">
+    <i class="bi bi-people"></i>
+    <span>Học viên: <strong>@Model.ActiveLearners</strong> đang học
+        @if (Model.IdleLearners > 0)
+        {
+            <span>· <strong class="text-danger">@Model.IdleLearners</strong> không học quá @LearnerStore.IdleDays ngày</span>
+        }
+    </span>
+    <a class="ms-auto small" asp-page="/Admin/HocVien/Index" asp-route-loc="@(Model.IdleLearners > 0 ? "lau-khong-hoc" : null)">Xem học viên →</a>
+</div>
+
 <div class="row g-3">
     <div class="col-12 col-xl-7">
         <div class="card shadow-sm">

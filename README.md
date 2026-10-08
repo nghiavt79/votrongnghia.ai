@@ -18,7 +18,8 @@ Mọi thứ sửa trong `/cms`, không cần đụng code:
 
 | Việc | Trang |
 |---|---|
-| Đọc và duyệt đơn đăng ký lớp online | `/cms/dang-ky` |
+| Đọc và duyệt đơn đăng ký lớp online (duyệt là tạo tài khoản học viên) | `/cms/dang-ky` |
+| Học viên: tiến độ, người lâu không học, gửi link đăng nhập, thư nhắc | `/cms/hoc-vien` |
 | Lịch buổi học (kèm link phòng học riêng tư), điều kiện đăng ký, bản cam kết | `/cms/lop-online` |
 | Thiết lập Gmail để site tự gửi email (có hướng dẫn từng bước) | `/cms/email` |
 | Viết bài | `/cms/bai-viet` |

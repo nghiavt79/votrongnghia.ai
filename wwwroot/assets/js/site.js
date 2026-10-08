@@ -12,6 +12,53 @@ const PROGRESS_KEY = "course-progress";
 const readProgress = () => { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch (e) { return {}; } };
 const writeProgress = (p) => { try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) {} };
 
+// Học viên lớp online đã đăng nhập (layout in vào <body data-hoc-vien>): tiến độ thật nằm trên máy
+// chủ. Chép nó vào localStorage để mọi chỗ đang đọc readProgress (trang khóa học, bài đầu vào ở
+// trang đăng ký) vẫn chạy y như cũ. Người học tự do: LEARNER là null, không có gì đổi.
+const LEARNER = (() => { try { return JSON.parse(document.body.dataset.hocVien || "null"); } catch (e) { return null; } })();
+const learnerPost = (url, body) => fetch(url, {
+  method: "POST",
+  headers: { "Content-Type": "application/json", "X-Hoc-Vien-Token": LEARNER.token },
+  body: JSON.stringify(body),
+});
+
+if (LEARNER) {
+  // Lần đầu học viên này đăng nhập trên trình duyệt này: gộp bài đã học trước khi có tài khoản lên
+  // máy chủ (chỉ thêm, không bớt). Những lần sau máy chủ là gốc — bỏ đánh dấu ở máy khác thì ở đây
+  // cũng bỏ theo.
+  const MERGED_KEY = "progress-merged";
+  const toMap = (keys) => Object.fromEntries(keys.map((k) => [k, true]));
+  const server = toMap(LEARNER.tienDo);
+  let merged = null;
+  try { merged = localStorage.getItem(MERGED_KEY); } catch (e) {}
+
+  if (merged === LEARNER.id) {
+    writeProgress(server);
+  } else {
+    const extra = Object.keys(readProgress()).filter((k) => !server[k]);
+    const done = (keys) => {
+      writeProgress(toMap(keys));
+      try { localStorage.setItem(MERGED_KEY, LEARNER.id); } catch (e) {}
+    };
+    if (extra.length === 0) {
+      done(LEARNER.tienDo);
+    } else {
+      // Trong lúc chờ máy chủ, trang vẽ theo phần hợp của hai bên.
+      writeProgress({ ...readProgress(), ...server });
+      learnerPost("/api/hoc-vien/gop-tien-do", { bai: extra })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!data) return;
+          done(data.tienDo);
+          // Trang học viên vẽ tiến độ phía máy chủ: tải lại một lần cho khớp số vừa gộp.
+          if (document.querySelector("[data-reload-on-sync]")) location.reload();
+          else document.dispatchEvent(new Event("progress-sync"));
+        })
+        .catch(() => {});
+    }
+  }
+}
+
 (function () {
   // ---- Giao diện sáng/tối ----
   const root = document.documentElement;

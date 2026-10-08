@@ -1,0 +1,222 @@
+@page "/cms/hoc-vien/{id}"
+@model VoTrongNghia.Pages.Admin.HocVien.ChiTietModel
+@{
+    var item = Model.Item;
+    ViewData["Title"] = item.Name;
+    ViewData["Subtitle"] = $"Học viên từ {SiteTime.Day(item.CreatedAt)} · lần học gần nhất {SiteTime.Day(item.LastActivity)} ({SiteTime.DaysAgo(item.LastActivity)})";
+}
+
+@section Actions {
+    <a class="btn btn-outline-secondary" asp-page="/Admin/HocVien/Index"><i class="bi bi-arrow-left me-1"></i>Về danh sách</a>
+}
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>@Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.EmailError))
+{
+    <div class="alert alert-danger" role="alert"><i class="bi bi-envelope-exclamation me-1"></i>@Model.EmailError</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ManualLink))
+{
+    <div class="alert alert-warning" role="alert">
+        <div class="mb-2"><i class="bi bi-link-45deg me-1"></i><strong>Link đăng nhập cho @item.Name</strong> — dùng được một lần trong @LoginLinkService.LongLifetime.Days ngày.
+            Chép gửi riêng qua Zalo; link chỉ hiện lần này.</div>
+        <div class="input-group">
+            <input class="form-control font-monospace small" value="@Model.ManualLink" readonly aria-label="Link đăng nhập" />
+            <button type="button" class="btn btn-outline-secondary" data-chep="@Model.ManualLink"><i class="bi bi-copy me-1"></i>Chép</button>
+        </div>
+    </div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert">
+        <div class="d-flex"><i class="bi bi-exclamation-octagon me-2 mt-1"></i><div asp-validation-summary="All"></div></div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-mortarboard me-1"></i>Tiến độ</h5></div>
+            <div class="card-body">
+                @foreach (var course in Model.Courses)
+                {
+                    var done = Model.Done(course);
+                    var percent = (int)Math.Round(100.0 * done / course.Lessons.Count);
+                    <div class="mb-2">
+                        <div class="d-flex small"><span>Cấp @course.Level: @course.Title</span><span class="ms-auto text-body-secondary">@done/@course.Lessons.Count bài</span></div>
+                        <div class="progress" role="progressbar" style="height:8px" aria-label="@course.Title" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar @(done == course.Lessons.Count ? "bg-success" : "")" style="width:@percent%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (Model.Timeline.Count == 0)
+            {
+                <div class="card-footer small text-body-secondary">Chưa đánh dấu bài nào trên tài khoản. Bài học trước khi có tài khoản sẽ được gộp lên khi học viên đăng nhập lần đầu.</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush small">
+                    @foreach (var entry in Model.Timeline)
+                    {
+                        <li class="list-group-item d-flex gap-2">
+                            <i class="bi bi-check2-circle text-success"></i>
+                            <span>@entry.Lesson <span class="text-body-secondary">· @entry.Course</span></span>
+                            <span class="ms-auto text-body-secondary text-nowrap">@entry.At.ToString("HH:mm dd/MM/yyyy")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-person me-1"></i>Thông tin &amp; đơn đăng ký</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">
+                        @if (item.Email.Length > 0)
+                        {
+                            <a href="mailto:@item.Email">@item.Email</a>
+                        }
+                    </dd>
+                    <dt class="col-sm-4">Số điện thoại / Zalo</dt>
+                    <dd class="col-sm-8">
+                        @if (item.Phone.Length > 0)
+                        {
+                            <a href="tel:@item.Phone">@item.Phone</a> <span>·</span> <a href="https://zalo.me/@item.Phone" target="_blank" rel="noopener">Mở Zalo</a>
+                        }
+                        else
+                        {
+                            <span class="text-body-secondary">—</span>
+                        }
+                    </dd>
+                    <dt class="col-sm-4">Đơn đăng ký</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Registrations.Count == 0)
+                        {
+                            <span class="text-body-secondary">Thêm tay, không có đơn.</span>
+                        }
+                        @foreach (var registration in Model.Registrations)
+                        {
+                            <div>
+                                <a asp-page="/Admin/DangKy/ChiTiet" asp-route-ma="@registration.Code">@registration.Code</a>
+                                <span class="badge @registration.StatusBadge ms-1">@registration.StatusLabel</span>
+                                <span class="small text-body-secondary">@(registration.SessionLabel.Length > 0 ? registration.SessionLabel : "chưa có lịch")</span>
+                            </div>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-envelope me-1"></i>Email đã gửi riêng cho học viên</h5></div>
+            @if (item.Emails.Count == 0)
+            {
+                <div class="card-body small text-body-secondary">Chưa có thư nào. Thư báo duyệt nằm ở lịch sử của từng đơn.</div>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush small">
+                    @foreach (var mail in Enumerable.Reverse(item.Emails))
+                    {
+                        <li class="list-group-item d-flex gap-2 align-items-start">
+                            <i class="bi @(mail.Error is null ? "bi-check-circle text-success" : "bi-x-circle text-danger") mt-1"></i>
+                            <div class="flex-grow-1">
+                                <div><strong>@mail.KindLabel</strong> → @mail.To</div>
+                                <div class="text-body-secondary">@mail.Subject</div>
+                                @if (mail.Error is not null)
+                                {
+                                    <div class="text-danger">@mail.Error</div>
+                                }
+                            </div>
+                            <span class="text-body-secondary text-nowrap">@mail.At.ToString("HH:mm dd/MM")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if (Model.EmailReady && item.Email.Length > 0)
+        {
+            <div class="card shadow-sm mb-3">
+                <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-pencil-square me-1"></i>Soạn email cho @item.Name</h5></div>
+                <form method="post" asp-page-handler="GuiEmail" asp-route-id="@item.Id">
+                    <div class="card-body">
+                        <label class="form-label small" asp-for="EmailSubject">Tiêu đề</label>
+                        <input class="form-control mb-2" asp-for="EmailSubject" />
+                        <label class="form-label small" asp-for="EmailBody">Nội dung</label>
+                        <textarea class="form-control" asp-for="EmailBody" rows="12"></textarea>
+                        <div class="form-text">Điền sẵn thư nhắc học, trỏ tới bài kế tiếp chưa học — sửa thoải mái. Gửi từ @Model.EmailSettings.GmailAddress, học viên trả lời về @Model.EmailSettings.OwnerAddress.</div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary" data-confirm="Gửi thư này tới @item.Email?"><i class="bi bi-send me-1"></i>Gửi email</button>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập</h5></div>
+            <div class="card-body small">
+                <p>Học viên tự xin link ở <a href="/hoc-vien/dang-nhap" target="_blank" rel="noopener">/hoc-vien/dang-nhap</a> bằng email của mình. Cần thì gửi giúp:</p>
+                <div class="d-grid gap-2">
+                    @if (Model.EmailReady)
+                    {
+                        <form method="post" asp-page-handler="GuiLink" asp-route-id="@item.Id" class="d-grid">
+                            <button type="submit" class="btn btn-outline-primary"><i class="bi bi-envelope me-1"></i>Gửi link đăng nhập qua email</button>
+                        </form>
+                    }
+                    <form method="post" asp-page-handler="TaoLink" asp-route-id="@item.Id" class="d-grid">
+                        <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-link-45deg me-1"></i>Tạo link để gửi tay (Zalo)</button>
+                    </form>
+                </div>
+                <div class="form-text">Link hạn @LoginLinkService.LongLifetime.Days ngày, dùng một lần.@(Model.EmailReady ? "" : " Site chưa thiết lập Gmail nên học viên chưa tự xin link được.")</div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-check2-square me-1"></i>Trạng thái</h5></div>
+            <form method="post" asp-route-id="@item.Id">
+                <div class="card-body">
+                    @foreach (var (key, label, badge) in Learner.Statuses)
+                    {
+                        <div class="form-check mb-1">
+                            <input class="form-check-input" type="radio" name="Status" id="st-@key" value="@key" checked="@(Model.Status == key)" />
+                            <label class="form-check-label" for="st-@key"><span class="badge @badge">@label</span></label>
+                        </div>
+                    }
+                    <div class="form-text">"Đã khoá": không đăng nhập được, mọi phiên đang mở bị đăng xuất ngay.</div>
+                    <label class="form-label mt-3" asp-for="AdminNote">Ghi chú riêng</label>
+                    <textarea class="form-control" asp-for="AdminNote" rows="3" placeholder="Học viên không thấy ghi chú này"></textarea>
+                </div>
+                <div class="card-footer d-grid">
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card shadow-sm border-danger-subtle">
+            <div class="card-header bg-danger-subtle"><h6 class="card-title mb-0 text-danger">Xoá tài khoản</h6></div>
+            <div class="card-body">
+                <p class="small">Khi học viên xin xoá. Xoá tài khoản và tiến độ; đơn đăng ký giữ nguyên — xoá riêng ở trang đơn.</p>
+                <form method="post" asp-page-handler="Xoa" asp-route-id="@item.Id" class="d-flex gap-2" autocomplete="off">
+                    <input class="form-control form-control-sm" name="confirm" placeholder="Gõ @(item.Email.Length > 0 ? item.Email : item.Id)" aria-label="Xác nhận" />
+                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Xoá hẳn tài khoản học viên này?">Xoá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

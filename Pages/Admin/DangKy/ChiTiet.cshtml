@@ -123,6 +123,14 @@
             </div>
         }
 
+        @if (Model.Learner is { } learner)
+        {
+            <div class="alert alert-light border small">
+                <i class="bi bi-person-check me-1"></i>Có tài khoản học viên: <a asp-page="/Admin/HocVien/ChiTiet" asp-route-id="@learner.Id">@learner.Name</a>
+                <span class="badge @learner.StatusBadge ms-1">@learner.StatusLabel</span>
+            </div>
+        }
+
         @if (Model.Others.Count > 0)
         {
             <div class="alert alert-info small">
@@ -147,6 +155,7 @@
                             <label class="form-check-label" for="st-@key"><span class="badge @badge">@label</span></label>
                         </div>
                     }
+                    <div class="form-text">Chọn "Đã duyệt" là tạo tài khoản học viên cho email này (đã có thì gắn thêm đơn).</div>
                     <label class="form-label mt-3" asp-for="AdminNote">Ghi chú riêng</label>
                     <textarea class="form-control" asp-for="AdminNote" rows="3" placeholder="Người học không thấy ghi chú này"></textarea>
                 </div>
@@ -156,7 +165,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" asp-for="SendResult" />
                             <label class="form-check-label small" asp-for="SendResult">Gửi email báo kết quả cho người học</label>
-                            <div class="form-text">Theo mẫu của trạng thái vừa chọn (thư duyệt có lịch học và link phòng học). Chọn "Mới" thì không gửi gì.</div>
+                            <div class="form-text">Theo mẫu của trạng thái vừa chọn (thư duyệt có lịch học, link phòng học và link vào trang học viên). Chọn "Mới" thì không gửi gì.</div>
                         </div>
                     }
                     <button type="submit" class="btn btn-brand"><i class="bi bi-save me-1"></i>Lưu</button>

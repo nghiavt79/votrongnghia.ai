@@ -1,0 +1,49 @@
+@page "/hoc-vien/dang-nhap"
+@model VoTrongNghia.Pages.HocVien.DangNhapModel
+@{
+    ViewData["Title"] = "Đăng nhập học viên";
+    ViewData["Description"] = "Trang học viên lớp online: xem lịch học, link phòng học và tiến độ các khóa.";
+    ViewData["NoIndex"] = true;
+}
+
+<main class="page">
+    <div class="container learner-auth">
+        <div class="card">
+            <h1 class="page-title">👤 Trang học viên</h1>
+
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <p class="form-note">@Model.Message</p>
+            }
+
+            @if (Model.SentTo is not null)
+            {
+                <p>Nếu <strong>@Model.SentTo</strong> là email học viên lớp online, link đăng nhập vừa được gửi tới hộp thư đó.</p>
+                <ul class="muted">
+                    <li>Link dùng được một lần, hết hạn sau @((int)LoginLinkService.ShortLifetime.TotalMinutes) phút.</li>
+                    <li>Không thấy thư sau vài phút? Xem thử mục <strong>Spam</strong> / <strong>Quảng cáo</strong>.</li>
+                    <li>Vẫn không có: kiểm lại đúng email bạn đã dùng khi đăng ký lớp, hoặc nhắn mình.</li>
+                </ul>
+                <a class="btn btn-ghost" href="/hoc-vien/dang-nhap">Nhập email khác</a>
+            }
+            else
+            {
+                <p>Dành cho bạn <strong>đã được nhận vào lớp online</strong>: xem lịch học, link phòng học và tiến độ học — trên máy nào cũng giữ được tiến độ.</p>
+                <p class="muted">Không có mật khẩu: nhập email bạn đã dùng khi đăng ký lớp, mình gửi link đăng nhập vào hộp thư.</p>
+                <form method="post" class="signup-form">
+                    <fieldset>
+                        <label>Email
+                            <input type="email" name="Email" value="@Model.Email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="ban@gmail.com" />
+                            @if (Model.Error is not null)
+                            {
+                                <small class="field-error">@Model.Error</small>
+                            }
+                        </label>
+                        <button type="submit" class="btn btn-primary">✉️ Gửi link đăng nhập</button>
+                    </fieldset>
+                </form>
+                <p class="muted learner-auth-foot">Bạn đang học các khóa miễn phí? Không cần tài khoản — <a href="/khoa-hoc">học tiếp ở đây</a>, tiến độ lưu ngay trên trình duyệt của bạn.</p>
+            }
+        </div>
+    </div>
+</main>

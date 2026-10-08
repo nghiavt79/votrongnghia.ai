@@ -10,8 +10,16 @@
 *@
 @inject SiteContent Content
 @inject IConfiguration Configuration
+@inject LearnerSession Learners
 @{
     var site = await Content.Site.ReadAsync();
+
+    // Học viên đã đăng nhập: tên trên header, và tiến độ trên máy chủ + mã chống giả cho site.js
+    // (đồng bộ tiến độ trên máy với tài khoản). Người học tự do không có gì thêm.
+    var learner = await Learners.CurrentAsync(Context);
+    var learnerData = learner is null
+        ? null
+        : System.Text.Json.JsonSerializer.Serialize(new { id = learner.Id, token = Learners.RequestToken(learner), tienDo = learner.Progress.Keys });
     var baseUrl = (Configuration["Site:BaseUrl"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}").TrimEnd('/');
     var canonical = baseUrl + (ViewData["Canonical"] as string ?? Context.Request.Path.Value);
     var title = ViewData["Title"] as string;
@@ -78,12 +86,16 @@
     </script>
     @await RenderSectionAsync("Head", required: false)
 </head>
-<body>
+<body data-hoc-vien="@learnerData">
     <header class="header">
         <div class="container header-top">
             <a href="/" class="brand"><img src="/@site.Avatar" alt="" /><span>@site.Name</span></a>
             <div class="header-actions">
                 <button class="icon-btn" id="themeToggle" aria-label="Đổi giao diện sáng/tối">🌙</button>
+                @if (learner is not null)
+                {
+                    <a class="btn btn-ghost btn-learner" href="/hoc-vien" title="Trang học viên">👤 @EmailTemplates.FirstName(learner.Name)</a>
+                }
                 @if (site.Youtube.Length > 0)
                 {
                     <a class="btn btn-youtube" href="@site.Youtube" target="_blank" rel="noopener">▶ Đăng ký kênh</a>
@@ -115,6 +127,7 @@
                 <a href="/#hoc-online">Học online</a>
                 <a href="/bai-viet">Bài viết</a>
                 <a href="/ai-templates">AI Templates</a>
+                <a href="/hoc-vien">Trang học viên</a>
             </div>
             <div>
                 <h4>Kết nối</h4>

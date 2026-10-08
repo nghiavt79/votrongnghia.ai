@@ -217,6 +217,35 @@
                         <div class="col-12"><label class="form-label small" asp-for="Input.BankOwner">Chủ tài khoản</label><input class="form-control form-control-sm" asp-for="Input.BankOwner" /></div>
                         <div class="col-12"><label class="form-label small" asp-for="Input.Paypal">Link PayPal</label><input class="form-control form-control-sm" asp-for="Input.Paypal" placeholder="https://paypal.me/…" /></div>
                     </div>
+                    @if (Model.Input.BankNumber.Length > 0)
+                    {
+                        @* Mã QR tự dựng từ ngân hàng + số tài khoản (Services/VietQr.cs). Ảnh lấy theo bản ĐÃ LƯU. *@
+                        if (VietQr.FindBank(Model.Input.BankName) is { } bank)
+                        {
+                            <div class="d-flex gap-3 align-items-center mt-3 p-2 border rounded">
+                                @if (Model.Input.ShowDonate)
+                                {
+                                    <img src="/ung-ho/qr.svg" width="96" height="96" alt="Mã QR chuyển khoản" class="flex-shrink-0" />
+                                }
+                                <div class="small">
+                                    <div class="text-success"><i class="bi bi-qr-code me-1"></i>Mục Ủng hộ có mã QR chuyển khoản (<strong>@bank.Name</strong>).</div>
+                                    @if (Model.Input.ShowDonate)
+                                    {
+                                        <a href="/ung-ho/qr.png?tai=1" download><i class="bi bi-download me-1"></i>Tải ảnh QR để gửi qua Zalo / Facebook</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-body-secondary">Bật mục Ủng hộ và Lưu để xem, tải mã.</span>
+                                    }
+                                    <div class="form-text">Quét thử bằng app ngân hàng của bạn: phải hiện đúng tên chủ tài khoản.</div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-text text-warning-emphasis mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Chưa nhận ra ngân hàng "@Model.Input.BankName" nên chưa có mã QR (số tài khoản vẫn hiện). Gõ một trong: @VietQr.SupportedBanks.</div>
+                        }
+                    }
                 </div>
             </div>
 

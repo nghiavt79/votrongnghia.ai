@@ -10,6 +10,9 @@
   <ItemGroup>
     <!-- Soạn bài viết / bài học bằng Markdown. BSD-2, không kéo thêm gì. Cùng bản với Dokma. -->
     <PackageReference Include="Markdig" Version="1.4.0" />
+    <!-- Vẽ mã QR chuyển khoản (VietQR) cho mục Ủng hộ, ngay trên máy chủ — không gọi dịch vụ
+         ngoài, không gửi số tài khoản đi đâu. MIT, không kéo thêm gì. -->
+    <PackageReference Include="QRCoder" Version="1.6.0" />
     <!-- Xử lý ảnh tải lên qua /cms. Nhánh 2.x còn giấy phép Apache-2.0; bản 3.x chuyển sang
          Six Labors Split License. Cùng bản với Dokma và kimthyland. -->
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
@@ -45,6 +48,8 @@
     <Content Update="Data\admin.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\email.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\thong-ke.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\hoc-vien.json" CopyToPublishDirectory="Never" />
+    <Content Update="Data\dang-nhap.json" CopyToPublishDirectory="Never" />
     <Content Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <None Update="Data\keys\**" CopyToPublishDirectory="Never" />
     <Content Update="Data\backups\**" CopyToPublishDirectory="Never" />

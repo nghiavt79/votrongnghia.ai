@@ -13,9 +13,11 @@ public class IndexModel : PageModel
     private readonly ContentPaths _paths;
     private readonly EmailSender _email;
     private readonly LessonStatsStore _stats;
+    private readonly LearnerStore _learners;
 
-    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths, EmailSender email, LessonStatsStore stats)
+    public IndexModel(SiteContent content, RegistrationStore registrations, ContentPaths paths, EmailSender email, LessonStatsStore stats, LearnerStore learners)
     {
+        _learners = learners;
         _stats = stats;
         _content = content;
         _registrations = registrations;
@@ -40,6 +42,10 @@ public class IndexModel : PageModel
     public int StartedThisMonth { get; private set; }
     public int GateFinishedThisMonth { get; private set; }
     public string GateCourseTitle { get; private set; } = string.Empty;
+
+    /// <summary>Học viên đang học, và số người trong đó lâu không học (cần nhắc).</summary>
+    public int ActiveLearners { get; private set; }
+    public int IdleLearners { get; private set; }
 
     /// <summary>Một việc còn thiếu: câu mô tả, trang /cms để làm, có bắt buộc trước khi mở đăng ký không.</summary>
     public sealed record Todo(string Text, string Page, bool Important);
@@ -78,6 +84,10 @@ public class IndexModel : PageModel
             GateFinishedThisMonth = Count(gate, gate.Lessons[^1], true);
         }
         Upcoming = live.Upcoming(SiteTime.Today).ToList();
+
+        var learners = await _learners.Learners.ReadAsync(cancellationToken);
+        ActiveLearners = learners.Count(item => item.Status == Learner.StatusActive);
+        IdleLearners = learners.Count(LearnerStore.IsIdle);
 
         // Việc cần làm, máy tự đọc từ dữ liệu. Làm xong thì dòng đó tự biến mất.
         var todos = new List<Todo>();
@@ -128,6 +138,18 @@ public class IndexModel : PageModel
         if (expired > 0)
         {
             todos.Add(new($"{expired} đơn đăng ký quá {RegistrationStore.RetentionMonths} tháng — chính sách dữ liệu cam kết ẩn danh hoá.", "/Admin/DangKy/Index", true));
+        }
+
+        var expiredLearners = learners.Count(LearnerStore.IsExpired);
+
+        if (expiredLearners > 0)
+        {
+            todos.Add(new($"{expiredLearners} học viên không hoạt động quá {RegistrationStore.RetentionMonths} tháng — chính sách dữ liệu cam kết ẩn danh hoá.", "/Admin/HocVien/Index", true));
+        }
+
+        if (IdleLearners > 0)
+        {
+            todos.Add(new($"{IdleLearners} học viên không học quá {LearnerStore.IdleDays} ngày — gửi thư nhắc.", "/Admin/HocVien/Index", false));
         }
 
         var unframed = courses.Sum(course => course.Lessons.Count(lesson => !lesson.HasFramework));

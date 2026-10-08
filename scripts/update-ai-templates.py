@@ -61,6 +61,35 @@ def main():
     for k in missing[:20]:
         print("  -", k)
 
+    check_groups(items)
+
+
+def check_groups(items):
+    """Trang xếp mẫu theo nhóm việc (TPL_GROUPS trong ai-templates-vi.js). Danh mục mới chưa xếp vào
+    nhóm nào thì rơi vào nhóm "Khác" — báo ra để thêm tay; mẫu chọn sẵn bị gỡ khỏi thư viện cũng báo."""
+    import re
+
+    js = (Path(__file__).resolve().parent.parent / "wwwroot" / "assets" / "js" / "ai-templates-vi.js").read_text(encoding="utf-8")
+    grouped = set()
+    for cats in re.findall(r"cats: \[([^\]]*)\]", js):
+        grouped.update(re.findall(r'"([^"]+)"', cats))
+
+    counts = {}
+    for i in items:
+        if i["c"] not in grouped:
+            counts[i["c"]] = counts.get(i["c"], 0) + 1
+    if counts:
+        print(f"Danh mục chưa xếp vào nhóm việc nào (đang hiện ở nhóm \"Khác\"): {len(counts)}")
+        for c, n in sorted(counts.items(), key=lambda kv: -kv[1]):
+            print(f"  - {c} ({n} mẫu)")
+
+    keys = {f"{i['t']}/{i['p']}" for i in items}
+    gone = [k for k in re.findall(r'key: "([^"]+)"', js) if k not in keys]
+    if gone:
+        print("Mẫu chọn sẵn (TPL_STARTERS) không còn trong thư viện, đang tự ẩn:")
+        for k in gone:
+            print("  -", k)
+
 
 if __name__ == "__main__":
     main()

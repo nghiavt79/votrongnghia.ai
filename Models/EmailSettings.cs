@@ -55,13 +55,14 @@ public sealed class EmailSettings
     public string OwnerAddress => NotifyAddress.Length > 0 ? NotifyAddress : GmailAddress;
 }
 
-/// <summary>Một lần gửi email gắn với một đơn đăng ký, hiện ở trang chi tiết đơn.</summary>
+/// <summary>Một lần gửi email gắn với một đơn đăng ký hoặc một học viên, hiện ở trang chi tiết.</summary>
 public sealed class EmailLogEntry
 {
     public const string KindReceipt = "xac-nhan";
     public const string KindOwner = "bao-don-moi";
     public const string KindResult = "ket-qua";
     public const string KindCustom = "tu-soan";
+    public const string KindLogin = "dang-nhap";
 
     public DateTimeOffset At { get; set; }
     public string Kind { get; set; } = string.Empty;
@@ -76,6 +77,7 @@ public sealed class EmailLogEntry
         KindReceipt => "Xác nhận đã nhận đơn",
         KindOwner => "Báo bạn có đơn mới",
         KindResult => "Báo kết quả",
+        KindLogin => "Link đăng nhập",
         _ => "Thư tự soạn"
     };
 }

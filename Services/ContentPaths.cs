@@ -38,6 +38,12 @@ public sealed class ContentPaths
     /// <summary>Thống kê ẩn danh lượt mở bài / học xong. Ngoài git, ngoài bản publish, không có seed.</summary>
     public string StatsFile => Path.Combine(DataDirectory, "thong-ke.json");
 
+    /// <summary>Học viên lớp online: email, tên, điện thoại, tiến độ. Ngoài git, ngoài bản publish, không có seed.</summary>
+    public string LearnersFile => Path.Combine(DataDirectory, "hoc-vien.json");
+
+    /// <summary>Link đăng nhập học viên đang chờ dùng (chỉ băm). Ngoài git, ngoài bản publish, không có seed.</summary>
+    public string LoginTokensFile => Path.Combine(DataDirectory, "dang-nhap.json");
+
     /// <summary>Cấu hình SMTP (mật khẩu đã mã hoá). Ngoài git, ngoài bản publish, không có seed.</summary>
     public string EmailFile => Path.Combine(DataDirectory, "email.json");
 

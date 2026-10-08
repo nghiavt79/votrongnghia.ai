@@ -15,6 +15,12 @@ builder.Services.AddRazorPages(options =>
     // là trang đó mở toang, còn quên ở đây thì không trang nào vào được.
     options.Conventions.AuthorizeFolder("/Admin");
     options.Conventions.AllowAnonymousToPage("/Admin/DangNhap");
+
+    // Trang học viên: cùng cách khai, nhưng theo chính sách chỉ nhận cookie học viên — cookie
+    // quản trị không mở được /hoc-vien, cookie học viên không mở được /cms.
+    options.Conventions.AuthorizeFolder("/HocVien", LearnerSession.Policy);
+    options.Conventions.AllowAnonymousToPage("/HocVien/DangNhap");
+    options.Conventions.AllowAnonymousToPage("/HocVien/Vao");
 })
 .AddMvcOptions(options =>
 {
@@ -33,6 +39,9 @@ builder.Services.AddSingleton<EmailQueue>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<EmailQueue>());
 builder.Services.AddSingleton<LessonStatsStore>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<LessonStatsStore>());
+builder.Services.AddSingleton<LearnerStore>();
+builder.Services.AddSingleton<LoginLinkService>();
+builder.Services.AddSingleton<LearnerSession>();
 
 // Khoá ký cookie đăng nhập và mã chống giả form lưu ra Data/keys. Không lưu thì trên IIS
 // (app pool không nạp hồ sơ người dùng) khoá chỉ sống trong bộ nhớ: mỗi lần app pool khởi
@@ -80,9 +89,45 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             }
         };
+    })
+    // Cookie học viên: scheme riêng, không phải mặc định — xem LearnerSession. 60 ngày, tự gia hạn
+    // khi còn vào học: người học trên điện thoại không phải xin link mỗi tuần.
+    .AddCookie(LearnerSession.Scheme, options =>
+    {
+        options.LoginPath = "/hoc-vien/dang-nhap";
+        options.AccessDeniedPath = "/hoc-vien/dang-nhap";
+        options.Cookie.Name = LearnerSession.CookieName;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromDays(60);
+        options.SlidingExpiration = true;
+
+        // Học viên bị xoá, bị khoá, bị ẩn danh hoá (khoá và ẩn danh hoá đều đổi dấu bảo mật) thì
+        // cookie đang có ở mọi máy bị từ chối ngay ở request kế tiếp.
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var learners = context.HttpContext.RequestServices.GetRequiredService<LearnerStore>();
+            var learner = await learners.FindAsync(context.Principal?.FindFirst(LearnerSession.IdClaim)?.Value, context.HttpContext.RequestAborted);
+            var stamp = context.Principal?.FindFirst(LearnerSession.StampClaim)?.Value;
+
+            if (learner is null || learner.Status == VoTrongNghia.Models.Learner.StatusLocked ||
+                !string.Equals(stamp, learner.SecurityStamp, StringComparison.Ordinal))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(LearnerSession.Scheme);
+            }
+        };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(LearnerSession.Policy, policy => policy
+        .AddAuthenticationSchemes(LearnerSession.Scheme)
+        .RequireAuthenticatedUser());
+});
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -112,6 +157,21 @@ builder.Services.AddRateLimiter(options =>
         RateLimitPartition.GetFixedWindowLimiter(
             context.Connection.RemoteIpAddress?.ToString() ?? "khong-ro",
             _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+
+    // Trang xin link đăng nhập học viên và trang dùng link: đếm theo IP, chỉ lần gửi form.
+    // Giới hạn theo email (3 link / 15 phút) nằm ở LoginLinkService.
+    options.AddPolicy("hoc-vien", context =>
+        !HttpMethods.IsPost(context.Request.Method)
+            ? RateLimitPartition.GetNoLimiter("mo-trang")
+            : RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "khong-ro",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(15), QueueLimit = 0 }));
+
+    // Học viên đánh dấu / bỏ đánh dấu bài: người thật bấm vài chục lần một buổi.
+    options.AddPolicy("hoc-vien-api", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "khong-ro",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 120, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
 
     options.OnRejected = async (context, cancellationToken) =>
     {
@@ -245,10 +305,36 @@ app.MapPost("/api/tien-do", async (HttpContext context, SiteContent content, Les
     .RequireRateLimiting("tien-do")
     .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(1024));
 
-// robots.txt: cho index hết, trừ trang quản trị. Khai luôn sitemap.
+app.MapLearnerApi();
+
+// Mã QR chuyển khoản của mục Ủng hộ (VietQr), dựng từ thông tin ở /cms/thong-tin. Tắt mục Ủng hộ,
+// thiếu số tài khoản hay không nhận ra ngân hàng thì 404. no-cache: đổi tài khoản là khách thấy mã mới.
+// ?tai=1 → tải file về (để gửi qua Zalo / Facebook) thay vì mở xem.
+app.MapGet("/ung-ho/qr.{kieu:regex(^(svg|png)$)}", async (string kieu, string? tai, HttpContext context, SiteContent content) =>
+{
+    var site = await content.Site.ReadAsync(context.RequestAborted);
+
+    if (!site.ShowDonate || VietQr.Payload(site) is not { } payload)
+    {
+        return Results.NotFound();
+    }
+
+    context.Response.Headers.CacheControl = "no-cache";
+
+    if (tai == "1")
+    {
+        context.Response.Headers.ContentDisposition = $"attachment; filename=\"ung-ho-votrongnghia-qr.{kieu}\"";
+    }
+
+    return kieu == "svg"
+        ? Results.Content(VietQr.Svg(payload), "image/svg+xml")
+        : Results.File(VietQr.Png(payload), "image/png");
+});
+
+// robots.txt: cho index hết, trừ trang quản trị và trang học viên. Khai luôn sitemap.
 app.MapGet("/robots.txt", (IConfiguration configuration) =>
     Results.Text(
-        $"User-agent: *\nDisallow: /cms\nSitemap: {(configuration["Site:BaseUrl"] ?? "").TrimEnd('/')}/sitemap.xml\n",
+        $"User-agent: *\nDisallow: /cms\nDisallow: /hoc-vien\nSitemap: {(configuration["Site:BaseUrl"] ?? "").TrimEnd('/')}/sitemap.xml\n",
         "text/plain"));
 
 // Sitemap: chỉ trang đang hiện với khách (bài, khóa học đã đăng). lastmod lấy từ mốc sửa

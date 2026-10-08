@@ -66,8 +66,12 @@ public static class EmailTemplates
     /// <summary>
     /// Thư báo kết quả theo trạng thái hiện tại của đơn. Null khi trạng thái là "Mới" (chưa có
     /// gì để báo).
+    ///
+    /// <para>Thư duyệt có thêm phần trang học viên: <paramref name="loginUrl"/> là link đăng nhập dùng
+    /// một lần (hạn 7 ngày); null (bản nháp, thư soạn bằng ứng dụng email) thì chỉ dẫn tới trang đăng
+    /// nhập — bản nháp không được mang link thật, mở trang chi tiết đơn không được sinh mã.</para>
     /// </summary>
-    public static EmailMessage? Result(Registration item, LiveSession? session, string siteName, string baseUrl, string? replyTo)
+    public static EmailMessage? Result(Registration item, LiveSession? session, string siteName, string baseUrl, string? replyTo, string? loginUrl = null)
     {
         var first = FirstName(item.Name);
         var body = new StringBuilder().AppendLine($"Chào {first},").AppendLine();
@@ -93,6 +97,19 @@ public static class EmailTemplates
                 else
                 {
                     body.AppendLine("Mình sẽ gửi lịch và link vào lớp ngay khi chốt buổi học đầu tiên.");
+                }
+
+                body.AppendLine()
+                    .AppendLine("Bạn có trang học viên riêng — xem lịch học, link phòng học và tiến độ các khóa, học trên máy nào cũng giữ được tiến độ:");
+
+                if (loginUrl is not null)
+                {
+                    body.AppendLine(loginUrl)
+                        .AppendLine($"Link trên đăng nhập luôn, dùng được một lần trong {LoginLinkService.LongLifetime.Days} ngày. Lần sau vào {baseUrl}/hoc-vien/dang-nhap và nhập email này để nhận link mới.");
+                }
+                else
+                {
+                    body.AppendLine($"{baseUrl}/hoc-vien/dang-nhap — nhập email này, mình gửi link đăng nhập (không cần mật khẩu).");
                 }
 
                 body.AppendLine()
@@ -124,5 +141,48 @@ public static class EmailTemplates
         body.AppendLine().AppendLine(siteName).AppendLine(baseUrl);
 
         return new EmailMessage(item.Email, subject, body.ToString(), replyTo);
+    }
+
+    /// <summary>Thư mang link đăng nhập trang học viên.</summary>
+    public static EmailMessage LoginLink(Learner learner, string loginUrl, TimeSpan lifetime, string siteName, string baseUrl, string? replyTo)
+    {
+        var expires = lifetime.TotalDays >= 1 ? $"{lifetime.TotalDays:0} ngày" : $"{lifetime.TotalMinutes:0} phút";
+
+        var body = new StringBuilder()
+            .AppendLine($"Chào {FirstName(learner.Name)},")
+            .AppendLine()
+            .AppendLine("Bấm link dưới đây để vào trang học viên:")
+            .AppendLine(loginUrl)
+            .AppendLine()
+            .AppendLine($"Link dùng được một lần và hết hạn sau {expires}. Cần vào lại thì xin link mới ở {baseUrl}/hoc-vien/dang-nhap.")
+            .AppendLine()
+            .AppendLine("Nếu bạn không yêu cầu đăng nhập, cứ bỏ qua thư này — không ai vào được tài khoản của bạn nếu không có link trên.")
+            .AppendLine()
+            .AppendLine(siteName)
+            .AppendLine(baseUrl);
+
+        return new EmailMessage(learner.Email, $"[{siteName}] Link đăng nhập trang học viên", body.ToString(), replyTo);
+    }
+
+    /// <summary>Thư nhắc học viên lâu không học — chỉ là bản nháp điền sẵn ở /cms/hoc-vien, người quản trị sửa rồi mới gửi.</summary>
+    public static EmailMessage Reminder(Learner learner, string nextLesson, string siteName, string baseUrl, string? replyTo)
+    {
+        var body = new StringBuilder()
+            .AppendLine($"Chào {FirstName(learner.Name)},")
+            .AppendLine()
+            .AppendLine("Mấy hôm nay mình chưa thấy bạn vào học. Bạn có gặp khó ở bài nào không? Cứ trả lời thư này, mình gỡ cùng bạn.")
+            .AppendLine();
+
+        if (nextLesson.Length > 0)
+        {
+            body.AppendLine("Bài tiếp theo của bạn:").AppendLine(nextLesson).AppendLine();
+        }
+
+        body.AppendLine("Mỗi ngày 15 phút là đủ để giữ nhịp. Hẹn gặp bạn ở lớp!")
+            .AppendLine()
+            .AppendLine(siteName)
+            .AppendLine(baseUrl);
+
+        return new EmailMessage(learner.Email, $"[{siteName}] {FirstName(learner.Name)} ơi, học tiếp nhé", body.ToString(), replyTo);
     }
 }

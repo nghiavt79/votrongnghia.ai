@@ -116,7 +116,8 @@ powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1
 ```
 
 Script chỉ đọc (GET): trang chủ, canonical, header bảo mật (CSP, HSTS), http → https, robots.txt,
-sitemap, một bài viết (JSON-LD), một bài học, `/dang-ky`, `/ai-templates` và nén, `/cms`, trang 404.
+sitemap, một bài viết (JSON-LD), một bài học, `/dang-ky`, `/ai-templates` và nén, `/cms`, trang học
+viên (`/hoc-vien` chưa đăng nhập phải chuyển sang trang đăng nhập, link đăng nhập sai bị từ chối), trang 404.
 `[HONG]` là phải sửa; `[XEM]` thường là việc còn thiếu trong `/cms` (email liên hệ…).
 
 Thử ở máy trước khi deploy:
@@ -129,9 +130,11 @@ powershell -ExecutionPolicy Bypass -File scripts\kiem-tra-site.ps1 -BaseUrl http
 
 - `D:\sites\votrongnghia\Data\` (trừ `keys\`) và `wwwroot\uploads\` — sao lưu hằng ngày bằng lịch
   của máy chủ. Bản sao lưu tự động trong `Data\backups\` chỉ có JSON, không có ảnh.
-  `registrations.json` có họ tên, email, số điện thoại người học: không gửi qua kênh công khai.
+  `registrations.json` và `hoc-vien.json` có họ tên, email, số điện thoại người học: không gửi qua
+  kênh công khai. `dang-nhap.json` (link đăng nhập đang chờ, chỉ băm, hết hạn sau vài phút) không cần sao lưu.
 - `Data\keys\` **không** chép sang máy khác: khoá được mã hoá theo máy, sang máy mới thì vô dụng.
-  Máy mới tự tạo khoá mới, chỉ phải đăng nhập lại — và **nhập lại mật khẩu ứng dụng Gmail** ở
-  `/cms/email` (mật khẩu trong `email.json` mã hoá bằng khoá cũ, máy mới không đọc được).
+  Máy mới tự tạo khoá mới, chỉ phải đăng nhập lại — học viên cũng phải xin link đăng nhập lại — và
+  **nhập lại mật khẩu ứng dụng Gmail** ở `/cms/email` (mật khẩu trong `email.json` mã hoá bằng khoá
+  cũ, máy mới không đọc được).
 - Nút **Tải bản sao lưu nội dung** ở `/cms/tong-quan` lấy nội dung (không có đơn đăng ký) để chép
   về `Data\seed\` trong repo khi muốn seed phản ánh dữ liệu thật.

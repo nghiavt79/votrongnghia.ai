@@ -1,11 +1,11 @@
 @page "/chinh-sach-du-lieu"
 @inject SiteContent SiteData
 @{
-    // Trang chỉ ghi đúng những gì site đang thật sự làm. Thêm tính năng thu dữ liệu mới (tài khoản
-    // học viên, công cụ đo lường…) thì phải sửa trang này cùng lúc, và đổi ngày cập nhật bên dưới.
+    // Trang chỉ ghi đúng những gì site đang thật sự làm. Thêm tính năng thu dữ liệu mới (công cụ đo
+    // lường, tài khoản cho người học tự do…) thì phải sửa trang này cùng lúc, và đổi ngày cập nhật bên dưới.
     // Thời hạn giữ đơn lấy từ RegistrationStore.RetentionMonths để hai bên không lệch nhau.
     ViewData["Title"] = "Chính sách dữ liệu";
-    ViewData["Description"] = "Trang thu thập những dữ liệu gì, để làm gì, giữ bao lâu, và cách bạn yêu cầu xoá.";
+    ViewData["Description"] = "Trang thu thập những dữ liệu gì, để làm gì, giữ bao lâu, và cách bạn yêu cầu xoá — kể cả với tài khoản học viên lớp online.";
     var site = await SiteData.Site.ReadAsync();
     const string updated = "08/10/2026";
 }
@@ -33,14 +33,26 @@
                 <h2>2. Khi bạn đăng ký lớp học online</h2>
                 <p>Form đăng ký hỏi: họ tên, email, số điện thoại / Zalo, nghề nghiệp, mức bạn đang dùng AI, mục tiêu học, việc bạn muốn làm ra, số giờ tự học mỗi tuần, buổi muốn tham gia, và bản cam kết của bạn.</p>
                 <ul>
-                    <li><strong>Dùng để làm gì:</strong> xét duyệt đơn, liên lạc với bạn về lớp học (báo kết quả, gửi lịch và link vào lớp). Không dùng cho việc gì khác.</li>
+                    <li><strong>Dùng để làm gì:</strong> xét duyệt đơn, liên lạc với bạn về lớp học (báo kết quả, gửi lịch và link vào lớp), và tạo tài khoản học viên khi đơn được duyệt (mục 3). Không dùng cho việc gì khác.</li>
                     <li><strong>Ai được xem:</strong> chỉ mình — người quản lý trang. Mình <strong>không bán, không cho, không chia sẻ</strong> thông tin của bạn với ai.</li>
                     <li><strong>Lưu ở đâu:</strong> trên máy chủ của trang, không công khai ở bất cứ đâu.</li>
                     <li><strong>Email:</strong> thư xác nhận và thư báo kết quả được gửi qua Gmail, nên đi qua máy chủ của Google như mọi thư Gmail khác.</li>
                     <li><strong>Giữ bao lâu:</strong> tối đa <strong>@RegistrationStore.RetentionMonths tháng</strong> kể từ lần cuối đơn được cập nhật. Sau đó họ tên, email, số điện thoại và câu trả lời của bạn bị xoá; chỉ còn lại con số thống kê (ví dụ "đợt tháng 10 có 30 đơn") không cho biết ai là ai.</li>
                 </ul>
 
-                <h2>3. Dịch vụ bên ngoài trang có dùng</h2>
+                <h2>3. Khi bạn là học viên lớp online (trang học viên)</h2>
+                <p>Khi mình duyệt đơn của bạn, trang tạo cho bạn một <strong>tài khoản học viên</strong> từ họ tên, email, số điện thoại trong đơn. Người học các khóa miễn phí không có tài khoản, và không ai tự tạo được tài khoản.</p>
+                <ul>
+                    <li><strong>Không có mật khẩu:</strong> bạn đăng nhập bằng link mình gửi vào email. Link dùng được một lần và có hạn; máy chủ chỉ giữ dạng mã hoá một chiều của link, không giữ link.</li>
+                    <li><strong>Lưu thêm gì:</strong> bài nào bạn đã đánh dấu học xong và <strong>lúc nào</strong>, lần gần nhất bạn vào học, các thư đã gửi riêng cho bạn (link đăng nhập, thư nhắc học). Lần đầu đăng nhập, những bài bạn đã đánh dấu trên trình duyệt trước đó được gộp lên tài khoản.</li>
+                    <li><strong>Cookie:</strong> một cookie đăng nhập (<code>@LearnerSession.CookieName</code>) giữ bạn đăng nhập tối đa 60 ngày trên trình duyệt đó. Chỉ để biết bạn là học viên nào — không theo dõi bạn ở trang khác. Bấm "Đăng xuất" là xoá.</li>
+                    <li><strong>Dùng để làm gì:</strong> để bạn học trên máy nào cũng giữ được tiến độ, xem lịch và link phòng học; để mình biết bạn đang theo lớp tới đâu và nhắc khi bạn lâu không học.</li>
+                    <li><strong>Ai được xem:</strong> chỉ bạn (ở trang học viên) và mình.</li>
+                    <li><strong>Giữ bao lâu:</strong> tài khoản không hoạt động quá <strong>@RegistrationStore.RetentionMonths tháng</strong> thì họ tên, email, số điện thoại bị xoá và tài khoản bị khoá; chỉ còn lại tiến độ học không cho biết ai là ai.</li>
+                    <li><strong>Tự xoá:</strong> ở trang học viên có nút <strong>Xoá tài khoản</strong> — xoá hẳn tài khoản và tiến độ ngay lập tức. Đơn đăng ký của bạn vẫn giữ theo mục 2; muốn xoá cả đơn thì nhắn mình.</li>
+                </ul>
+
+                <h2>4. Dịch vụ bên ngoài trang có dùng</h2>
                 <ul>
                     <li><strong>Google Fonts</strong>: tải phông chữ, trình duyệt của bạn kết nối tới máy chủ Google để lấy phông.</li>
                     <li><strong>YouTube</strong> (nếu bài có video): dùng chế độ <em>youtube-nocookie</em> — chỉ tải khi bạn bấm phát.</li>
@@ -48,7 +60,7 @@
                     <li><strong>Nút chia sẻ Facebook / Zalo</strong>: chỉ mở Facebook hay Zalo khi bạn bấm.</li>
                 </ul>
 
-                <h2>4. Quyền của bạn</h2>
+                <h2>5. Quyền của bạn</h2>
                 <p>Bạn có quyền hỏi mình đang giữ thông tin gì của bạn, yêu cầu sửa, hoặc <strong>yêu cầu xoá hẳn</strong> — kể cả khi chưa hết @RegistrationStore.RetentionMonths tháng. Mình xử lý trong vòng 7 ngày và báo lại cho bạn.</p>
                 <p>Liên hệ:
                     @if (site.Email.Length > 0)
@@ -69,8 +81,8 @@
                     }
                 </p>
 
-                <h2>5. Khi chính sách thay đổi</h2>
-                <p>Nếu sau này trang thu thêm dữ liệu (ví dụ tài khoản học viên), mình sẽ cập nhật trang này <strong>trước</strong> khi bắt đầu, và ghi rõ ngày cập nhật ở đầu trang.</p>
+                <h2>6. Khi chính sách thay đổi</h2>
+                <p>Nếu sau này trang thu thêm dữ liệu (ví dụ công cụ đo lường, hay tài khoản cho cả người học tự do), mình sẽ cập nhật trang này <strong>trước</strong> khi bắt đầu, và ghi rõ ngày cập nhật ở đầu trang.</p>
             </div>
         </article>
     </div>

@@ -105,3 +105,55 @@ const CAT_VI = {
   "web-tools": "Công cụ web",
   "workflow-automation": "Tự động hóa quy trình",
 };
+
+// Nhóm việc — trục chính của trang: người học tìm theo việc mình cần làm, không theo loại kỹ thuật
+// (Skill / Agent / MCP…) như thư viện gốc. Mỗi danh mục gốc thuộc đúng một nhóm; danh mục mới chưa
+// xếp vào đâu sẽ rơi vào nhóm "Khác" — thêm vào đây khi chạy update-ai-templates.py thấy danh mục lạ.
+const TPL_GROUPS = [
+  { id: "van-phong", icon: "📄", name: "Văn phòng & tài liệu", hint: "Word, Excel, PDF, slide, email, CV, họp hành",
+    cats: ["document-processing", "enterprise-communication", "productivity", "google-workspace", "career", "project-management", "team", "obsidian-ops-team"] },
+  { id: "kinh-doanh", icon: "📈", name: "Kinh doanh & marketing", hint: "Nội dung bán hàng, SEO, tài chính, vận hành",
+    cats: ["business-marketing", "marketing", "finance", "operations", "simulation", "open-banking-io", "sports", "curviate", "doordash"] },
+  { id: "sang-tao", icon: "🎨", name: "Thiết kế & sáng tạo", hint: "Giao diện, hình ảnh, video, âm thanh, podcast",
+    cats: ["creative-design", "design", "ui", "ui-analysis", "media", "video", "audio", "podcast-creator-team", "ffmpeg-clip-team", "accessibility"] },
+  { id: "nghien-cuu", icon: "🔬", name: "Nghiên cứu & dữ liệu", hint: "Tìm tài liệu, phân tích số liệu, viết prompt",
+    cats: ["scientific", "ai-research", "data-ai", "deep-research-team", "deepresearch", "research", "analytics", "analysis", "web-data", "ocr-extraction-team"] },
+  { id: "lap-trinh", icon: "💻", name: "Lập trình & làm web", hint: "Viết code, làm web, app, cơ sở dữ liệu",
+    cats: ["development", "web-development", "web", "web-tools", "nextjs-vercel", "svelte", "frameworks", "languages", "programming-languages",
+      "development-team", "development-tools", "devtools", "utilities", "game-development", "api-graphql", "realtime", "pocketbase", "railway",
+      "blockchain-web3", "modernization", "database", "expert-advisors", "git", "deepgraph", "filesystem", "mcp-dev-team", "ai-specialists", "documentation"] },
+  { id: "chat-luong", icon: "🛡️", name: "Bảo mật & kiểm thử", hint: "Rà lỗi bảo mật, kiểm thử, đo hiệu năng",
+    cats: ["security", "testing", "performance", "performance-testing", "quality-gates", "monitoring", "sentry", "observability"] },
+  { id: "tu-dong", icon: "⚙️", name: "Tự động hóa & vận hành", hint: "Quy trình tự chạy, n8n, Zapier, triển khai",
+    cats: ["automation", "workflow-automation", "devops-infrastructure", "deployment", "git-workflow", "browser_automation", "orchestration",
+      "engineering", "evaluation", "integration", "integrations", "ai-maestro", "azure", "sync"] },
+  { id: "claude-code", icon: "🧰", name: "Tùy chỉnh Claude Code", hint: "Thanh trạng thái, quyền hạn, hook, trò chơi",
+    cats: ["statusline", "setup", "global", "permissions", "environment", "api", "mcp", "telemetry", "model", "hooks", "post-tool", "pre-tool",
+      "cleanup", "authentication", "partnerships", "enterprise", "games"] },
+];
+
+// "Bắt đầu từ đây": mẫu chọn sẵn cho người mới — việc văn phòng hằng ngày, cài một lệnh là dùng.
+// Khoá là "loại/đường dẫn" như trong ai-templates.json; mẫu nào bị gỡ khỏi thư viện thì tự ẩn.
+const TPL_STARTERS = [
+  { key: "skills/document-processing/docx", use: "Soạn hợp đồng, báo cáo, công văn ra thẳng file Word trình bày đẹp." },
+  { key: "skills/document-processing/xlsx", use: "Đưa file Excel lộn xộn để làm sạch, thêm cột, tính tổng, vẽ biểu đồ." },
+  { key: "skills/document-processing/pptx", use: "Từ một dàn ý thành bộ slide PowerPoint để thuyết trình." },
+  { key: "skills/document-processing/pdf", use: "Gộp, tách file PDF, lấy chữ và bảng ra khỏi PDF." },
+  { key: "skills/enterprise-communication/email-composer", use: "Soạn email gửi khách hàng, sếp, đối tác đúng giọng, đúng ý." },
+  { key: "skills/productivity/humanizer", use: "Sửa bài AI viết cho tự nhiên như người thật viết." },
+  { key: "skills/business-marketing/copywriting", use: "Viết nội dung bán hàng, trang giới thiệu sản phẩm thuyết phục hơn." },
+  { key: "skills/creative-design/frontend-design", use: "Làm trang web có cá tính riêng, không na ná mọi trang khác." },
+];
+
+// Giải thích từng loại bằng lời thường, cho hộp "Nên chọn loại nào?".
+const TPL_TYPE_HELP = {
+  skills: "Dạy Claude làm giỏi một việc. Dễ dùng nhất — người mới nên bắt đầu từ đây.",
+  commands: "Gõ /tên-lệnh để chạy ngay một quy trình làm sẵn.",
+  agents: "Một \"chuyên gia\" riêng mà Claude giao việc cho, mỗi trợ lý giỏi một mảng.",
+  mcps: "Nối Claude với dịch vụ bên ngoài: Notion, Google Drive, GitHub, trình duyệt…",
+  hooks: "Tự chạy một việc vào lúc nhất định, ví dụ định dạng code sau mỗi lần sửa.",
+  settings: "Cấu hình sẵn cho Claude Code: quyền hạn, mô hình, thanh trạng thái.",
+  loops: "Quy trình nhiều bước tự lặp, ví dụ một AI viết, một AI khác soát.",
+  mods: "Tiện ích đổi giao diện hoặc thêm trò vui cho Claude Code.",
+  templates: "Bộ cấu hình khởi đầu cho cả một dự án theo ngôn ngữ / framework.",
+};

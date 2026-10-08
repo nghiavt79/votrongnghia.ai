@@ -1,7 +1,14 @@
 # Kế hoạch theo dõi tiến độ học và tài khoản học viên — votrongnghia.vn
 
-> Trạng thái (08/10/2026): **giai đoạn 1 đã lên code** cùng trang `/chinh-sach-du-lieu` (giữ đơn 12
-> tháng, có nút ẩn danh hoá) — xem `CHANGELOG.md`. Giai đoạn 2 chờ chốt câu hỏi 1, 2, 4 ở mục 7.
+> Trạng thái (08/10/2026): **giai đoạn 1 và 2 đã lên code** — xem `CHANGELOG.md`. Đã chốt: câu 1
+> **không** làm điểm danh / bài tập (bỏ GĐ3); câu 2 phương án **A**; câu 4 **có** hiện link phòng học ở
+> trang học viên; câu 6 tạm theo đề xuất 12 tháng. Còn mở: câu 3 (người học tự do tự tạo tài khoản),
+> câu 5 (nhắc tự động — GĐ4; hiện có thư nhắc soạn tay ở `/cms/hoc-vien`).
+>
+> Khác với bản dự kiến: mở link đăng nhập chỉ hiện nút xác nhận, bấm mới dùng mã (máy quét thư hay mở
+> trước link); API tiến độ dùng mã chống giả riêng thay antiforgery của ASP.NET (xem CLAUDE.md, điều
+> dễ vấp 9); mục "Trang công khai thêm" chỉ hiện tên học viên ở header khi đã đăng nhập, người chưa
+> đăng nhập thấy link "Trang học viên" ở chân trang — không thêm nút vào header làm rối người học tự do.
 
 ---
 

@@ -1,6 +1,6 @@
 // Trang khóa học và bài học: tiến độ học lưu trên trình duyệt của người học (readProgress /
-// writeProgress ở site.js). Máy chủ dựng sẵn danh sách bài; file này chỉ tô dấu ✓, thanh tiến
-// độ, nút "Học tiếp" và nút "Đánh dấu đã học".
+// writeProgress ở site.js); học viên đã đăng nhập thì ghi thêm lên máy chủ. Máy chủ dựng sẵn danh
+// sách bài; file này chỉ tô dấu ✓, thanh tiến độ, nút "Học tiếp" và nút "Đánh dấu đã học".
 (function () {
   const main = $("main[data-course]");
   if (!main) return;
@@ -63,13 +63,30 @@
 
   if (currentKey) sendStat(currentKey, "mo");
 
-  $("#markDone")?.addEventListener("click", () => {
+  $("#markDone")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
     const progress = readProgress();
-    if (progress[currentKey]) delete progress[currentKey]; else progress[currentKey] = true;
+    const done = !progress[currentKey];
+
+    // Học viên đã đăng nhập: ghi lên máy chủ trước, được rồi mới đổi trên máy — không để hai bên lệch.
+    if (LEARNER) {
+      const [khoa, bai] = currentKey.split("/");
+      btn.disabled = true;
+      let ok = false;
+      try { ok = (await learnerPost("/api/hoc-vien/tien-do", { khoa, bai, xong: done })).ok; } catch (err) {}
+      btn.disabled = false;
+      if (!ok) {
+        btn.textContent = "Chưa lưu được — tải lại trang rồi thử lại";
+        return;
+      }
+    }
+
+    if (done) progress[currentKey] = true; else delete progress[currentKey];
     writeProgress(progress);
-    if (progress[currentKey]) sendStat(currentKey, "xong");
+    if (done) sendStat(currentKey, "xong");
     render();
   });
 
+  document.addEventListener("progress-sync", render);
   render();
 })();

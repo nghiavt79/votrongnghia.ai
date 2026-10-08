@@ -12,17 +12,25 @@ namespace VoTrongNghia.Pages.Admin.DangKy;
 /// mẫu (<see cref="EmailTemplates.Result"/>), hoặc soạn thư tuỳ ý rồi gửi. Gửi ngay trong
 /// request chứ không qua hàng đợi: người duyệt cần thấy gửi được hay lỗi ngay tại chỗ. Chưa
 /// thiết lập thì vẫn còn nút mở ứng dụng email của người duyệt với nội dung soạn sẵn.</para>
+///
+/// <para>Duyệt đơn là tạo tài khoản học viên (hoặc gắn đơn vào tài khoản cùng email đã có), và thư
+/// báo duyệt mang link đăng nhập trang học viên hạn 7 ngày.</para>
 /// </summary>
 public class ChiTietModel : PageModel
 {
     private readonly RegistrationStore _registrations;
     private readonly SiteContent _content;
     private readonly EmailSender _email;
+    private readonly LearnerStore _learners;
+    private readonly LoginLinkService _links;
     private readonly string _baseUrl;
     private readonly ILogger<ChiTietModel> _logger;
 
-    public ChiTietModel(RegistrationStore registrations, SiteContent content, EmailSender email, IConfiguration configuration, ILogger<ChiTietModel> logger)
+    public ChiTietModel(RegistrationStore registrations, SiteContent content, EmailSender email, LearnerStore learners,
+        LoginLinkService links, IConfiguration configuration, ILogger<ChiTietModel> logger)
     {
+        _learners = learners;
+        _links = links;
         _registrations = registrations;
         _content = content;
         _email = email;
@@ -38,6 +46,9 @@ public class ChiTietModel : PageModel
 
     /// <summary>Đơn khác cùng email hoặc số điện thoại (đăng ký buổi khác, hoặc từng bị từ chối).</summary>
     public IReadOnlyList<Registration> Others { get; private set; } = [];
+
+    /// <summary>Tài khoản học viên cùng email, nếu có.</summary>
+    public Learner? Learner { get; private set; }
 
     public string SiteName { get; private set; } = string.Empty;
     public EmailSettings EmailSettings { get; private set; } = new();
@@ -111,7 +122,21 @@ public class ChiTietModel : PageModel
 
         await LoadAsync(ma, cancellationToken);
 
-        if (SendResult && EmailReady && EmailTemplates.Result(Item, Session, SiteName, _baseUrl, EmailSettings.OwnerAddress) is { } result)
+        string? loginUrl = null;
+
+        if (Status == Registration.StatusApproved)
+        {
+            var learner = await _learners.EnsureForRegistrationAsync(Item, cancellationToken);
+
+            // Mã đăng nhập chỉ sinh khi thật sự gửi thư — mỗi lần bấm Lưu không để lại một mã thừa.
+            if (SendResult && EmailReady && learner.Status != Models.Learner.StatusLocked &&
+                await _links.CreateAsync(learner.Id, LoginLinkService.LongLifetime, limitRequests: false, cancellationToken) is { } token)
+            {
+                loginUrl = LoginLinkService.Url(_baseUrl, token);
+            }
+        }
+
+        if (SendResult && EmailReady && EmailTemplates.Result(Item, Session, SiteName, _baseUrl, EmailSettings.OwnerAddress, loginUrl) is { } result)
         {
             var error = await SendAndLogAsync(result, EmailLogEntry.KindResult, cancellationToken);
 
@@ -249,6 +274,7 @@ public class ChiTietModel : PageModel
         Others = all
             .Where(entry => entry.Code != item.Code && (entry.Email == item.Email || entry.Phone == item.Phone))
             .ToList();
+        Learner = await _learners.FindByEmailAsync(item.Email, cancellationToken);
 
         return true;
     }

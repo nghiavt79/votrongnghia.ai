@@ -1,0 +1,118 @@
+@page "/hoc-vien"
+@model VoTrongNghia.Pages.HocVien.IndexModel
+@{
+    var learner = Model.Learner;
+    ViewData["Title"] = "Trang học viên";
+    ViewData["NoIndex"] = true;
+}
+
+@* data-reload-on-sync: lần đầu đăng nhập, site.js gộp tiến độ trên máy lên tài khoản rồi tải lại trang để số ở đây khớp. *@
+<main class="page" data-reload-on-sync>
+    <div class="container learner-home">
+        <nav class="breadcrumb"><a href="/">Trang chủ</a> / <span>Trang học viên</span></nav>
+
+        <div class="learner-head">
+            <div>
+                <h1 class="page-title">Chào @EmailTemplates.FirstName(learner.Name) 👋</h1>
+                <p class="muted">@learner.Email · học viên từ @SiteTime.Day(learner.CreatedAt)</p>
+            </div>
+            <form method="post" asp-page-handler="DangXuat">
+                <button type="submit" class="btn btn-ghost">Đăng xuất</button>
+            </form>
+        </div>
+
+        @if (Model.Error is not null)
+        {
+            <p class="form-error">@Model.Error</p>
+        }
+
+        <h2>📅 Buổi học của bạn</h2>
+        @if (Model.Sessions.Count == 0)
+        {
+            <div class="card learner-empty">
+                <p class="muted">@(Model.WaitingForSchedule
+                    ? "Bạn đã được nhận vào lớp. Lịch buổi học chưa chốt — mình sẽ báo qua email ngay khi có."
+                    : "Chưa có buổi học nào. Khi có lịch mới, mình sẽ báo qua email.")</p>
+            </div>
+        }
+        else
+        {
+            <div class="live-list learner-sessions">
+                @foreach (var item in Model.Sessions)
+                {
+                    var session = item.Session;
+                    <div class="card live-item @(item.IsPast ? "is-past" : "")">
+                        @if (session is not null)
+                        {
+                            <div class="live-date"><strong>@session.Date.Day</strong><span>Th@(session.Date.Month)</span></div>
+                            <div class="live-info">
+                                <h3>@session.Title</h3>
+                                <p>🕗 @session.Date.ToString("dd/MM/yyyy") · @session.Time · @session.Platform</p>
+                                @if (item.IsPast)
+                                {
+                                    <p>Buổi này đã qua.</p>
+                                }
+                                else if (session.MeetingLink.Length == 0)
+                                {
+                                    <p>Link phòng học mình sẽ gửi trước buổi học.</p>
+                                }
+                                else
+                                {
+                                    <p>Link chỉ dành cho bạn — đừng chia sẻ công khai giúp mình nhé.</p>
+                                }
+                            </div>
+                            @if (!item.IsPast && session.MeetingLink.Length > 0)
+                            {
+                                <a class="btn btn-primary" href="@session.MeetingLink" target="_blank" rel="noopener noreferrer">Vào phòng học →</a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="live-info">
+                                <h3>@item.Registration.SessionLabel</h3>
+                                <p>Buổi này đã được dời khỏi lịch — mình sẽ báo bạn lịch mới qua email.</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <h2>📚 Tiến độ học</h2>
+        <p class="muted">Lưu trên tài khoản: học trên điện thoại hay máy tính đều thấy cùng tiến độ.</p>
+        <div class="grid grid-2">
+            @foreach (var item in Model.Courses)
+            {
+                var course = item.Course;
+                <div class="card learner-course">
+                    <span class="level">Cấp độ @course.Level</span>
+                    <h3><a href="@course.PublicUrl">@course.Title</a></h3>
+                    <div class="progress"><div class="progress-bar" style="width:@item.Percent%"></div></div>
+                    <span class="muted">Đã học @item.Done/@course.Lessons.Count bài (@item.Percent%)</span>
+                    <div>
+                        @if (item.Next is { } next)
+                        {
+                            <a class="btn @(item.Done > 0 ? "btn-primary" : "btn-ghost")" href="@course.LessonUrl(next)">@(item.Done > 0 ? "▶ Học tiếp" : "Bắt đầu học")</a>
+                        }
+                        else
+                        {
+                            <span class="learner-done">✓ Đã học xong</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <details class="card learner-delete">
+            <summary>Xoá tài khoản học viên</summary>
+            <p>Xoá hẳn tài khoản và tiến độ học của bạn khỏi máy chủ. Không khôi phục được.</p>
+            <p class="muted">Đơn đăng ký lớp vẫn được giữ theo <a href="/chinh-sach-du-lieu">chính sách dữ liệu</a> (tối đa @RegistrationStore.RetentionMonths tháng). Muốn xoá cả đơn, nhắn mình.</p>
+            <form method="post" asp-page-handler="XoaTaiKhoan" class="signup-form">
+                <fieldset>
+                    <label class="check"><input type="checkbox" name="confirm" value="true" /> Mình hiểu tài khoản và tiến độ học sẽ bị xoá hẳn.</label>
+                    <button type="submit" class="btn btn-ghost">Xoá tài khoản</button>
+                </fieldset>
+            </form>
+        </details>
+    </div>
+</main>

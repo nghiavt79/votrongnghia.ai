@@ -14,11 +14,11 @@
   "linkedin": "",
   "x": "",
   "threads": "",
-  "bankName": "",
-  "bankNumber": "",
-  "bankOwner": "",
+  "bankName": "Vietcombank",
+  "bankNumber": "0071002020694",
+  "bankOwner": "VO TRONG NGHIA",
   "paypal": "",
-  "donate": false,
+  "donate": true,
   "story": [
     {
       "icon": "💻",

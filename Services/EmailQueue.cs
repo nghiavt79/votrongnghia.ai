@@ -16,7 +16,7 @@ namespace VoTrongNghia.Services;
 /// </summary>
 public sealed class EmailQueue : BackgroundService
 {
-    private sealed record Item(EmailMessage Message, string Kind, string? RegistrationCode);
+    private sealed record Item(EmailMessage Message, string Kind, string? RegistrationCode, string? LearnerId);
 
     // Có giới hạn để một đợt gửi rác không ăn hết bộ nhớ; đầy thì bỏ thư mới, ghi log.
     private readonly Channel<Item> _channel = Channel.CreateBounded<Item>(new BoundedChannelOptions(500)
@@ -31,15 +31,16 @@ public sealed class EmailQueue : BackgroundService
     public EmailQueue(EmailSender sender, IServiceProvider services, ILogger<EmailQueue> logger)
     {
         _sender = sender;
-        // Lấy RegistrationStore lúc cần chứ không nhận qua hàm dựng: RegistrationStore cũng
+        // Lấy RegistrationStore / LearnerStore lúc cần chứ không nhận qua hàm dựng: RegistrationStore cũng
         // dùng hàng đợi này, nhận qua hàm dựng cả hai phía là vòng lặp phụ thuộc.
         _services = services;
         _logger = logger;
     }
 
-    public void Enqueue(EmailMessage message, string kind, string? registrationCode)
+    /// <summary>Xếp một thư. Kết quả ghi vào lịch sử của đơn (<paramref name="registrationCode"/>) hoặc của học viên (<paramref name="learnerId"/>).</summary>
+    public void Enqueue(EmailMessage message, string kind, string? registrationCode, string? learnerId = null)
     {
-        if (!_channel.Writer.TryWrite(new Item(message, kind, registrationCode)))
+        if (!_channel.Writer.TryWrite(new Item(message, kind, registrationCode, learnerId)))
         {
             _logger.LogError("Hàng đợi email đầy, bỏ thư \"{Subject}\" tới {To}", message.Subject, message.To);
         }
@@ -66,16 +67,23 @@ public sealed class EmailQueue : BackgroundService
                 error = "Gửi email lỗi: " + ex.Message;
             }
 
+            var entry = new EmailLogEntry
+            {
+                At = SiteTime.Now,
+                Kind = item.Kind,
+                To = item.Message.To,
+                Subject = item.Message.Subject,
+                Error = error
+            };
+
             if (item.RegistrationCode is not null)
             {
-                await _services.GetRequiredService<RegistrationStore>().LogEmailAsync(item.RegistrationCode, new EmailLogEntry
-                {
-                    At = SiteTime.Now,
-                    Kind = item.Kind,
-                    To = item.Message.To,
-                    Subject = item.Message.Subject,
-                    Error = error
-                }, stoppingToken);
+                await _services.GetRequiredService<RegistrationStore>().LogEmailAsync(item.RegistrationCode, entry, stoppingToken);
+            }
+
+            if (item.LearnerId is not null)
+            {
+                await _services.GetRequiredService<LearnerStore>().LogEmailAsync(item.LearnerId, entry, stoppingToken);
             }
 
             // Giãn nhịp một chút: Gmail không ưa một tài khoản bắn thư dồn dập.

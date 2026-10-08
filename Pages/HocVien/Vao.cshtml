@@ -1,0 +1,36 @@
+@page "/hoc-vien/vao"
+@model VoTrongNghia.Pages.HocVien.VaoModel
+@{
+    ViewData["Title"] = "Vào trang học viên";
+    ViewData["NoIndex"] = true;
+    // Không để lộ mã trên URL qua thanh địa chỉ dùng chung / link chia sẻ.
+    ViewData["Canonical"] = "/hoc-vien/dang-nhap";
+}
+
+@section Head {
+    @* URL trang này mang mã đăng nhập: không gửi nó sang máy chủ khác (Google Fonts) qua Referer. *@
+    <meta name="referrer" content="no-referrer" />
+}
+
+<main class="page">
+    <div class="container learner-auth">
+        <div class="card">
+            @if (Model.Learner is { } learner)
+            {
+                <h1 class="page-title">👋 Chào @EmailTemplates.FirstName(learner.Name)!</h1>
+                <p>Bấm nút dưới đây để vào trang học viên của bạn.</p>
+                <form method="post">
+                    <input type="hidden" name="ma" value="@Model.Code" />
+                    <button type="submit" class="btn btn-primary">Vào trang học viên →</button>
+                </form>
+                <p class="muted learner-auth-foot">Bạn sẽ được giữ đăng nhập trên trình duyệt này 60 ngày. Máy dùng chung thì nhớ đăng xuất khi học xong.</p>
+            }
+            else
+            {
+                <h1 class="page-title">Link đăng nhập không còn dùng được</h1>
+                <p>Link đã hết hạn, đã được dùng rồi, hoặc bị chép thiếu. Mỗi link chỉ dùng được một lần.</p>
+                <a class="btn btn-primary" href="/hoc-vien/dang-nhap">✉️ Xin link mới</a>
+            }
+        </div>
+    </div>
+</main>
